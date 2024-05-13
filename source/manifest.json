@@ -1,0 +1,24 @@
+{
+  "icons": [
+    {
+      "src": "./assets/Marigold-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "./assets/Marigold-384x384.png",
+      "type": "image/png",
+      "sizes": "384x384"
+    },
+    {
+      "src": "./assets/Marigold-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+      "src": "./assets/Marigold-1024x1024.png",
+      "type": "image/png",
+      "sizes": "1024x1024"
+    }
+  ]
+}

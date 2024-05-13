@@ -1,0 +1,432 @@
+<!--
+Copyright (C) 2024 Gregory Teicher
+
+Author: Gregory Teicher
+
+This file is part of Marigold.
+
+Marigold is free software: you can redistribute it and/or modify it under the terms of the
+GNU General Public License as published by the Free Software Foundation, either version 3
+of the License, or (at your option) any later version.
+
+Marigold is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with Marigold.
+If not, see <https://www.gnu.org/licenses/>.
+-->
+
+<div class="section-left-side">
+  <div class="inner-workflow-card">
+    <div class="inner-workflow-card-row-top">
+      <button id="close-model-button" class="header-button header-button-icon-only">
+        <svg aria-hidden="true" class="icon">
+          <use href="#close" />
+        </svg>
+      </button>
+      <h2 id="model-header-heading" class="inner-workflow-card-heading">…</h2>
+    </div>
+
+    <div class="inner-workflow-card-row-bottom">
+      <button id="save-model-button" class="header-button header-button-icon-only">
+        <svg aria-hidden="true" class="icon">
+          <use href="#save" />
+        </svg>
+      </button>
+      <div id="model-header-status" class="inner-workflow-card-blurb">…</div>
+    </div>
+
+    <!-- <div id="training-dataset-setup-container" class="inner-workflow-card-container"> -->
+    <div id="training-dataset-setup-button-divider" class="inner-workflow-card-divider"></div>
+    <button id="training-dataset-setup-button" class="inner-workflow-top-button">
+      <!-- Dataset setup -->
+      Configure dataset
+      <svg aria-hidden="true" class="icon">
+        <use href="#chevron-right" />
+      </svg>
+    </button>
+    <!-- </div> -->
+
+    <!-- <div id="training-neural-network-setup-container" class="inner-workflow-card-container"> -->
+    <div id="training-neural-network-setup-button-divider" class="inner-workflow-card-divider"></div>
+    <button id="training-neural-network-setup-button" class="inner-workflow-top-button">
+      <!-- Neural network setup -->
+      <!-- Training setup -->
+      Configure neural network
+      <svg aria-hidden="true" class="icon">
+        <use href="#chevron-right" />
+      </svg>
+    </button>
+    <!-- </div> -->
+
+    <!-- <div id="training-training-process-container" class="inner-workflow-card-container"> -->
+    <div id="training-training-process-button-divider" class="inner-workflow-card-divider"></div>
+    <button id="training-training-process-button" class="inner-workflow-bottom-button">
+      <!-- Training process -->
+      Train neural network
+      <svg aria-hidden="true" class="icon">
+        <use href="#chevron-right" />
+      </svg>
+    </button>
+    <!-- </div> -->
+  </div>
+
+
+  <div id="training-dataset-setup-inner-section-left-side-1" class="inner-section-left-side">
+    <button id="load-dataset-button" class="generic-button">Import dataset</button>
+    <label for="training-dataset-split-input">
+      Training/validation set ratio
+    </label>
+    <input id="training-dataset-split-input" type="number" value="0.75" disabled>
+    <!-- <button id="reshuffle-dataset-button" class="generic-button">Reshuffle</button> -->
+    <label for="training-seed-input">
+      Random seed
+    </label>
+    <input id="training-seed-input" type="number" min="0" max="1000000" value="12345">
+  </div>
+
+
+  <div id="training-dataset-setup-inner-section-left-side-2" class="inner-section-left-side">
+    <p class="training-status">
+      Random horizontal flips
+    </p>
+    <input id="horizontal-flip-checkbox" type="checkbox" checked>
+    <p class="training-status">
+      Random vertical flips
+    </p>
+    <input id="vertical-flip-checkbox" type="checkbox" checked>
+  </div>
+
+
+  <div id="training-neural-network-setup-inner-section-left-side-1" class="inner-workflow-card">
+    <h2 class="inner-workflow-card-heading-alt">Maximum input size</h2>
+    <div class="inner-workflow-card-blurb-alt">
+      The maximum width and height to which all input images will be resized before feeding to the neural network,
+      while maintaining their original aspect ratio.
+      Generally, a smaller input size is acceptable for tracking a single keypoint or when the animal is large
+      relative to the arena. A larger input size is preferable when tracking multiple keypoints or when the animal
+      is small relative to the arena, but will be slower.
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="max-input-size-input-1" name="max-input-size" value="96">
+      <label for="max-input-size-input-1" class="inner-workflow-radio-label">96 × 96</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="max-input-size-input-2" name="max-input-size" value="128">
+      <label for="max-input-size-input-2" class="inner-workflow-radio-label">128 × 128</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="max-input-size-input-3" name="max-input-size" value="160">
+      <label for="max-input-size-input-3" class="inner-workflow-radio-label">160 × 160</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="max-input-size-input-4" name="max-input-size" value="192">
+      <label for="max-input-size-input-4" class="inner-workflow-radio-label">192 × 192</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="max-input-size-input-5" name="max-input-size" value="224">
+      <label for="max-input-size-input-5" class="inner-workflow-radio-label">224 × 224</label>
+      <!-- <input type="radio" id="max-input-size-input-5" name="max-input-size" value="256">
+      <label for="max-input-size-input-5" class="inner-workflow-radio-label">256 × 256</label> -->
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="max-input-size-input-6" name="max-input-size" value="320">
+      <label for="max-input-size-input-6" class="inner-workflow-radio-label">320 × 320</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="max-input-size-input-7" name="max-input-size" value="384" checked>
+      <label for="max-input-size-input-7" class="inner-workflow-radio-label">384 × 384 (default)</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="max-input-size-input-8" name="max-input-size" value="448">
+      <label for="max-input-size-input-8" class="inner-workflow-radio-label">448 × 448</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="max-input-size-input-9" name="max-input-size" value="512">
+      <label for="max-input-size-input-9" class="inner-workflow-radio-label">512 × 512</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="max-input-size-input-10" name="max-input-size" value="640">
+      <label for="max-input-size-input-10" class="inner-workflow-radio-label">640 × 640</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="max-input-size-input-11" name="max-input-size" value="768">
+      <label for="max-input-size-input-11" class="inner-workflow-radio-label">768 × 768</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="max-input-size-input-12" name="max-input-size" value="896">
+      <label for="max-input-size-input-12" class="inner-workflow-radio-label">896 × 896</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="max-input-size-input-13" name="max-input-size" value="1024">
+      <label for="max-input-size-input-13" class="inner-workflow-radio-label">1024 × 1024</label>
+    </div>
+  </div>
+
+
+  <div id="training-neural-network-setup-inner-section-left-side-2" class="inner-workflow-card">
+    <h2 class="inner-workflow-card-heading-alt">Number of channels</h2>
+    <div class="inner-workflow-card-blurb-alt">
+      The channel capacity of the neural network. Generally should be no less than twice the number of keypoints. A
+      smaller capacity
+      will
+      result in a very fast network, but may not provide sufficient accuracy.
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="channels-per-keypoint-input-1" name="channels-per-keypoint" value="8">
+      <label for="channels-per-keypoint-input-1" class="inner-workflow-radio-label">8</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="channels-per-keypoint-input-2" name="channels-per-keypoint" value="12">
+      <label for="channels-per-keypoint-input-2" class="inner-workflow-radio-label">12</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="channels-per-keypoint-input-3" name="channels-per-keypoint" value="16" checked>
+      <label for="channels-per-keypoint-input-3" class="inner-workflow-radio-label">16 (default)</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="channels-per-keypoint-input-4" name="channels-per-keypoint" value="20">
+      <label for="channels-per-keypoint-input-4" class="inner-workflow-radio-label">20</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="channels-per-keypoint-input-5" name="channels-per-keypoint" value="24">
+      <label for="channels-per-keypoint-input-5" class="inner-workflow-radio-label">24</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="channels-per-keypoint-input-6" name="channels-per-keypoint" value="28">
+      <label for="channels-per-keypoint-input-6" class="inner-workflow-radio-label">28</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="channels-per-keypoint-input-7" name="channels-per-keypoint" value="32">
+      <label for="channels-per-keypoint-input-7" class="inner-workflow-radio-label">32</label>
+    </div>
+  </div>
+
+
+  <div id="training-neural-network-setup-inner-section-left-side-3" class="inner-workflow-card">
+    <h2 class="inner-workflow-card-heading-alt">Number of blocks</h2>
+    <div class="inner-workflow-card-blurb-alt">
+      The number of MarigoldNet blocks through which data will flow within the neural network. Fewer blocks
+      provides a shorter path through the network and is thus faster. More blocks gives the network more freedom
+      to learn complex transformations of the data from input to output, but may make learning less efficient.
+      The default setting is generally a safe choice.
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="block-count-input-1" name="block-count" value="4">
+      <label for="block-count-input-1" class="inner-workflow-radio-label">4</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="block-count-input-2" name="block-count" value="6">
+      <label for="block-count-input-2" class="inner-workflow-radio-label">6</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="block-count-input-3" name="block-count" value="8" checked>
+      <label for="block-count-input-3" class="inner-workflow-radio-label">8 (default)</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="block-count-input-4" name="block-count" value="10">
+      <label for="block-count-input-4" class="inner-workflow-radio-label">10</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="block-count-input-5" name="block-count" value="12">
+      <label for="block-count-input-5" class="inner-workflow-radio-label">12</label>
+    </div>
+  </div>
+
+
+  <div id="training-neural-network-setup-inner-section-left-side-4" class="inner-workflow-card">
+    <h2 class="inner-workflow-card-heading-alt">Batch size</h2>
+    <div class="inner-workflow-card-blurb-alt">
+      The number of images that will be fed to the neural network before each learning consolidation step. A
+      smaller batch size leads to more rapid learning, but may be less stable.
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="batch-size-input-1" name="batch-size" value="2">
+      <label for="batch-size-input-1" class="inner-workflow-radio-label">2</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="batch-size-input-2" name="batch-size" value="4">
+      <label for="batch-size-input-2" class="inner-workflow-radio-label">4</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="batch-size-input-3" name="batch-size" value="8" checked>
+      <label for="batch-size-input-3" class="inner-workflow-radio-label">8 (default)</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="batch-size-input-4" name="batch-size" value="16">
+      <label for="batch-size-input-4" class="inner-workflow-radio-label">16</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="batch-size-input-5" name="batch-size" value="32">
+      <label for="batch-size-input-5" class="inner-workflow-radio-label">32</label>
+    </div>
+  </div>
+
+
+  <div id="training-neural-network-setup-inner-section-left-side-5" class="inner-workflow-card">
+    <h2 class="inner-workflow-card-heading-alt">Learning rate</h2>
+    <div class="inner-workflow-card-blurb-alt">
+      Influences the magnitude of the learning updates.
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="learning-rate-input-1" name="learning-rate" value="0.0001">
+      <label for="learning-rate-input-1" class="inner-workflow-radio-label">0.0001</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="learning-rate-input-2" name="learning-rate" value="0.0005">
+      <label for="learning-rate-input-2" class="inner-workflow-radio-label">0.0005</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="learning-rate-input-3" name="learning-rate" value="0.001" checked>
+      <label for="learning-rate-input-3" class="inner-workflow-radio-label">0.001 (default)</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="learning-rate-input-4" name="learning-rate" value="0.005">
+      <label for="learning-rate-input-4" class="inner-workflow-radio-label">0.005</label>
+    </div>
+
+    <div class="inner-workflow-card-divider"></div>
+    <div class="inner-workflow-card-radio-container">
+      <input type="radio" id="learning-rate-input-5" name="learning-rate" value="0.01">
+      <label for="learning-rate-input-5" class="inner-workflow-radio-label">0.01</label>
+    </div>
+  </div>
+
+
+  <div id="training-training-process-inner-section-left-side" class="inner-section-left-side">
+    <p class="training-status">
+      Maximum epochs
+    </p>
+    <input id="epochs-input" type="number" min="1" max="1000" value="500">
+
+    <button id="start-training-button" class="generic-button">Start training</button>
+    <button id="pause-training-button" class="generic-button" disabled>Pause training</button>
+  </div>
+</div>
+
+
+<div id="training-section-right-side" class="section-right-side">
+  <div id="training-dataset-setup-inner-section-right-side" class="inner-section-right-side">
+    <div id="dataset-split-area">
+      <div class="dataset-split-area-inner">
+        <p class="home-onboarding-blurb">
+          Training set
+        </p>
+        <ol id="training-indices">
+        </ol>
+      </div>
+      <div class="dataset-split-area-inner">
+        <p class="home-onboarding-blurb">
+          Validation set
+        </p>
+        <ol id="validation-indices">
+        </ol>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="training-neural-network-setup-inner-section-right-side" class="inner-section-right-side">
+  </div>
+
+
+  <div id="training-training-setup-inner-section-right-side" class="inner-section-right-side">
+  </div>
+
+
+  <div id="training-training-process-inner-section-right-side" class="inner-section-right-side">
+    <p id="epoch-status" class="training-status">
+    </p>
+    <p id="training-loss-status" class="training-status">
+    </p>
+    <p id="validation-loss-status" class="training-status">
+    </p>
+    <p id="best-training-loss-status" class="training-status">
+    </p>
+    <p id="best-validation-loss-status" class="training-status">
+    </p>
+
+    <div id="training-plot-area">
+      <svg id="training-plot" viewBox="0 0 24 24">
+      </svg>
+    </div>
+    <p class="training-status">
+      (Blue: Training; Red: Validation)
+    </p>
+
+    <canvas id="training-preview-canvas"></canvas>
+    <p id="training-preview-index-input-label" class="training-status">
+      Currently displayed validation image
+    </p>
+    <input id="training-preview-index-input" type="number" placeholder="Image number" disabled>
+  </div>
+</div>

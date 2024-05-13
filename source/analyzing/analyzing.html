@@ -1,0 +1,514 @@
+<!--
+Copyright (C) 2024 Gregory Teicher
+
+Author: Gregory Teicher
+
+This file is part of Marigold.
+
+Marigold is free software: you can redistribute it and/or modify it under the terms of the
+GNU General Public License as published by the Free Software Foundation, either version 3
+of the License, or (at your option) any later version.
+
+Marigold is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with Marigold.
+If not, see <https://www.gnu.org/licenses/>.
+-->
+
+<div class="section-left-side">
+  <div class="inner-workflow-card">
+    <div class="inner-workflow-card-row-top">
+      <button id="close-analysis-button" class="header-button header-button-icon-only">
+        <svg aria-hidden="true" class="icon">
+          <use href="#close" />
+        </svg>
+      </button>
+      <h2 id="analysis-header-heading" class="inner-workflow-card-heading">…</h2>
+    </div>
+
+    <div class="inner-workflow-card-row-bottom">
+      <button id="save-analysis-button" class="header-button header-button-icon-only">
+        <svg aria-hidden="true" class="icon">
+          <use href="#save" />
+        </svg>
+      </button>
+      <div id="analysis-header-status" class="inner-workflow-card-blurb">…</div>
+    </div>
+
+    <!-- <div class="inner-workflow-card-container"> -->
+    <div id="analyzing-calibration-button-divider" class="inner-workflow-card-divider"></div>
+    <button id="analyzing-calibration-button" class="inner-workflow-top-button">
+      <!-- Set calibration -->
+      Configure calibration
+      <!-- Calibrate scale and framerate -->
+      <svg aria-hidden="true" class="icon">
+        <use href="#chevron-right" />
+      </svg>
+    </button>
+    <!-- </div> -->
+
+    <!-- <div class="inner-workflow-card-container"> -->
+    <div id="analyzing-analysis-button-divider" class="inner-workflow-card-divider"></div>
+    <button id="analyzing-analysis-button" class="inner-workflow-top-button">
+      <!-- Analysis -->
+      <!-- Process frames -->
+      <!-- Track poses and/or locomotion -->
+      Track poses and locomotion
+      <svg aria-hidden="true" class="icon">
+        <use href="#chevron-right" />
+      </svg>
+    </button>
+    <!-- </div> -->
+
+    <!-- <div class="inner-workflow-card-container"> -->
+    <div id="analyzing-kinematics-button-divider" class="inner-workflow-card-divider"></div>
+    <button id="analyzing-kinematics-button" class="inner-workflow-bottom-button">
+      <!-- Kinematics -->
+      Export data and visualizations
+      <svg aria-hidden="true" class="icon">
+        <use href="#chevron-right" />
+      </svg>
+    </button>
+    <!-- </div> -->
+  </div>
+
+
+  <div id="analyzing-calibration-inner-section-left-side" class="inner-section-left-side">
+    <!-- <legend>
+            Calibration method
+          </legend> -->
+
+    <!-- <input type="radio" name="analyzing-calibration-method-radio-button"
+            id="analyzing-calibration-method-radio-button-1" checked>
+          <label for="analyzing-calibration-method-radio-button-1">Use arbitrary units (frames and pixels)</label>
+          <input type="radio" name="analyzing-calibration-method-radio-button"
+            id="analyzing-calibration-method-radio-button-2">
+          <label for="analyzing-calibration-method-radio-button-2">Manually enter values</label>
+          <input type="radio" name="analyzing-calibration-method-radio-button"
+            id="analyzing-calibration-method-radio-button-3">
+          <label for="analyzing-calibration-method-radio-button-3">Use a calibration movie</label> -->
+  </div>
+
+
+  <div id="analyzing-calibration-inner-section-left-side-1" class="inner-section-left-side">
+    <h2 class="inner-workflow-card-heading-alt">Temporal calibration</h2>
+    <div class="inner-workflow-card-blurb-alt">
+      The framerate at which the movie to be analyzed was recorded.
+    </div>
+
+    <p class="training-status">
+      Framerate (frames/s)
+    </p>
+    <input id="framerate-input" type="number" min="0" max="10000" value="1">
+  </div>
+
+
+  <div id="analyzing-calibration-inner-section-left-side-2" class="inner-section-left-side">
+    <h2 class="inner-workflow-card-heading-alt">Spatial calibration</h2>
+    <div class="inner-workflow-card-blurb-alt">
+      A conversion factor relating the size of a pixel to the size of a millimeter. If the factor is not known, it can
+      be determined using a movie of a
+      scalebar or other object of known size.
+    </div>
+
+    <button id="analyzing-calibration-load-movie-button" class="generic-button">Load calibration
+      movie</button>
+    <label id="analyzing-calibration-load-movie-button-label" for="analyzing-calibration-load-movie-button"></label>
+
+    <p class="training-status">
+      Scale (pixels/mm)
+    </p>
+    <input id="scale-input" type="number" min="0" max="1000" value="1">
+  </div>
+
+
+  <div id="analyzing-analysis-inner-section-left-side-1" class="inner-section-left-side">
+    <button id="analyzing-load-movie-button" class="generic-button">Load movie</button>
+    <label id="analyzing-load-movie-button-label" for="analyzing-load-movie-button"></label>
+
+    <button id="analyzing-load-model-button" class="generic-button">Load model</button>
+    <label id="analyzing-load-model-button-label" for="analyzing-load-model-button"></label>
+  </div>
+
+
+  <div id="analyzing-analysis-inner-section-left-side-2" class="inner-section-left-side">
+    <h2 class="inner-workflow-card-heading-alt">Frame selection</h2>
+    <div class="inner-workflow-card-blurb-alt">
+      Trim the movie to only analyze the frames of interest.
+    </div>
+
+    <div id="analyzing-frame-selection-details">
+      <label for="analyzing-first-frame-input">First frame</label>
+      <input id="analyzing-first-frame-input" type="number" min="0" max="1" value="0">
+
+      <label for="analyzing-last-frame-input">Last frame</label>
+      <input id="analyzing-last-frame-input" type="number" min="0" max="1" value="0">
+    </div>
+  </div>
+
+
+  <div id="analyzing-analysis-inner-section-left-side-3" class="inner-section-left-side">
+    <h2 class="inner-workflow-card-heading-alt">Arena grid</h2>
+    <div class="inner-workflow-card-blurb-alt">
+      <!-- Set the arena grid. -->
+      Set up a grid of arenas to analyze. Each arena should contain a single animal and be fully contained within the
+      bounds of the movie.
+    </div>
+
+    <div id="analyzing-arena-shape-details">
+      <input type="radio" id="arena-shape-circle" name="arena-shape" value="circle" checked>
+      <label for="arena-shape-circle">Circle</label>
+
+      <input type="radio" id="arena-shape-square" name="arena-shape" value="square">
+      <label for="arena-shape-square">Square</label>
+
+      <input type="radio" id="arena-shape-rectangle" name="arena-shape" value="rectangle">
+      <label for="arena-shape-rectangle">Rectangle</label>
+    </div>
+
+    <div id="analyzing-arena-details">
+      <label for="analyzing-arena-columns-input">Columns</label>
+      <input id="analyzing-arena-columns-input" type="number" min="0" max="10000" value="0">
+
+      <label for="analyzing-arena-rows-input">Rows</label>
+      <input id="analyzing-arena-rows-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-arena-diameter-input-label" for="analyzing-arena-diameter-input">Diameter</label>
+      <input id="analyzing-arena-diameter-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-arena-length-input-label" for="analyzing-arena-length-input">Length</label>
+      <input id="analyzing-arena-length-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-arena-width-input-label" for="analyzing-arena-width-input">Width</label>
+      <input id="analyzing-arena-width-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-arena-height-input-label" for="analyzing-arena-height-input">Height</label>
+      <input id="analyzing-arena-height-input" type="number" min="0" max="10000" value="0">
+
+      <label for="analyzing-arena-x-input">X Offset</label>
+      <input id="analyzing-arena-x-input" type="number" min="0" max="10000" value="0">
+
+      <label for="analyzing-arena-y-input">Y Offset</label>
+      <input id="analyzing-arena-y-input" type="number" min="0" max="10000" value="0">
+
+      <label for="analyzing-arena-spacing-input">Spacing</label>
+      <input id="analyzing-arena-spacing-input" type="number" min="0" max="10000" value="0">
+    </div>
+  </div>
+
+
+  <div id="analyzing-analysis-inner-section-left-side-4" class="inner-section-left-side">
+    <button id="analyzing-start-analysis-button" class="generic-button">Start analysis</button>
+    <label for="analysis-progress">Analysis progress</label>
+    <progress id="analysis-progress" value="0"></progress>
+  </div>
+
+
+  <div id="analyzing-analysis-inner-section-left-side-5" class="inner-section-left-side">
+    <button id="analyzing-start-manual-correction-button" class="generic-button">Manual correction</button>
+
+    <div id="analyzing-manual-correction-button-group" class="generic-horizontal-container">
+      <button id="analyzing-set-arena-button" class="button-group-button button-group-button-activated">Arena</button>
+      <button id="analyzing-set-keypoints-button" class="button-group-button">Keypoints</button>
+    </div>
+
+    <div id="analyzing-manual-correction-arena-details">
+      <!-- <p class="home-workflow-card-blurb">Enter the column and row that needs to be manually corrected or click on the arena.</p> -->
+
+      <label for="analyzing-manual-correction-column-input">Column</label>
+      <input id="analyzing-manual-correction-column-input" type="number" min="1" max="10000" value="0">
+
+      <label for="analyzing-manual-correction-row-input">Row</label>
+      <input id="analyzing-manual-correction-row-input" type="number" min="1" max="10000" value="0">
+    </div>
+
+    <div id="analyzing-manual-correction-keypoint-details">
+      <!-- <p class="home-workflow-card-blurb">Click on the movie frame or manually enter values to set the keypoints.</p> -->
+
+      <label id="analyzing-keypoint-0-x-input-label" for="analyzing-keypoint-0-x-input">X<sub>1</sub></label>
+      <input id="analyzing-keypoint-0-x-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-0-y-input-label" for="analyzing-keypoint-0-y-input">Y<sub>1</sub></label>
+      <input id="analyzing-keypoint-0-y-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-1-x-input-label" for="analyzing-keypoint-1-x-input">X<sub>2</sub></label>
+      <input id="analyzing-keypoint-1-x-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-1-y-input-label" for="analyzing-keypoint-1-y-input">Y<sub>2</sub></label>
+      <input id="analyzing-keypoint-1-y-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-2-x-input-label" for="analyzing-keypoint-2-x-input">X<sub>3</sub></label>
+      <input id="analyzing-keypoint-2-x-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-2-y-input-label" for="analyzing-keypoint-2-y-input">Y<sub>3</sub></label>
+      <input id="analyzing-keypoint-2-y-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-3-x-input-label" for="analyzing-keypoint-3-x-input">X<sub>4</sub></label>
+      <input id="analyzing-keypoint-3-x-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-3-y-input-label" for="analyzing-keypoint-3-y-input">Y<sub>4</sub></label>
+      <input id="analyzing-keypoint-3-y-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-4-x-input-label" for="analyzing-keypoint-4-x-input">X<sub>5</sub></label>
+      <input id="analyzing-keypoint-4-x-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-4-y-input-label" for="analyzing-keypoint-4-y-input">Y<sub>5</sub></label>
+      <input id="analyzing-keypoint-4-y-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-5-x-input-label" for="analyzing-keypoint-5-x-input">X<sub>6</sub></label>
+      <input id="analyzing-keypoint-5-x-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-5-y-input-label" for="analyzing-keypoint-5-y-input">Y<sub>6</sub></label>
+      <input id="analyzing-keypoint-5-y-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-6-x-input-label" for="analyzing-keypoint-6-x-input">X<sub>7</sub></label>
+      <input id="analyzing-keypoint-6-x-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-6-y-input-label" for="analyzing-keypoint-6-y-input">Y<sub>7</sub></label>
+      <input id="analyzing-keypoint-6-y-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-7-x-input-label" for="analyzing-keypoint-7-x-input">X<sub>8</sub></label>
+      <input id="analyzing-keypoint-7-x-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-7-y-input-label" for="analyzing-keypoint-7-y-input">Y<sub>8</sub></label>
+      <input id="analyzing-keypoint-7-y-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-8-x-input-label" for="analyzing-keypoint-8-x-input">X<sub>9</sub></label>
+      <input id="analyzing-keypoint-8-x-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-8-y-input-label" for="analyzing-keypoint-8-y-input">Y<sub>9</sub></label>
+      <input id="analyzing-keypoint-8-y-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-9-x-input-label" for="analyzing-keypoint-9-x-input">X<sub>10</sub></label>
+      <input id="analyzing-keypoint-9-x-input" type="number" min="0" max="10000" value="0">
+
+      <label id="analyzing-keypoint-9-y-input-label" for="analyzing-keypoint-9-y-input">Y<sub>10</sub></label>
+      <input id="analyzing-keypoint-9-y-input" type="number" min="0" max="10000" value="0">
+    </div>
+
+    <div id="analyzing-manual-correction-buttons" class="generic-horizontal-container">
+      <button id="analyzing-cancel-manual-correction-button" class="generic-button">Cancel</button>
+      <button id="analyzing-done-manual-correction-button" class="generic-button">Done</button>
+    </div>
+  </div>
+
+
+  <div id="analyzing-kinematics-inner-section-left-side-1" class="inner-section-left-side">
+    <h2 class="inner-workflow-card-heading-alt">Angle</h2>
+    <div class="inner-workflow-card-blurb-alt">
+      Choose the three keypoints that should be used for angle calculations. This step is optional and only makes
+      sense
+      when three or more keypoints are being tracked.
+    </div>
+
+    <div id="analyzing-angle-details">
+      <label for="analyzing-angle-a">Keypoint A</label>
+      <input id="analyzing-angle-a" type="number" min="1" max="10" value="">
+
+      <label for="analyzing-angle-b">Keypoint B</label>
+      <input id="analyzing-angle-b" type="number" min="1" max="10" value="">
+
+      <label for="analyzing-angle-c">Keypoint C</label>
+      <input id="analyzing-angle-c" type="number" min="1" max="10" value="">
+    </div>
+  </div>
+
+
+  <div id="analyzing-kinematics-inner-section-left-side-2" class="inner-section-left-side">
+    <div id="analyzing-trajectory-plot-controls">
+      <h4>Background</h4>
+
+      <!-- <label>Color</label> -->
+      <input type="radio" id="black" name="background-color" value="black" checked>
+      <label for="black">Black</label>
+
+      <input type="radio" id="white" name="background-color" value="white">
+      <label for="white">White</label>
+
+      <label for="radius-input">Border thickness</label>
+      <input type="number" id="border-thickness" name="border-thickness" min="0" max="1" value="0" step="0.1">
+
+      <h4>Foreground</h4>
+
+      <label for="colormap-select">Colormap name</label>
+      <select id="colormap-select">
+        <option selected="selected" value="viridis">Viridis (default)</option>
+        <option value="plasma">Plasma</option>
+      </select>
+
+      <input type="checkbox" id="reverse-colormap-input-checkbox">
+      <label for="reverse-colormap-input-checkbox">Reverse colormap</label>
+
+      <label for="radius-input">Radius</label>
+      <input type="number" id="radius-input" name="radius-input" min="0" max="1" value="0.3" step="0.1">
+
+      <!-- color coding by time, velocity, angle? -->
+    </div>
+
+    <button id="analyzing-export-results-button" class="generic-button">Export results</button>
+  </div>
+</div>
+
+
+<div id="analyzing-section-right-side" class="section-right-side">
+  <div id="analyzing-initial-setup-inner-section-right-side" class="inner-section-right-side">
+  </div>
+
+
+  <div id="analyzing-calibration-inner-section-right-side" class="inner-section-right-side-strict">
+    <canvas id="analyzing-calibration-movie-player-canvas" class="movie-player-canvas"></canvas>
+    <div class="generic-divider"></div>
+    <div class="movie-player-bottom">
+      <input id="analyzing-calibration-frame-range-input" type="range" min="1" max="100" value="1">
+
+      <div class="movie-player-buttons-container">
+        <div class="movie-player-buttons-left">
+          <button id="analyzing-calibration-zoom-reset-button"
+            class="header-button header-button-icon-only zoom-button">
+            <svg aria-hidden="true" class="icon">
+              <use href="#reset-zoom" />
+            </svg>
+          </button>
+          <button id="analyzing-calibration-zoom-out-button" class="header-button header-button-icon-only zoom-button">
+            <svg aria-hidden="true" class="icon">
+              <use href="#zoom-out" />
+            </svg>
+          </button>
+          <button id="analyzing-calibration-zoom-in-button" class="header-button header-button-icon-only zoom-button">
+            <svg aria-hidden="true" class="icon">
+              <use href="#zoom-in" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="movie-player-buttons-middle">
+          <button id="analyzing-calibration-first-frame-button"
+            class="header-button header-button-icon-only play-or-pause-button-alt-alt">
+            <svg aria-hidden="true" class="icon">
+              <use href="#alt-chevron-left" />
+            </svg>
+          </button>
+          <button id="analyzing-calibration-previous-frame-button"
+            class="header-button header-button-icon-only play-or-pause-button-alt">
+            <svg aria-hidden="true" class="icon">
+              <use href="#chevron-left" />
+            </svg>
+          </button>
+          <button id="analyzing-calibration-play-or-pause-button"
+            class="header-button header-button-icon-only play-or-pause-button">
+            <svg aria-hidden="true" class="icon play-icon">
+              <use href="#play" />
+            </svg>
+            <svg aria-hidden="true" class="icon pause-icon">
+              <use href="#pause" />
+            </svg>
+          </button>
+          <button id="analyzing-calibration-next-frame-button"
+            class="header-button header-button-icon-only play-or-pause-button-alt">
+            <svg aria-hidden="true" class="icon">
+              <use href="#chevron-right" />
+            </svg>
+          </button>
+          <button id="analyzing-calibration-last-frame-button"
+            class="header-button header-button-icon-only play-or-pause-button-alt-alt">
+            <svg aria-hidden="true" class="icon">
+              <use href="#alt-chevron-right" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="movie-player-buttons-right">
+          <input type="number" id="analyzing-calibration-frame-number-input" min="1" max="100" value="1">
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="analyzing-analysis-inner-section-right-side" class="inner-section-right-side-strict">
+    <canvas id="analyzing-movie-player-canvas" class="movie-player-canvas"></canvas>
+    <div class="generic-divider"></div>
+    <div class="movie-player-bottom">
+      <input id="analyzing-frame-range-input" type="range" min="1" max="100" value="1">
+
+      <div class="movie-player-buttons-container">
+        <div class="movie-player-buttons-left">
+          <button id="analyzing-zoom-reset-button" class="header-button header-button-icon-only zoom-button">
+            <svg aria-hidden="true" class="icon">
+              <use href="#reset-zoom" />
+            </svg>
+          </button>
+          <button id="analyzing-zoom-out-button" class="header-button header-button-icon-only zoom-button">
+            <svg aria-hidden="true" class="icon">
+              <use href="#zoom-out" />
+            </svg>
+          </button>
+          <button id="analyzing-zoom-in-button" class="header-button header-button-icon-only zoom-button">
+            <svg aria-hidden="true" class="icon">
+              <use href="#zoom-in" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="movie-player-buttons-middle">
+          <button id="analyzing-first-frame-button"
+            class="header-button header-button-icon-only play-or-pause-button-alt-alt">
+            <svg aria-hidden="true" class="icon">
+              <use href="#alt-chevron-left" />
+            </svg>
+          </button>
+          <button id="analyzing-previous-frame-button"
+            class="header-button header-button-icon-only play-or-pause-button-alt">
+            <svg aria-hidden="true" class="icon">
+              <use href="#chevron-left" />
+            </svg>
+          </button>
+          <button id="analyzing-play-or-pause-button"
+            class="header-button header-button-icon-only play-or-pause-button">
+            <svg aria-hidden="true" class="icon play-icon">
+              <use href="#play" />
+            </svg>
+            <svg aria-hidden="true" class="icon pause-icon">
+              <use href="#pause" />
+            </svg>
+          </button>
+          <button id="analyzing-next-frame-button"
+            class="header-button header-button-icon-only play-or-pause-button-alt">
+            <svg aria-hidden="true" class="icon">
+              <use href="#chevron-right" />
+            </svg>
+          </button>
+          <button id="analyzing-last-frame-button"
+            class="header-button header-button-icon-only play-or-pause-button-alt-alt">
+            <svg aria-hidden="true" class="icon">
+              <use href="#alt-chevron-right" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="movie-player-buttons-right">
+          <input type="number" id="analyzing-frame-number-input" min="1" max="100" value="1">
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="analyzing-kinematics-inner-section-right-side" class="inner-section-right-side-strict-trajectory-plot">
+    <!-- <div id="trajectory-plot-area"> -->
+    <!-- <div id="trajectory-plot-actual-plot-area"> -->
+    <!-- <svg class="trajectory-plot-selected" viewBox="0 0 24 24"></svg> -->
+    <!-- </div> -->
+    <!-- </div> -->
+    <div id="analyzing-trajectory-plot-details">
+      <!-- <label for="analyzing-trajectory-plot-preview-column-input">Column</label>
+      <input type="number" id="analyzing-trajectory-plot-preview-column-input" min="1" max="1000" value="1">
+      <label for="analyzing-trajectory-plot-preview-row-input">Row</label>
+      <input type="number" id="analyzing-trajectory-plot-preview-row-input" min="1" max="1000" value="1"> -->
+      <label for="analyzing-trajectory-plot-preview-keypoint-input">Keypoint</label>
+      <input type="number" id="analyzing-trajectory-plot-preview-keypoint-input" min="1" max="10" value="1">
+    </div>
+  </div>
+</div>

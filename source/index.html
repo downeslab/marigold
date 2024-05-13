@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+
+<!--
+Copyright (C) 2024 Gregory Teicher
+
+Author: Gregory Teicher
+
+This file is part of Marigold.
+
+Marigold is free software: you can redistribute it and/or modify it under the terms of the
+GNU General Public License as published by the Free Software Foundation, either version 3
+of the License, or (at your option) any later version.
+
+Marigold is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with Marigold.
+If not, see <https://www.gnu.org/licenses/>.
+-->
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <meta name="color-scheme" content="dark">
+
+  <title>Marigold</title>
+  <meta name="description" content="Zebrafish pose tracking made easier">
+  <!-- <meta name="description" content="Zebrafish pose tracking made easier."> -->
+
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
+  <link rel="icon" href="./assets/Marigold.svg" type="image/svg+xml" sizes="any">
+  <link rel="apple-touch-icon" href="./assets/Marigold-180x180.png" type="image/png" sizes="180x180">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./main.css" type="text/css">
+</head>
+
+<body>
+  <svg aria-hidden="true" width="0" height="0">
+    <defs>
+      <symbol id="new" viewBox="0 0 24 24">
+        <g transform="translate(12 12) scale(10 10)">
+          <path d="M 0 -0.5 L 1 -0.5 M 0.5 -1 L 0.5 0 M 1 0.5 L 1 1 L -1 1 L -1 -1 L -0.5 -1" fill="none"
+            stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+        </g>
+      </symbol>
+      <symbol id="open" viewBox="0 0 24 24">
+        <g transform="translate(12 12) scale(10 10)">
+          <path d="M 0 -1 L 0 0.375 M -0.5 -0.5 L 0 -1 L 0.5 -0.5 M -1 0.5 L -1 1 L 1 1 L 1 0.5" fill="none"
+            stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+        </g>
+      </symbol>
+      <symbol id="save" viewBox="0 0 24 24">
+        <g transform="translate(12 12) scale(10 10)">
+          <path d="M 0 -1 L 0 0.375 M -0.5 -0.125 L 0 0.375 L 0.5 -0.125 M -1 0.5 L -1 1 L 1 1 L 1 0.5" fill="none"
+            stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+        </g>
+      </symbol>
+      <symbol id="close" viewBox="0 0 24 24">
+        <g transform="translate(12 12) scale(10 10)">
+          <path d="M -0.75 0.75 L 0.75 -0.75 M -0.75 -0.75 L 0.75 0.75" fill="none" stroke="currentColor"
+            stroke-linecap="round" stroke-linejoin="round"></path>
+        </g>
+      </symbol>
+
+      <symbol id="chevron-up" viewBox="0 0 24 24">
+        <g transform="translate(12 12) scale(10 10)">
+          <path d="M -0.75 0.125 L 0 -0.625 L 0.75 0.125" fill="none" stroke="currentColor" stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </g>
+      </symbol>
+      <symbol id="chevron-down" viewBox="0 0 24 24">
+        <g transform="rotate(180 12 12)">
+          <use href="#chevron-up" />
+        </g>
+      </symbol>
+      <symbol id="chevron-left" viewBox="0 0 24 24">
+        <g transform="rotate(-90 12 12)">
+          <use href="#chevron-up" />
+        </g>
+      </symbol>
+      <symbol id="chevron-right" viewBox="0 0 24 24">
+        <g transform="rotate(90 12 12)">
+          <use href="#chevron-up" />
+        </g>
+      </symbol>
+
+      <symbol id="arrow-left" viewBox="0 0 24 24">
+        <g transform="translate(12 12) scale(10 10)">
+          <path d="M -0.125 0.875 L -1 0 L -0.125 -0.875 M -1 0 L 1 0" fill="none" stroke="currentColor"
+            stroke-linecap="round" stroke-linejoin="round"></path>
+        </g>
+      </symbol>
+      <symbol id="arrow-right" viewBox="0 0 24 24">
+        <g transform="rotate(180 12 12)">
+          <use href="#arrow-left" />
+        </g>
+      </symbol>
+      <symbol id="arrow-up" viewBox="0 0 24 24">
+        <g transform="rotate(90 12 12)">
+          <use href="#arrow-left" />
+        </g>
+      </symbol>
+      <symbol id="arrow-down" viewBox="0 0 24 24">
+        <g transform="rotate(270 12 12)">
+          <use href="#arrow-left" />
+        </g>
+      </symbol>
+      <symbol id="arrow-diagonal" viewBox="0 0 24 24">
+        <g transform="rotate(135 12 12)">
+          <use href="#arrow-left" />
+        </g>
+      </symbol>
+
+      <symbol id="plus" viewBox="0 0 24 24">
+        <g transform="translate(12 12) scale(10 10)">
+          <path d="M -0.625 0 L 0.625 0 M 0 -0.625 L 0 0.625" fill="none" stroke="currentColor" stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </g>
+      </symbol>
+      <symbol id="minus" viewBox="0 0 24 24">
+        <g transform="translate(12 12) scale(10 10)">
+          <path d="M -0.625 0 L 0.625 0" fill="none" stroke="currentColor" stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </g>
+      </symbol>
+
+      <symbol id="check" viewBox="0 0 24 24">
+        <g transform="translate(12 12) scale(10 10)">
+          <path d="M -0.875 0 L -0.375 0.625 L 0.875 -0.625" fill="none" stroke="currentColor" stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </g>
+      </symbol>
+
+      <symbol id="play" viewBox="0 0 24 24">
+        <g transform="translate(12 12) scale(10 10)">
+          <path d="M -0.625 -1 L -0.625 1 L 1 0 Z" fill="none" stroke="currentColor" stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </g>
+      </symbol>
+
+      <symbol id="pause" viewBox="0 0 24 24">
+        <g transform="translate(12 12) scale(10 10)">
+          <path d="M -0.5 -0.875 L -0.5 0.875 M 0.5 -0.875 L 0.5 0.875" fill="none" stroke="currentColor"
+            stroke-linecap="round" stroke-linejoin="round"></path>
+        </g>
+      </symbol>
+
+      <symbol id="reset-zoom" viewBox="0 0 24 24">
+        <g transform="translate(12 12) scale(10 10)">
+          <path
+            d="M -0.875 -0.5 L -0.875 -0.875 L -0.5 -0.875 M 0.5 -0.875 L 0.875 -0.875 L 0.875 -0.5 M 0.875 0.5 L 0.875 0.875 L 0.5 0.875 M -0.5 0.875 L -0.875 0.875 L -0.875 0.5"
+            fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round"></path>
+        </g>
+      </symbol>
+
+      <symbol id="zoom-in" viewBox="0 0 24 24">
+        <g transform="translate(12 12) scale(10 10)">
+          <circle cx="-0.125" cy="-0.125" r="0.875" fill="none" stroke="#ffffff"></circle>
+          <!-- math.cos(math.pi / 4) * 0.875 - 0.125, math.sin(math.pi / 4) * 0.875 - 0.125 -->
+          <path d="M 0.4937184335382291 0.493718433538229 L 1 1" fill="none" stroke="#ffffff" stroke-linecap="round"
+            stroke-linejoin="round"></path>
+          <path d="M -0.5 -0.125 L 0.25 -0.125 M -0.125 -0.5 L -0.125 0.25" fill="none" stroke="#ffffff"
+            stroke-linecap="square" stroke-linejoin="square"></path>
+        </g>
+      </symbol>
+
+      <symbol id="zoom-out" viewBox="0 0 24 24">
+        <g transform="translate(12 12) scale(10 10)">
+          <circle cx="-0.125" cy="-0.125" r="0.875" fill="none" stroke="#ffffff"></circle>
+          <!-- math.cos(math.pi / 4) * 0.875 - 0.125, math.sin(math.pi / 4) * 0.875 - 0.125 -->
+          <path d="M 0.4937184335382291 0.493718433538229 L 1 1" fill="none" stroke="#ffffff" stroke-linecap="round"
+            stroke-linejoin="round"></path>
+          <path d="M -0.5 -0.125 L 0.25 -0.125" fill="none" stroke="#ffffff" stroke-linecap="square"
+            stroke-linejoin="square"></path>
+        </g>
+      </symbol>
+
+      <symbol id="alt-chevron-up" viewBox="0 0 24 24">
+        <g transform="translate(12 12) scale(10 10)">
+          <path d="M -0.75 -0.625 L 0.75 -0.625 M -0.75 0.75 L 0 0 L 0.75 0.75" fill="none" stroke="currentColor"
+            stroke-linecap="round" stroke-linejoin="round"></path>
+        </g>
+      </symbol>
+      <symbol id="alt-chevron-down" viewBox="0 0 24 24">
+        <g transform="rotate(180 12 12)">
+          <use href="#alt-chevron-up" />
+        </g>
+      </symbol>
+      <symbol id="alt-chevron-left" viewBox="0 0 24 24">
+        <g transform="rotate(-90 12 12)">
+          <use href="#alt-chevron-up" />
+        </g>
+      </symbol>
+      <symbol id="alt-chevron-right" viewBox="0 0 24 24">
+        <g transform="rotate(90 12 12)">
+          <use href="#alt-chevron-up" />
+        </g>
+      </symbol>
+    </defs>
+  </svg>
+
+
+  <div id="app">
+
+    <dialog id="generic-dialog" class="dialog">
+      <h2 id="generic-dialog-heading" class="dialog-heading" tabindex="-1">…</h2>
+      <!-- <button id="generic-dialog-close-button" class="dialog-close-button" aria-label="Close">
+        <svg aria-hidden="true" class="icon">
+          <use href="#close" />
+        </svg>
+      </button> -->
+      <p id="generic-dialog-blurb" class="dialog-blurb">…</p>
+      <button id="generic-dialog-close-button" class="generic-button">Got it</button>
+    </dialog>
+
+    <dialog id="close-file-dialog" class="dialog">
+      <h2 class="dialog-heading" tabindex="-1">Are you sure you want to close the file?</h2>
+      <p id="close-file-dialog-blurb" class="dialog-blurb">Any unsaved changes will be lost.</p>
+      <div class="dialog-buttons">
+        <button id="close-file-dialog-cancel-button" class="generic-button">Cancel</button>
+        <!-- <button id="close-file-dialog-confirm-button" class="generic-button">Close file</button> -->
+        <button id="close-file-dialog-confirm-button" class="generic-button">Confirm</button>
+      </div>
+    </dialog>
+
+
+    <div id="home">
+      <dialog id="home-browser-compatibility-dialog" class="dialog">
+        <!-- <div class="dialog-top"> -->
+        <h2 class="dialog-heading" tabindex="-1">Browser incompatibility detected</h2>
+        <!-- <button id="home-browser-compatibility-dialog-close-button" class="dialog-close-button" aria-label="Close">
+            <svg aria-hidden="true" class="icon">
+              <use href="#close" />
+            </svg>
+          </button> -->
+        <!-- </div> -->
+        <!-- <div class="dialog-middle"> -->
+        <p class="dialog-blurb">
+          Marigold requires some features which seem to be missing from your browser.
+          Please update or switch your browser and try again.
+        </p>
+        <aside>
+          Marigold is known to work best on the latest desktop versions of Opera, Edge, and Chrome.
+        </aside>
+        <!-- </div> -->
+        <button id="home-browser-compatibility-dialog-close-button" class="generic-button">Got it</button>
+      </dialog>
+
+      <div id="home-hero">
+        <div id="alpha-warning">
+          <strong>
+            Hi there! Just so you know, Marigold is currently alpha-level software.
+            You can read more about what that means below.
+          </strong>
+        </div>
+
+        <noscript>
+          <strong>
+            Please enable JavaScript in your browser and refresh the page to start using Marigold!
+          </strong>
+        </noscript>
+
+        <div id="home-hero-top">
+          <img id="home-logo" src="./assets/Marigold.svg" alt="">
+          <h1 id="home-title" tabindex="-1">Marigold</h1>
+          <p id="home-motto">Zebrafish pose tracking made easier</p>
+        </div>
+
+        <div id="home-hero-middle">
+          <ol id="home-workflow-cards">
+            <li class="home-workflow-card-list-item">
+              <div class="home-workflow-card">
+                <p class="home-workflow-card-eyebrow">Step 1</p>
+                <h2 class="home-workflow-card-heading">Label data</h2>
+                <p class="home-workflow-card-blurb">
+                  <!-- Extract representative frames from your behavioral recordings
+                  and label them with animal pose coordinates. -->
+                  Extract representative images from your behavioral recordings
+                  and label them with animal pose coordinates.
+                </p>
+                <div class="home-workflow-card-divider"></div>
+                <button disabled id="home-start-new-dataset-button" class="home-create-new-button">
+                  <svg aria-hidden="true" class="icon">
+                    <use href="#new" />
+                  </svg>
+                  Start new dataset
+                </button>
+                <div class="home-workflow-card-divider"></div>
+                <button disabled id="home-open-existing-dataset-button" class="home-open-existing-button">
+                  <svg aria-hidden="true" class="icon">
+                    <use href="#open" />
+                  </svg>
+                  Open existing dataset
+                </button>
+              </div>
+            </li>
+
+            <li class="home-workflow-card-list-item">
+              <div class="home-workflow-card">
+                <p class="home-workflow-card-eyebrow">Step 2</p>
+                <h2 class="home-workflow-card-heading">Train model</h2>
+                <p class="home-workflow-card-blurb">
+                  Use your labeled data to train a neural network custom-tailored
+                  for animal pose tracking with your unique experimental setup.
+                </p>
+                <div class="home-workflow-card-divider"></div>
+                <button disabled id="home-start-new-model-button" class="home-create-new-button">
+                  <svg aria-hidden="true" class="icon">
+                    <use href="#new" />
+                  </svg>
+                  Start new model
+                </button>
+                <div class="home-workflow-card-divider"></div>
+                <button disabled id="home-open-existing-model-button" class="home-open-existing-button">
+                  <svg aria-hidden="true" class="icon">
+                    <use href="#open" />
+                  </svg>
+                  Open existing model
+                </button>
+              </div>
+            </li>
+
+            <li class="home-workflow-card-list-item">
+              <div class="home-workflow-card">
+                <p class="home-workflow-card-eyebrow">Step 3</p>
+                <h2 class="home-workflow-card-heading">Analyze behavior</h2>
+                <p class="home-workflow-card-blurb">
+                  Sit back and let your trained model churn through new behavioral recordings,
+                  then export the generated data and visualizations.
+                </p>
+                <div class="home-workflow-card-divider"></div>
+                <button disabled id="home-start-new-analysis-button" class="home-create-new-button">
+                  <svg aria-hidden="true" class="icon">
+                    <use href="#new" />
+                  </svg>
+                  Start new analysis
+                </button>
+                <div class="home-workflow-card-divider"></div>
+                <button disabled id="home-open-existing-analysis-button" class="home-open-existing-button">
+                  <svg aria-hidden="true" class="icon">
+                    <use href="#open" />
+                  </svg>
+                  Open existing analysis
+                </button>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div id="home-hero-bottom">
+          <h2 id="home-learn-more-heading">Learn more</h2>
+          <button disabled id="home-scroll-to-onboarding-button" aria-label="Scroll down">
+            <svg aria-hidden="true" class="icon">
+              <use href="#arrow-down" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div id="home-onboarding">
+        <h3 class="home-onboarding-heading">What is Marigold?</h3>
+        <p class="home-onboarding-blurb">
+          Marigold is a free and open source web app for analyzing zebrafish behavior.
+          It is being developed by Gregory Teicher (gteicher at umass dot edu) in the <a
+            href="https://www.downeslab.org/">Downes Laboratory</a>
+          at
+          University of Massachusetts Amherst.
+        </p>
+
+        <p class="home-onboarding-blurb">
+          Marigold is compatible with a wide range of experimental paradigms,
+          particularly at embryonic and larval stages.
+          As long as each region of interest only contains a single fish, it is likely that Marigold can track it.
+        </p>
+
+        <p class="home-onboarding-blurb">
+          Marigold is licensed under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public
+            License version 3 (GPLv3)</a> or later.
+          You can view its source code on <a href="https://github.com/downeslab/marigold">GitHub</a>.
+        </p>
+
+        <p class="home-onboarding-blurb">
+          Currently, Marigold should be regarded as <strong>alpha-level software.</strong>
+          That means it is still missing elements of the planned functionality,
+          contains some known bugs, and is likely to also contain unknown bugs.
+          Additionally, it may not be compatible with future versions of itself.
+          Nevertheless, since we've found Marigold useful even in its current state
+          and hope you will too, we've released it as-is while we track down bugs
+          and implement the remaining functionality.
+        </p>
+
+        <p class="home-onboarding-blurb">
+          If you use Marigold for your research, please be sure to cite our manuscript:
+        </p>
+        <aside id="home-onboarding-citation">
+          Marigold: A machine learning-based web app for zebrafish pose tracking.
+          Teicher, G., Riffe,. R.M., Barnaby, W., Martin, G., Clayton, B.E., Trapani, J.G., Downes, G.B.
+          Manuscript submitted for publication.
+        </aside>
+
+        <p class="home-onboarding-blurb">
+          More info coming soon!
+        </p>
+
+        <p class="home-onboarding-version-info">
+          You are using Marigold version: v0.0.0-alpha-0.
+        </p>
+      </div>
+    </div>
+
+    <div id="labeling" class="section">
+    </div>
+
+    <div id="training" class="section">
+    </div>
+
+    <div id="analyzing" class="section">
+    </div>
+  </div>
+
+  <link rel="preload" href="./deferred.css" type="text/css" as="style">
+  <link rel="stylesheet" href="./deferred.css" type="text/css">
+
+  <script type="module" src="./main.js"></script>
+</body>
+
+</html>

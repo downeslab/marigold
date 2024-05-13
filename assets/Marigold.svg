@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Copyright (C) 2024 Gregory Teicher
+
+Author: Gregory Teicher
+
+This file is part of Marigold.
+
+Marigold is free software: you can redistribute it and/or modify it under the terms of the
+GNU General Public License as published by the Free Software Foundation, either version 3
+of the License, or (at your option) any later version.
+
+Marigold is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with Marigold.
+If not, see <https://www.gnu.org/licenses/>.
+-->
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <g transform="translate(512 512) scale(512 512)">
+    <g transform="translate(-0.175 -0.65)">
+      <circle cx="-0.175" cy="0" r="0.2" fill="hsl(15, 37.5%, 50%)"></circle>
+      <circle cx="0.175" cy="0" r="0.2" fill="hsl(15, 37.5%, 50%)"></circle>
+    </g>
+    <path d="M 0.75 0 C 0.75 1, -0.75 1, -0.75 0 C -0.75 0, -0.75 -0.75, -0.125 -0.75 C 0.25 -0.5, 0.25 -0.125, -0.25 -0.125 C -0.125 0, -0.25 0.25, -0.25 0.25 C -0.25 0.625, 0.625 0.625, 0.625 0 C 0.625 -0.25, 0.75 -0.25, 0.75 0" fill="hsl(45, 62.5%, 62.5%)" stroke="hsl(15, 37.5%, 50%)" stroke-width="0.05"></path>
+    <g transform="translate(-0.175 -0.65)">
+      <circle cx="-0.175" cy="0" r="0.15" fill="hsl(0, 0%, 92.5%)"></circle>
+      <circle cx="0.175" cy="0" r="0.15" fill="hsl(0, 0%, 92.5%)"></circle>
+    </g>
+    <g transform="translate(-0.15 -0.675)">
+      <circle cx="-0.175" cy="0" r="0.075" fill="hsl(0, 0%, 8.75%)"></circle>
+      <circle cx="0.175" cy="0" r="0.075" fill="hsl(0, 0%, 8.75%)"></circle>
+    </g>
+    <g transform="translate(-0.175 -0.375)">
+      <path d="M -0.175 0 C -0.125 0.125, 0.125 0.125, 0.175 0" fill="none" stroke="hsl(15, 37.5%, 50%)" stroke-width="0.05" stroke-linecap="round"></path>
+    </g>
+    <g transform="translate(0.6875 -0.5)">
+      <path d="M 0 0 C -0.25 -0.125, -0.3 -0.45, 0 -0.3 C 0.3 -0.45, 0.25 -0.125, 0 0" fill="hsl(-15, 62.5%, 50%)"></path>
+    </g>
+  </g>
+</svg>

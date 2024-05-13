@@ -1,0 +1,275 @@
+<!--
+Copyright (C) 2024 Gregory Teicher
+
+Author: Gregory Teicher
+
+This file is part of Marigold.
+
+Marigold is free software: you can redistribute it and/or modify it under the terms of the
+GNU General Public License as published by the Free Software Foundation, either version 3
+of the License, or (at your option) any later version.
+
+Marigold is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with Marigold.
+If not, see <https://www.gnu.org/licenses/>.
+-->
+
+<div class="section-left-side">
+  <div class="inner-workflow-card">
+    <div class="inner-workflow-card-row-top">
+      <button id="close-dataset-button" class="header-button header-button-icon-only">
+        <svg aria-hidden="true" class="icon">
+          <use href="#close" />
+        </svg>
+      </button>
+      <h2 id="dataset-header-heading" class="inner-workflow-card-heading">…</h2>
+    </div>
+
+    <div class="inner-workflow-card-row-bottom">
+      <button id="save-dataset-button" class="header-button header-button-icon-only">
+        <svg aria-hidden="true" class="icon">
+          <use href="#save" />
+        </svg>
+      </button>
+      <div id="dataset-header-status" class="inner-workflow-card-blurb">…</div>
+    </div>
+
+    <!-- <div class="inner-workflow-card-container"> -->
+    <div id="labeling-configure-dataset-button-divider" class="inner-workflow-card-divider"></div>
+    <button id="labeling-configure-dataset-button" class="inner-workflow-top-button">
+      <!-- Dataset design -->
+      <!-- Configure dataset -->
+      Configure keypoints
+      <svg aria-hidden="true" class="icon">
+        <use href="#chevron-right" />
+      </svg>
+    </button>
+    <!-- </div> -->
+
+    <!-- <div class="inner-workflow-card-container"> -->
+    <div id="labeling-extract-and-label-frames-button-divider" class="inner-workflow-card-divider"></div>
+    <button id="labeling-extract-and-label-frames-button" class="inner-workflow-top-button">
+      <!-- Extract and label frames -->
+      Extract and label images
+      <svg aria-hidden="true" class="icon">
+        <use href="#chevron-right" />
+      </svg>
+    </button>
+    <!-- </div> -->
+
+    <!-- <div class="inner-workflow-card-container"> -->
+    <div id="labeling-review-labeled-frames-button-divider" class="inner-workflow-card-divider"></div>
+    <button id="labeling-review-labeled-frames-button" class="inner-workflow-top-button">
+      <!-- Review labeled frames -->
+      Review labeled images
+      <svg aria-hidden="true" class="icon">
+        <use href="#chevron-right" />
+      </svg>
+    </button>
+    <!-- </div> -->
+  </div>
+
+  <div id="labeling-configure-dataset-inner-section-left-side" class="inner-section-left-side">
+    <!-- <h2 class="inner-workflow-card-heading-alt">Keypoints</h2>
+    <div class="inner-workflow-card-blurb-alt">
+      Choose the number of keypoints that will be tracked.
+    </div> -->
+
+    <div id="labeling-keypoint-setup-details">
+      <label for="keypoint-count-input">Keypoints</label>
+      <input type="number" id="keypoint-count-input" min="1" max="10" value="1">
+    </div>
+
+    <!-- <button id="boop" class="generic-button">Boop</button> -->
+  </div>
+
+
+  <div id="labeling-extract-and-label-frames-inner-section-left-side" class="inner-section-left-side">
+    <button id="labeling-load-movie-button" class="generic-button">Load movie</button>
+    <label id="labeling-load-movie-button-label" for="labeling-load-movie-button"></label>
+  </div>
+
+  <div id="labeling-extract-and-label-frames-inner-section-left-side-2" class="inner-section-left-side">
+    <button id="labeling-label-current-frame-button" class="generic-button">Start new label</button>
+
+    <div id="labeling-details">
+      <div class="generic-horizontal-container">
+        <button id="labeling-set-arena-button" class="button-group-button button-group-button-activated">Arena</button>
+        <button id="labeling-set-keypoints-button" class="button-group-button">Keypoints</button>
+      </div>
+
+      <div id="labeling-arena-details">
+        <!-- <p class="home-workflow-card-blurb">Click and drag on the movie frame or manually enter values to set the
+                arena.</p> -->
+
+        <label for="labeling-arena-x-input">X</label>
+        <input id="labeling-arena-x-input" type="number" min="0" max="10000" value="0">
+
+        <label for="labeling-arena-y-input">Y</label>
+        <input id="labeling-arena-y-input" type="number" min="0" max="10000" value="0">
+
+        <label for="labeling-arena-width-input">Width</label>
+        <input id="labeling-arena-width-input" type="number" min="0" max="10000" value="0">
+
+        <label for="labeling-arena-height-input">Height</label>
+        <input id="labeling-arena-height-input" type="number" min="0" max="10000" value="0">
+      </div>
+
+      <div id="labeling-keypoint-details">
+        <!-- <p class="home-workflow-card-blurb">Click on the movie frame or manually enter values to set the
+                keypoints.</p> -->
+
+        <label id="labeling-keypoint-0-x-input-label" for="labeling-keypoint-0-x-input">X<sub>1</sub></label>
+        <input id="labeling-keypoint-0-x-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-0-y-input-label" for="labeling-keypoint-0-y-input">Y<sub>1</sub></label>
+        <input id="labeling-keypoint-0-y-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-1-x-input-label" for="labeling-keypoint-1-x-input">X<sub>2</sub></label>
+        <input id="labeling-keypoint-1-x-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-1-y-input-label" for="labeling-keypoint-1-y-input">Y<sub>2</sub></label>
+        <input id="labeling-keypoint-1-y-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-2-x-input-label" for="labeling-keypoint-2-x-input">X<sub>3</sub></label>
+        <input id="labeling-keypoint-2-x-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-2-y-input-label" for="labeling-keypoint-2-y-input">Y<sub>3</sub></label>
+        <input id="labeling-keypoint-2-y-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-3-x-input-label" for="labeling-keypoint-3-x-input">X<sub>4</sub></label>
+        <input id="labeling-keypoint-3-x-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-3-y-input-label" for="labeling-keypoint-3-y-input">Y<sub>4</sub></label>
+        <input id="labeling-keypoint-3-y-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-4-x-input-label" for="labeling-keypoint-4-x-input">X<sub>5</sub></label>
+        <input id="labeling-keypoint-4-x-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-4-y-input-label" for="labeling-keypoint-4-y-input">Y<sub>5</sub></label>
+        <input id="labeling-keypoint-4-y-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-5-x-input-label" for="labeling-keypoint-5-x-input">X<sub>6</sub></label>
+        <input id="labeling-keypoint-5-x-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-5-y-input-label" for="labeling-keypoint-5-y-input">Y<sub>6</sub></label>
+        <input id="labeling-keypoint-5-y-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-6-x-input-label" for="labeling-keypoint-6-x-input">X<sub>7</sub></label>
+        <input id="labeling-keypoint-6-x-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-6-y-input-label" for="labeling-keypoint-6-y-input">Y<sub>7</sub></label>
+        <input id="labeling-keypoint-6-y-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-7-x-input-label" for="labeling-keypoint-7-x-input">X<sub>8</sub></label>
+        <input id="labeling-keypoint-7-x-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-7-y-input-label" for="labeling-keypoint-7-y-input">Y<sub>8</sub></label>
+        <input id="labeling-keypoint-7-y-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-8-x-input-label" for="labeling-keypoint-8-x-input">X<sub>9</sub></label>
+        <input id="labeling-keypoint-8-x-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-8-y-input-label" for="labeling-keypoint-8-y-input">Y<sub>9</sub></label>
+        <input id="labeling-keypoint-8-y-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-9-x-input-label" for="labeling-keypoint-9-x-input">X<sub>10</sub></label>
+        <input id="labeling-keypoint-9-x-input" type="number" min="0" max="10000" value="0">
+
+        <label id="labeling-keypoint-9-y-input-label" for="labeling-keypoint-9-y-input">Y<sub>10</sub></label>
+        <input id="labeling-keypoint-9-y-input" type="number" min="0" max="10000" value="0">
+      </div>
+
+      <div class="generic-horizontal-container">
+        <button id="labeling-cancel-labeling-button" class="generic-button">Cancel</button>
+        <button id="labeling-done-labeling-button" class="generic-button">Done</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="labeling-review-labeled-frames-inner-section-left-side" class="inner-section-left-side">
+  </div>
+</div>
+
+
+<div id="labeling-section-right-side" class="section-right-side">
+  <div id="labeling-configure-dataset-inner-section-right-side" class="inner-section-right-side">
+  </div>
+
+
+  <div id="labeling-extract-and-label-frames-inner-section-right-side" class="inner-section-right-side-strict">
+    <canvas id="labeling-movie-player-canvas" class="movie-player-canvas"></canvas>
+    <div class="generic-divider"></div>
+    <div class="movie-player-bottom">
+      <input id="labeling-frame-range-input" type="range" min="1" max="100" value="1">
+
+      <div class="movie-player-buttons-container">
+        <div class="movie-player-buttons-left">
+          <button id="labeling-zoom-reset-button" class="header-button header-button-icon-only zoom-button">
+            <svg aria-hidden="true" class="icon">
+              <use href="#reset-zoom" />
+            </svg>
+          </button>
+          <button id="labeling-zoom-out-button" class="header-button header-button-icon-only zoom-button">
+            <svg aria-hidden="true" class="icon">
+              <use href="#zoom-out" />
+            </svg>
+          </button>
+          <button id="labeling-zoom-in-button" class="header-button header-button-icon-only zoom-button">
+            <svg aria-hidden="true" class="icon">
+              <use href="#zoom-in" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="movie-player-buttons-middle">
+          <button id="labeling-first-frame-button"
+            class="header-button header-button-icon-only play-or-pause-button-alt-alt">
+            <svg aria-hidden="true" class="icon">
+              <use href="#alt-chevron-left" />
+            </svg>
+          </button>
+          <button id="labeling-previous-frame-button"
+            class="header-button header-button-icon-only play-or-pause-button-alt">
+            <svg aria-hidden="true" class="icon">
+              <use href="#chevron-left" />
+            </svg>
+          </button>
+          <button id="labeling-play-or-pause-button" class="header-button header-button-icon-only play-or-pause-button">
+            <svg aria-hidden="true" class="icon play-icon">
+              <use href="#play" />
+            </svg>
+            <svg aria-hidden="true" class="icon pause-icon">
+              <use href="#pause" />
+            </svg>
+          </button>
+          <button id="labeling-next-frame-button"
+            class="header-button header-button-icon-only play-or-pause-button-alt">
+            <svg aria-hidden="true" class="icon">
+              <use href="#chevron-right" />
+            </svg>
+          </button>
+          <button id="labeling-last-frame-button"
+            class="header-button header-button-icon-only play-or-pause-button-alt-alt">
+            <svg aria-hidden="true" class="icon">
+              <use href="#alt-chevron-right" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="movie-player-buttons-right">
+          <input type="number" id="labeling-frame-number-input" min="1" max="100" value="1">
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="labeling-review-labeled-frames-inner-section-right-side" class="inner-section-right-side-thumbnails">
+    <div id="labeling-thumbnails"></div>
+  </div>
+</div>
