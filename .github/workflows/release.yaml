@@ -1,0 +1,41 @@
+name: Build release
+
+on:
+  release:
+    types: created
+
+permissions: write-all
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Install Clang
+        run: |
+          brew install llvm
+
+      - name: Install Inkscape
+        run: |
+          brew install inkscape
+
+      - name: Build Marigold
+        run: |
+          PATH="/opt/homebrew/opt/llvm/bin:$PATH" bash scripts/build.sh
+
+      - name: Package Marigold
+        run: |
+          mkdir _site
+          cp -r build/* _site
+          tar -czvf github-pages.tar.gz _site
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+
+      - name: Deploy Pages
+        uses: actions/deploy-pages@v4
