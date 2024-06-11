@@ -8,10 +8,4 @@ Marigold is licensed under the [GNU General Public License version 3 (GPLv3)](ht
 
 Currently, Marigold should be regarded as **alpha-level software.** That means it is still missing elements of the planned functionality, contains some known bugs, and is likely to also contain unknown bugs. Additionally, it may not be compatible with future versions of itself. Nevertheless, since we've found Marigold useful even in its current state and hope you will too, we've released it as-is while we track down bugs and implement the remaining functionality.
 
-If you use Marigold for your research, please be sure to cite our manuscript:
-
-```
-Marigold: A machine learning-based web app for zebrafish pose tracking. Teicher, G., Riffe,. R.M., Barnaby, W., Martin, G., Clayton, B.E., Trapani, J.G., Downes, G.B. Manuscript submitted for publication. 
-```
-
-More info coming soon!
+Check out our [bioRxiv preprint](https://www.biorxiv.org/content/10.1101/2024.05.31.596910v1) for more info! (And please remember to cite the preprint if you wind up using Marigold in your research!)
