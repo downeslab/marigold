@@ -617,7 +617,7 @@ export function getCsvData(data, arenas_, arenaRows_, arenaColumns_, keypointCou
   firstFrame = firstFrame_;
   lastFrame = lastFrame_;
 
-  console.log("raw:", kinematicsData, arenas);
+  // console.log("raw:", kinematicsData, arenas);
 
   const summaryFilename = "";
   const summaryFileContents = "";

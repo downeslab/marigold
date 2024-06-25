@@ -268,6 +268,7 @@ export class Section {
       const options = {};
       options.mode = "readwrite";
       // console.log("result:", await fileHandle.requestPermission(options));
+      await fileHandle.requestPermission(options);
       if (await fileHandle.queryPermission(options) === "granted") {
         this.maybeSaveFile();
       }

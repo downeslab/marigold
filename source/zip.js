@@ -49,9 +49,10 @@ export function testZip(svgFilenames, svgFileContents, csvFilenames, csvFileCont
 
   let filenamesArray = svgFilenames.concat(csvFilenames);
   let fileContentsArray = svgFileContents.concat(csvFileContents);
-  filenamesArray.push(summaryFilename);
-  fileContentsArray.push(summaryFileContents);
+  // filenamesArray.push(summaryFilename);
+  // fileContentsArray.push(summaryFileContents);
 
+  let offsets = [];
   for (let i = 0; i < filenamesArray.length; ++i) {
     const filename = filenamesArray[i];
     const fileContents = fileContentsArray[i];
@@ -132,6 +133,7 @@ export function testZip(svgFilenames, svgFileContents, csvFilenames, csvFileCont
     // file
     blobContents.push(fileContents);
     centralDirectoryOffset += fileContents.length;
+    offsets += fileContents.length;
 
     // length: variable
 
@@ -214,7 +216,7 @@ export function testZip(svgFilenames, svgFileContents, csvFilenames, csvFileCont
     centralDirectorySize += 4;
 
     // 4 bytes: Offset of local file header (from start of disk)
-    blobContents.push(new Uint32Array([0]));
+    blobContents.push(new Uint32Array([offsets[i]]));
     centralDirectorySize += 4;
 
     // n bytes: File name
