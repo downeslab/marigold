@@ -52,11 +52,29 @@ export function testZip(svgFilenames, svgFileContents, csvFilenames, csvFileCont
   // filenamesArray.push(summaryFilename);
   // fileContentsArray.push(summaryFileContents);
 
+  let fileCRC32s = [];
+
+  const fileModificationTime = new Uint16Array([zipWebAssemblyInstance.exports.ms_dos_time(
+    new Date().getSeconds(),
+    new Date().getMinutes(),
+    new Date().getHours(),
+  )]);
+
+  const fileModificationDate = new Uint16Array([zipWebAssemblyInstance.exports.ms_dos_date(
+    new Date().getDate(),
+    new Date().getMonth() + 1,
+    new Date().getFullYear() - 1980
+  )]);
+
   let offsets = [];
   for (let i = 0; i < filenamesArray.length; ++i) {
+    offsets.push(centralDirectoryOffset);
+
     const filename = filenamesArray[i];
     const fileContents = fileContentsArray[i];
+
     const fileCRC32 = CRC32(fileContents);
+    fileCRC32s.push(fileCRC32);
 
     //
     //
@@ -79,27 +97,15 @@ export function testZip(svgFilenames, svgFileContents, csvFilenames, csvFileCont
     centralDirectoryOffset += 2;
 
     // 2 bytes: File last modification time (MS-DOS format)
-    blobContents.push(
-      new Uint16Array([zipWebAssemblyInstance.exports.ms_dos_time(
-        new Date().getSeconds(),
-        new Date().getMinutes(),
-        new Date().getHours(),
-      )])
-    );
+    blobContents.push(fileModificationTime);
     centralDirectoryOffset += 2;
 
     // 2 bytes: File last modification date (MS-DOS format)
-    blobContents.push(
-      new Uint16Array([zipWebAssemblyInstance.exports.ms_dos_date(
-        new Date().getDate(),
-        new Date().getMonth() + 1,
-        new Date().getFullYear() - 1980
-      )])
-    );
+    blobContents.push(fileModificationDate);
     centralDirectoryOffset += 2;
 
     // 4 bytes: CRC-32 of uncompressed data
-    blobContents.push(new Uint32Array([fileCRC32]));
+    blobContents.push(new Uint32Array([fileCRC32s[i]]));
     centralDirectoryOffset += 4;
 
     // 4 bytes: Compressed size
@@ -124,8 +130,6 @@ export function testZip(svgFilenames, svgFileContents, csvFilenames, csvFileCont
 
     // m bytes: Extra field
 
-    // length: 30 + n -> 32
-
     //
     //
     //
@@ -133,7 +137,6 @@ export function testZip(svgFilenames, svgFileContents, csvFilenames, csvFileCont
     // file
     blobContents.push(fileContents);
     centralDirectoryOffset += fileContents.length;
-    offsets += fileContents.length;
 
     // length: variable
 
@@ -148,7 +151,6 @@ export function testZip(svgFilenames, svgFileContents, csvFilenames, csvFileCont
   for (let i = 0; i < filenamesArray.length; ++i) {
     const filename = filenamesArray[i];
     const fileContents = fileContentsArray[i];
-    const fileCRC32 = CRC32(fileContents);
 
     // 4 bytes: Signature
     blobContents.push(new Uint32Array([0x02014b50]));
@@ -171,16 +173,15 @@ export function testZip(svgFilenames, svgFileContents, csvFilenames, csvFileCont
     centralDirectorySize += 2;
 
     // 2 bytes: File last modification time (MS-DOS format)
-    blobContents.push(new Uint16Array([0]));
+    blobContents.push(fileModificationTime);
     centralDirectorySize += 2;
 
     // 2 bytes: File last modification date (MS-DOS format)
-    blobContents.push(new Uint16Array([0]));
+    blobContents.push(fileModificationDate);
     centralDirectorySize += 2;
 
     // 4 bytes: CRC-32 of uncompressed data
-    // blobContents.push(new Uint32Array([0]));
-    blobContents.push(new Uint32Array([fileCRC32]));
+    blobContents.push(new Uint32Array([fileCRC32s[i]]));
     centralDirectorySize += 4;
 
     // 4 bytes: Compressed size
@@ -226,8 +227,6 @@ export function testZip(svgFilenames, svgFileContents, csvFilenames, csvFileCont
     // m bytes: Extra field
 
     // k bytes: File comment
-
-    // length: 46 + n -> 48
   }
 
   //
@@ -253,7 +252,8 @@ export function testZip(svgFilenames, svgFileContents, csvFilenames, csvFileCont
 
   // 4 bytes: Size of central directory in bytes
   // blobContents.push(new Uint32Array([0]));
-  blobContents.push(new Uint32Array([centralDirectorySize + 22]));
+  // blobContents.push(new Uint32Array([centralDirectorySize + 22]));
+  blobContents.push(new Uint32Array([centralDirectorySize]));
 
   // 4 bytes: Offset to start of central directory
   // blobContents.push(new Uint32Array([0]));
