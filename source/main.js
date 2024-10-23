@@ -40,7 +40,6 @@ function initializeScrollToOnboardingButton() {
         const onboarding = document.querySelector("#home-onboarding");
         window.scroll(
           {
-            // top: window.scrollY + onboarding.getBoundingClientRect().top,
             top: window.scrollY + onboarding.getBoundingClientRect().top + 1,
             left: window.scrollX,
             behavior: "smooth"
@@ -57,11 +56,6 @@ function initializeScrollToOnboardingButton() {
 document.addEventListener(
   "DOMContentLoaded",
   async (event) => {
-    // {
-    //   const response = await fetch("./home.html");
-    //   const text = await response.text();
-    //   document.querySelector("#home").innerHTML = text.trimEnd();
-    // }
     optInToManualScrollRestoration();
     initializeScrollToOnboardingButton();
 
@@ -136,7 +130,6 @@ document.addEventListener(
       );
       openModelButton.addEventListener(
         "click",
-        // (event) => { trainingSection.maybeOpenExistingFile(); }
         (event) => { block(); }
       );
 
@@ -147,7 +140,6 @@ document.addEventListener(
       );
       openAnalysisButton.addEventListener(
         "click",
-        // (event) => { analyzingSection.maybeOpenExistingFile(); }
         (event) => { block(); }
       );
     }

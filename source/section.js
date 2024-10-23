@@ -26,7 +26,6 @@ export class Section {
   worker = null;
 
   unsavedChanges = null;
-  // fileHandle = null;
 
   constructor(fileType, prefix, worker) {
     this.fileType = fileType;
@@ -76,8 +75,6 @@ export class Section {
         this.showCloseFileDialog();
       }
     );
-
-    // this.reset();
   }
 
 
@@ -131,7 +128,6 @@ export class Section {
     try {
       fileHandle = await window.showSaveFilePicker(
         {
-          // id: `new${this.fileType[0].toUpperCase()}${this.fileType.slice(1)}`,
           id: "startNewFile",
           startIn: "documents",
           types: [
@@ -159,18 +155,12 @@ export class Section {
   }
 
   onStartNewFileSuccess() {
-    // console.log("onStartNewFileSuccess");
-
     this.showStatus(Section.savedMessage);
     this.unsavedChanges = false;
-    // this.maybeSaveFile();
     this.enter();
-    // Section.enableWorkflowButtons();
-
   }
 
   onStartNewFileFailure() {
-    // console.log("onStartNewFileFailure");
     Section.enableWorkflowButtons();
   }
 
@@ -182,7 +172,6 @@ export class Section {
     try {
       [fileHandle] = await window.showOpenFilePicker(
         {
-          // id: `open-${this.fileType}`,
           id: "openExistingFile",
           startIn: "documents",
           types: [
@@ -194,7 +183,6 @@ export class Section {
             }
           ],
           mode: "readWrite"
-          // mode: "readwrite"
         }
       );
     }
@@ -202,10 +190,6 @@ export class Section {
     }
 
     if (fileHandle) {
-      // const options = {};
-      // options.mode = "readwrite";
-      // console.log(await fileHandle.queryPermission(options));
-      // console.log(await fileHandle.requestPermission(options));
       this.worker.postMessage({ type: "maybeOpenExistingFile", fileHandle: fileHandle });
       document.querySelector(`#${this.fileType}-header-heading`).textContent = fileHandle.name;
     }
@@ -214,19 +198,13 @@ export class Section {
     }
   }
 
-  // onOpenExistingFileSuccess(message) {
   async onOpenExistingFileSuccess(message) {
-    // console.log("onOpenExistingFileSuccess");
-
     this.showStatus(Section.savedMessage);
     this.unsavedChanges = false;
-    // this.maybeSaveFile();
     this.enter();
-    // Section.enableWorkflowButtons();
   }
 
   onOpenExistingFileFailure() {
-    // console.log("onOpenExistingFileFailure");
     Section.enableWorkflowButtons();
 
     document.querySelector("#generic-dialog-heading").textContent = "Error opening file";
@@ -256,18 +234,12 @@ export class Section {
 
     this.showStatus(Section.savedMessage);
     this.unsavedChanges = false;
-    // console.log("onSaveFileSuccess");
   }
 
   async onSaveFileFailure(reason, fileHandle) {
-    // reminder: reset save status
-
-    // console.log("onSaveFileFailure");
-
     if (reason === "permission") {
       const options = {};
       options.mode = "readwrite";
-      // console.log("result:", await fileHandle.requestPermission(options));
       await fileHandle.requestPermission(options);
       if (await fileHandle.queryPermission(options) === "granted") {
         this.maybeSaveFile();
@@ -308,51 +280,35 @@ export class Section {
   }
 
   showCloseFileDialog() {
-    // const closeButton = document.querySelector(`#close-file-dialog-close-button`);
     const cancelButton = document.querySelector(`#close-file-dialog-cancel-button`);
     const confirmButton = document.querySelector(`#close-file-dialog-confirm-button`);
 
     let cancel = (event) => {
-      // console.log("cancel");
-
-      // closeButton.setAttribute("disabled", "");
       cancelButton.setAttribute("disabled", "");
       confirmButton.setAttribute("disabled", "");
 
-      // closeButton.removeEventListener("click", cancel);
       cancelButton.removeEventListener("click", cancel);
       confirmButton.removeEventListener("click", confirm);
 
       document.querySelector("#close-file-dialog").close();
 
-      // closeButton.removeAttribute("disabled");
       cancelButton.removeAttribute("disabled");
       confirmButton.removeAttribute("disabled");
     };
 
     let confirm = (event) => {
-      // console.log("confirm");
-
-      // closeButton.setAttribute("disabled", "");
       cancelButton.setAttribute("disabled", "");
       confirmButton.setAttribute("disabled", "");
 
-      // closeButton.removeEventListener("click", cancel);
       cancelButton.removeEventListener("click", cancel);
       confirmButton.removeEventListener("click", confirm);
 
       this.maybeCloseFile();
       document.querySelector("#close-file-dialog").close();
 
-      // closeButton.removeAttribute("disabled");
       cancelButton.removeAttribute("disabled");
       confirmButton.removeAttribute("disabled");
     };
-
-    // closeButton.addEventListener(
-    // //   "click",
-    // //   cancel
-    // // );
 
     cancelButton.addEventListener(
       "click",
@@ -375,11 +331,9 @@ export class Section {
   onCloseFileSuccess() {
     this.leave();
     this.reset();
-    // console.log("onCloseFileSuccess");
   }
 
   onCloseFileFailure() {
-    // console.log("onCloseFileFailure");
   }
 
 

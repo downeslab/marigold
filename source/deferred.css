@@ -22,10 +22,7 @@ If not, see <https://www.gnu.org/licenses/>.
   flex-direction: row;
   align-items: flex-start;
   justify-content: stretch;
-  /* justify-content: space-around; */
-  /* padding: 1rem; */
   padding: 0.75rem;
-  /* gap: 1rem; */
   gap: 0.75rem;
   width: 100%;
   height: 100%;
@@ -34,16 +31,10 @@ If not, see <https://www.gnu.org/licenses/>.
 .section-left-side {
   display: flex;
   flex-direction: column;
-  /* align-items: flex-start; */
   align-items: space-around;
   justify-content: flex-start;
   padding: 0rem;
-  /* gap: 1rem; */
   gap: 0.75rem;
-  /* width: 100%; */
-  /* height: 100%; */
-
-  /* background: blue; */
 
   flex: 1;
 }
@@ -51,29 +42,14 @@ If not, see <https://www.gnu.org/licenses/>.
 .section-right-side {
   display: flex;
   flex-direction: column;
-  /* align-items: flex-start; */
   align-items: space-around;
   justify-content: flex-start;
-  /* padding: 1rem; */
   padding: 0rem;
-  /* gap: 1rem; */
   gap: 0.75rem;
-  /* width: 100%; */
-  /* height: 100%; */
   flex: 3;
 
-  /* height: calc(100dvh - 2 * 1rem); */
-  /* min-height: calc(100dvh - 2 * 0.75rem); */
-  /* max-height: calc(100dvh - 2 * 0.75rem); */
   position: sticky;
-  /* top: 0; */
   top: 0.75rem;
-  /* overflow: scroll; */
-
-  /* background: green; */
-  /* background: var(--card-color);
-  border-radius: var(--border-radius-1);
-  border: var(--border); */
 }
 
 .inner-section-left-side {
@@ -87,8 +63,6 @@ If not, see <https://www.gnu.org/licenses/>.
   background: var(--card-color);
   border-radius: var(--border-radius-1);
   border: var(--border);
-
-  /* flex: 1; */
 
   max-width: 32rem;
 }
@@ -104,11 +78,6 @@ If not, see <https://www.gnu.org/licenses/>.
   background: var(--card-color);
   border-radius: var(--border-radius-1);
   border: var(--border);
-
-  /* flex: 1; */
-
-  /* min-height: calc(100dvh - 2 * 0.75rem); */
-  /* max-height: calc(100dvh - 2 * 0.75rem); */
 }
 
 .inner-section-right-side-strict {
@@ -116,9 +85,6 @@ If not, see <https://www.gnu.org/licenses/>.
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
-  /* gap: 1rem; */
-  /* padding: 1rem; */
-  /* padding: 0.75rem; */
 
   background: var(--card-color);
   border-radius: var(--border-radius-1);
@@ -131,23 +97,15 @@ If not, see <https://www.gnu.org/licenses/>.
 }
 
 
-
-
-
 .inner-section-right-side-strict-trajectory-plot {
   display: none;
   flex-direction: column;
-  /* align-items: stretch; */
   align-items: center;
-  /* justify-content: flex-start; */
   justify-content: center;
   padding: 1rem;
-  /* padding: 0.75rem; */
   gap: 1rem;
 
   background: var(--card-color);
-  /* background: white; */
-  /* background: black; */
   border-radius: var(--border-radius-1);
   border: var(--border);
 
@@ -171,13 +129,6 @@ If not, see <https://www.gnu.org/licenses/>.
 
 .trajectory-plot-test {
   display: block;
-  /* flex: 1; */
-  /* min-width: 5rem; */
-  /* min-height: 5rem; */
-  /* max-width: 5rem; */
-  /* max-height: 5rem; */
-  /* width: 100%; */
-  /* height: 100%; */
   min-width: 100%;
   min-height: 100%;
   max-width: 100%;
@@ -186,21 +137,11 @@ If not, see <https://www.gnu.org/licenses/>.
 
 .trajectory-plot-big {
   display: block;
-  /* flex: 1; */
-  /* min-width: 5rem; */
-  /* min-height: 5rem; */
-  /* max-width: 5rem; */
-  /* max-height: 5rem; */
-  /* width: 100%; */
-  /* height: 100%; */
   min-width: 100%;
   min-height: 100%;
   max-width: 100%;
   max-height: 100%;
 }
-
-
-
 
 
 .inner-workflow-button {
@@ -212,14 +153,11 @@ If not, see <https://www.gnu.org/licenses/>.
   font-weight: var(--font-weight-3);
   line-height: var(--line-height-1);
   color: var(--text-color-3);
-  /* gap: 0.75rem; */
   gap: 0.5rem;
   padding: 1rem;
-  /* margin: 0rem -1rem; */
   border-radius: var(--border-radius-1);
   background: var(--button-color-2);
   border: none;
-  /* border-top: var(--border); */
   min-width: 24rem;
 }
 
@@ -248,17 +186,7 @@ If not, see <https://www.gnu.org/licenses/>.
   line-height: var(--line-height-4);
   color: var(--text-color-3);
   text-align: left;
-  /* padding: 0rem; */
-  /* margin: 0rem; */
 }
-
-
-
-
-
-
-
-
 
 
 #dataset-split-area {
@@ -281,10 +209,6 @@ If not, see <https://www.gnu.org/licenses/>.
 }
 
 
-
-
-
-
 .generic-button {
   display: flex;
   flex-direction: row;
@@ -292,18 +216,14 @@ If not, see <https://www.gnu.org/licenses/>.
   justify-content: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  /* padding: 0.5rem 1.25rem; */
-  /* padding-left: 1.125rem; */
 
   font-size: var(--font-size-2);
   font-weight: var(--font-weight-3);
-  /* line-height: var(--line-height-3); */
   line-height: var(--line-height-1);
   color: var(--text-color-3);
 
   background: var(--button-color-2);
   border-radius: var(--border-radius-1);
-  /* border-radius: var(--border-radius-round); */
   border: none;
 }
 
@@ -326,23 +246,15 @@ If not, see <https://www.gnu.org/licenses/>.
 }
 
 
-
-
-
 #training-preview-canvas {
   background-color: var(--card-color);
   border: var(--border);
   border-radius: var(--border-radius-1);
-  /* width: max(24rem, 50dvw - 1rem);
-  height: max(24rem, 50dvh - 1rem); */
   width: 32rem;
   height: 32rem;
   overflow: hidden;
   object-fit: cover;
-  /* cursor: crosshair; */
-  /* margin: 0.5rem; */
 }
-
 
 
 .training-status {
@@ -354,74 +266,24 @@ If not, see <https://www.gnu.org/licenses/>.
 }
 
 
-
-
-
 #training-plot-area {
   background-color: var(--card-color);
   border: var(--border);
   border-radius: var(--border-radius-1);
-  /* width: max(24rem, 50dvw - 1rem);
-  height: max(24rem, 50dvh - 1rem); */
-  /* width: 32rem;
-  height: 24rem; */
   width: min(32rem, 80dvw);
   height: min(24rem, 80dvh);
   overflow: hidden;
   object-fit: cover;
-  /* cursor: crosshair; */
-  /* margin: 0.5rem; */
 }
 
 #training-plot {
-  /* width: 32rem; */
-  /* height: 24rem; */
   object-fit: contain;
 }
 
 #training-plot text {
-  /* font-size: 10%; */
-  /* font-size: 1.5px; */
   font-size: 1.25px;
-  /* font-size: 1px; */
   text-anchor: middle;
-  /* dominant-baseline: central; */
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #inner-workflow-cards {
@@ -429,15 +291,11 @@ If not, see <https://www.gnu.org/licenses/>.
   flex-direction: row;
   align-items: stretch;
   justify-content: center;
-  /* gap: 0.5rem; */
-  /* gap: 0.75rem; */
   gap: 1rem;
 }
 
 @media(width <=64rem) {
   #inner-workflow-cards {
-    /* gap: 0.5rem; */
-    /* gap: 0.75rem; */
     gap: 1rem;
     flex-direction: column;
   }
@@ -464,8 +322,6 @@ If not, see <https://www.gnu.org/licenses/>.
   padding-bottom: 0rem;
   flex: 1;
   max-width: 32rem;
-
-  /* margin-top: 1rem; */
 }
 
 .inner-workflow-card-row {
@@ -481,7 +337,6 @@ If not, see <https://www.gnu.org/licenses/>.
 .inner-workflow-card-row-top {
   display: flex;
   flex-direction: row;
-  /* align-items: flex-start; */
   align-items: center;
   justify-content: flex-start;
   padding: 0rem;
@@ -502,7 +357,6 @@ If not, see <https://www.gnu.org/licenses/>.
 .inner-workflow-card-row-bottom {
   display: flex;
   flex-direction: row;
-  /* align-items: flex-start; */
   align-items: center;
   justify-content: flex-start;
   padding: 0rem;
@@ -518,7 +372,6 @@ If not, see <https://www.gnu.org/licenses/>.
   align-items: flex-start;
   justify-content: flex-start;
   padding: 0rem;
-  /* gap: 1rem; */
   flex: 1;
 }
 
@@ -533,16 +386,6 @@ If not, see <https://www.gnu.org/licenses/>.
   gap: 1rem;
 }
 
-/* .inner-workflow-card-column-right {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding: 0rem;
-  padding-bottom: 1rem;
-  gap: 1rem;
-} */
-
 .inner-workflow-card-eyebrow {
   font-size: var(--font-size-2);
   font-weight: var(--font-weight-1);
@@ -550,8 +393,6 @@ If not, see <https://www.gnu.org/licenses/>.
   font-variant-caps: all-small-caps;
   letter-spacing: 0.075em;
   color: var(--text-color-1);
-
-  /* margin-top: -2rem; */
 
   display: none;
 }
@@ -570,17 +411,7 @@ If not, see <https://www.gnu.org/licenses/>.
   line-height: var(--line-height-5);
   color: var(--text-color-1);
   flex: 1;
-  /* margin: 1rem 0rem; */
 }
-
-/* .inner-workflow-card-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  flex: 1;
-  margin: 0rem -1rem;
-} */
 
 .inner-workflow-card-divider {
   border-top: var(--border);
@@ -597,17 +428,12 @@ If not, see <https://www.gnu.org/licenses/>.
   font-weight: var(--font-weight-3);
   line-height: var(--line-height-1);
   color: var(--text-color-3);
-  /* gap: 0.75rem; */
   gap: 0.5rem;
   padding: 1rem;
   margin: 0rem -1rem;
   border-radius: 0;
   background: var(--button-color-1);
   border: none;
-  /* border-top: var(--border); */
-
-  /* display: none; */
-
   text-align: left;
 }
 
@@ -633,14 +459,12 @@ If not, see <https://www.gnu.org/licenses/>.
 }
 
 .inner-workflow-top-button.activated {
-  /* display: flex; */
   flex-direction: row-reverse;
   justify-content: flex-end;
   text-align: left;
 }
 
 .inner-workflow-bottom-button.activated {
-  /* display: flex; */
   flex-direction: row-reverse;
   justify-content: flex-end;
   text-align: left;
@@ -686,9 +510,6 @@ If not, see <https://www.gnu.org/licenses/>.
 }
 
 
-
-
-
 .header-button {
   display: flex;
   flex-direction: row;
@@ -696,12 +517,9 @@ If not, see <https://www.gnu.org/licenses/>.
   justify-content: space-between;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  /* padding: 0.5rem 1.25rem; */
-  /* padding-left: 1.125rem; */
 
   font-size: var(--font-size-2);
   font-weight: var(--font-weight-3);
-  /* line-height: var(--line-height-3); */
   line-height: var(--line-height-1);
   color: var(--text-color-3);
 
@@ -723,15 +541,12 @@ If not, see <https://www.gnu.org/licenses/>.
 
 .header-button-icon-only {
   padding: 0.5rem 0.5rem;
-  /* padding: 0.75rem 0.75rem; */
 }
 
 .header-button svg.icon {
   stroke-width: var(--icon-stroke-width-3);
   width: var(--font-size-2);
   height: var(--font-size-2);
-  /* stroke-opacity: var(--icon-opacity); */
-  /* fill-opacity: var(--icon-opacity); */
   opacity: var(--icon-opacity);
 }
 
@@ -740,15 +555,10 @@ If not, see <https://www.gnu.org/licenses/>.
 }
 
 .zoom-button svg.icon {
-  /* stroke-width: var(--icon-stroke-width-3); */
-  /* stroke-width: calc(22 / 16px); */
   stroke-width: 5px;
   width: var(--font-size-2);
   height: var(--font-size-2);
-  /* stroke-opacity: var(--icon-opacity); */
-  /* fill-opacity: var(--icon-opacity); */
   opacity: var(--icon-opacity);
-  /* padding: 0.75rem; */
 }
 
 
@@ -775,14 +585,6 @@ If not, see <https://www.gnu.org/licenses/>.
 #save-analysis-button {
   padding: 1rem;
 }
-
-
-
-
-
-
-
-
 
 
 label {
@@ -862,22 +664,10 @@ input[type="radio"],
 input[type="checkbox"] {
   -webkit-appearance: none;
   appearance: none;
-  /* width: 1.25rem;
-  height: 1.25rem; */
   width: 1rem;
   height: 1rem;
-  /* margin: -0.125rem; */
-  /* margin: calc(1rem - 0.125rem); */
-  /* width: 1rem; */
-  /* height: 1rem; */
-  /* display: inline-block; */
-  /* display: block; */
   position: relative;
   border-radius: 100%;
-  /* vertical-align: text-bottom; */
-  /* padding: 1rem; */
-  /* margin-right: 1rem; */
-  /* margin-left: 1rem; */
 }
 
 input[type="radio"]::before,
@@ -911,7 +701,6 @@ input[type="radio"]:indeterminate::before {
 }
 
 input[type="checkbox"] {
-  /* border-radius: 10%; */
   border-radius: var(--border-radius-1);
 }
 
@@ -925,21 +714,17 @@ input[type="checkbox"]:checked::before {
 
 input[type="radio"],
 input[type="checkbox"] {
-  /* background: var(--card-color); */
   background: var(--button-color-2);
   border: var(--border);
 }
 
 input[type="radio"]:checked::before {
-  /* background: var(--text-color-3); */
   background: var(--text-color-2);
 }
 
 input[type="checkbox"]:checked::before,
 input[type="checkbox"]:indeterminate::before,
 input[type="checkbox"][aria-checked=mixed]::before {
-  /* border-right-color: var(--text-color-3); */
-  /* border-bottom-color: var(--text-color-3); */
   border-right-color: var(--text-color-2);
   border-bottom-color: var(--text-color-2);
 }
@@ -952,7 +737,6 @@ input[type="range"] {
   border-radius: 0.25rem;
   margin: 0.5rem 0rem;
 
-  /* outline: none; */
   cursor: pointer;
 
   -webkit-appearance: none;
@@ -965,42 +749,22 @@ input[type="range"]::-webkit-slider-thumb {
   width: 1.25rem;
   height: 1.25rem;
   background: hsl(0, 0%, 87.5%);
-  /* background: hsl(0, 0%, 62.5%); */
   border-radius: 50%;
   border: none;
-  /* transition: 0.2s ease-in-out; */
 }
 
 input[type="range"]::-moz-range-thumb {
   width: 1.25rem;
   height: 1.25rem;
   background: hsl(0, 0%, 87.5%);
-  /* background: hsl(0, 0%, 62.5%); */
   border-radius: 50%;
   border: none;
-  /* transition: 0.2s ease-in-out; */
 }
-
-/* input[type="range"]::-webkit-slider-thumb:hover {
-  box-shadow: 0 0 0 0 0.375rem hsl(210, 70%, 60%, 0.25);
-}
-
-input[type="range"]:active::-webkit-slider-thumb {
-  box-shadow: 0 0 0 0 0.375rem hsl(210, 70%, 60%, 0.25);
-} */
 
 input[type="range"]:focus-visible::-webkit-slider-thumb {
   outline: var(--outline-color) solid calc(1 * var(--outline-width));
   outline-offset: calc(1 * var(--outline-width));
 }
-
-/* input[type="range"]::-moz-range-thumb {
-  box-shadow: 0 0 0 0 0.375rem hsl(210, 70%, 60%, 0.25);
-}
-
-input[type="range"]:active::-moz-range-thumb:hover {
-  box-shadow: 0 0 0 0 0.375rem hsl(210, 70%, 60%, 0.25);
-} */
 
 input[type="range"]:focus-visible::-moz-range-thumb {
   outline: var(--outline-color) solid calc(1 * var(--outline-width));
@@ -1008,29 +772,8 @@ input[type="range"]:focus-visible::-moz-range-thumb {
 }
 
 input[type="range"]:focus-visible {
-  /* outline: var(--outline); */
-  /* outline-offset: 0.5rem; */
   outline: none;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 .movie-player-buttons-container {
@@ -1076,41 +819,23 @@ input[type="range"]:focus-visible {
 }
 
 .play-or-pause-button {
-  /* padding: 0.5rem 0.5rem; */
-  /* padding: 0.75rem 0.75rem; */
   padding: 1rem 1rem;
 }
 
 .play-or-pause-button-alt {
-  /* padding: 0.5rem 0.5rem; */
   padding: 0.75rem 0.75rem;
-  /* padding: 1rem 1rem; */
 }
 
 .play-or-pause-button-alt-alt {
   padding: 0.5rem 0.5rem;
-  /* padding: 0.75rem 0.75rem; */
-  /* padding: 1rem 1rem; */
 }
 
 .header-button svg.icon {
   stroke-width: var(--icon-stroke-width-3);
   width: var(--font-size-2);
   height: var(--font-size-2);
-  /* stroke-opacity: var(--icon-opacity); */
-  /* fill-opacity: var(--icon-opacity); */
   opacity: var(--icon-opacity);
 }
-
-
-
-
-
-
-
-
-
-
 
 
 .movie-player-canvas {
@@ -1122,7 +847,6 @@ input[type="range"]:focus-visible {
   object-fit: cover;
   cursor: crosshair;
   border-radius: var(--border-radius-1) var(--border-radius-1) 0 0;
-  /* margin: -1rem; */
 }
 
 .movie-player-top {
@@ -1130,7 +854,6 @@ input[type="range"]:focus-visible {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  /* flex: 1; */
 }
 
 .movie-player-bottom {
@@ -1138,17 +861,13 @@ input[type="range"]:focus-visible {
   flex-direction: column;
   align-items: space-between;
   justify-content: flex-start;
-  /* flex: 0; */
   padding: 1rem;
   gap: 1rem;
 }
 
 .generic-divider {
   border-top: var(--border);
-  /* margin: 0rem -1rem; */
 }
-
-
 
 
 .generic-horizontal-container {
@@ -1173,7 +892,6 @@ input[type="range"]:focus-visible {
   grid-template-columns: auto auto;
   gap: 0.5rem;
   align-items: center;
-  /* justify-content: stretch; */
 }
 
 #labeling-arena-details {
@@ -1181,7 +899,6 @@ input[type="range"]:focus-visible {
   grid-template-columns: auto auto;
   gap: 0.5rem;
   align-items: center;
-  /* justify-content: stretch; */
 }
 
 #labeling-keypoint-details {
@@ -1189,18 +906,14 @@ input[type="range"]:focus-visible {
   grid-template-columns: auto auto;
   gap: 0.5rem;
   align-items: center;
-  /* justify-content: stretch; */
 }
-
 
 
 #analyzing-arena-shape-details {
   display: grid;
-  /* grid-template-columns: auto auto; */
   grid-template-columns: auto 1fr;
   gap: 0.5rem;
   align-items: center;
-  /* justify-content: stretch; */
 }
 
 #analyzing-arena-details {
@@ -1208,7 +921,6 @@ input[type="range"]:focus-visible {
   grid-template-columns: auto auto;
   gap: 0.5rem;
   align-items: center;
-  /* justify-content: stretch; */
 }
 
 #analyzing-frame-selection-details {
@@ -1216,7 +928,6 @@ input[type="range"]:focus-visible {
   grid-template-columns: auto auto;
   gap: 0.5rem;
   align-items: center;
-  /* justify-content: stretch; */
 }
 
 
@@ -1225,7 +936,6 @@ input[type="range"]:focus-visible {
   grid-template-columns: auto auto;
   gap: 0.5rem;
   align-items: center;
-  /* justify-content: stretch; */
 }
 
 #analyzing-manual-correction-arena-details {
@@ -1233,7 +943,6 @@ input[type="range"]:focus-visible {
   grid-template-columns: auto auto;
   gap: 0.5rem;
   align-items: center;
-  /* justify-content: stretch; */
 }
 
 #analyzing-manual-correction-keypoint-details {
@@ -1241,7 +950,6 @@ input[type="range"]:focus-visible {
   grid-template-columns: auto auto;
   gap: 0.5rem;
   align-items: center;
-  /* justify-content: stretch; */
 }
 
 #analyzing-manual-correction-buttons {
@@ -1249,7 +957,6 @@ input[type="range"]:focus-visible {
   grid-template-columns: auto auto;
   gap: 0.5rem;
   align-items: center;
-  /* justify-content: stretch; */
 }
 
 
@@ -1258,30 +965,16 @@ input[type="range"]:focus-visible {
   grid-template-columns: auto auto;
   gap: 0.5rem;
   align-items: center;
-  /* justify-content: stretch; */
 }
 
 #analyzing-trajectory-plot-details {
   display: grid;
-  /* display: none; */
   grid-template-columns: auto auto;
-  /* padding: 0.5rem; */
   gap: 0.5rem;
   align-items: center;
-  /* justify-content: stretch; */
 }
 
 #trajectory-plot-actual-plot-area {
-  /* display: grid; */
-  /* grid-template-columns: auto auto; */
-  /* grid-template-columns: auto; */
-  /* gap: 0.5rem; */
-  /* align-items: center; */
-  /* justify-content: stretch; */
-  /* max-height: 100%;
-  max-width: 100%;
-  min-height: 100%;
-  min-width: 100%; */
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -1289,11 +982,9 @@ input[type="range"]:focus-visible {
 }
 
 
-
 #analyzing-trajectory-plot-controls {
   display: none;
 }
-
 
 
 .button-group-button {
@@ -1303,19 +994,14 @@ input[type="range"]:focus-visible {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  /* padding: 0.5rem 1.25rem; */
-  /* padding-left: 1.125rem; */
 
   font-size: var(--font-size-2);
   font-weight: var(--font-weight-3);
-  /* line-height: var(--line-height-3); */
   line-height: var(--line-height-1);
   color: var(--text-color-3);
 
-  /* background: var(--button-color-2); */
   background: none;
   border-radius: var(--border-radius-1);
-  /* border-radius: var(--border-radius-round); */
   border: none;
 }
 
@@ -1352,9 +1038,6 @@ input[type="range"]:focus-visible {
 }
 
 
-
-
-
 .inner-section-right-side-thumbnails {
   display: none;
   flex-direction: column;
@@ -1366,8 +1049,6 @@ input[type="range"]:focus-visible {
   border: var(--border);
 
   flex: 1;
-  /* padding-top: 1rem;
-  padding-bottom: 1rem; */
 
   min-height: calc(100dvh - 2 * 0.75rem);
   max-height: calc(100dvh - 2 * 0.75rem);
@@ -1375,16 +1056,10 @@ input[type="range"]:focus-visible {
 
 #labeling-thumbnails {
   display: grid;
-  /* grid-template-columns: auto auto; */
   grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
-  /* grid-auto-rows: 1fr; */
-  /* grid-auto-rows: minmax(min-content, max-content); */
-  /* grid-auto-rows: max-content; */
   grid-auto-rows: fit-content(1rem);
   gap: 1rem;
-  /* padding: 1rem; */
   align-items: stretch;
-  /* justify-content: flex-start; */
   justify-content: center;
 
   padding-left: 1rem;
@@ -1396,20 +1071,14 @@ input[type="range"]:focus-visible {
   overflow-x: visible;
   overflow-y: scroll;
   scrollbar-width: 0.5rem;
-  /* scrollbar-width: none; */
-  /* scrollbar-width: thin; */
   scrollbar-color: var(--button-color-2) none;
-  /* z-index: -1; */
 }
 
 #labeling-thumbnails::-webkit-scrollbar {
-  /* display: none; */
-  /* margin: var(--border-radius-1) 0rem; */
   width: 0.5rem;
 }
 
 #labeling-thumbnails::-webkit-scrollbar-track {
-  /* background: var(--card-color); */
   background: none;
 }
 
@@ -1437,28 +1106,11 @@ input[type="range"]:focus-visible {
 
 .labeling-thumbnail-canvas {
   flex: 1;
-  /* overflow: hidden; */
-  /* width: 100%; */
-  /* height: 100%; */
-  /* width: 40%; */
-  /* height: 40%; */
-  /* min-width: calc(24rem - 2 * 1rem);
-  min-height: calc(24rem - 2 * 1rem);
-  max-width: calc(24rem - 2 * 1rem);
-  max-height: calc(24rem - 2 * 1rem); */
   display: block;
-  /* object-fit: cover; */
   object-fit: contain;
-  /* object-fit: scale-down; */
-  /* cursor: crosshair; */
   margin: -1rem;
 
-  /* background: var(--card-color); */
-  /* border-radius: var(--border-radius-1); */
   border-radius: var(--border-radius-1) var(--border-radius-1) 0 0;
-  /* border-bottom: var(--border); */
-
-  /* margin: auto; */
 }
 
 .labeling-thumbnail-metadata-container {
@@ -1467,9 +1119,6 @@ input[type="range"]:focus-visible {
   gap: 0.5rem 1rem;
   align-items: flex-start;
   justify-content: flex-start;
-  /* align-items: stretch;
-  justify-content: stretch; */
-  /* flex: 1rem; */
 }
 
 .generic-blurb-small {
@@ -1478,16 +1127,7 @@ input[type="range"]:focus-visible {
   line-height: var(--line-height-5);
   color: var(--text-color-1);
   text-align: left;
-  /* margin: auto; */
 }
-
-/* #labeling-review-labeled-frames-inner-section-right-side {
-  background: none;
-  border: none;
-} */
-
-
-
 
 
 .inner-workflow-card-heading-alt {
@@ -1504,7 +1144,6 @@ input[type="range"]:focus-visible {
   line-height: var(--line-height-4);
   color: var(--text-color-1);
   flex: 1;
-  /* margin: 1rem 0rem; */
   margin-top: 0.25rem;
   margin-bottom: 1rem;
 }
@@ -1514,9 +1153,6 @@ input[type="range"]:focus-visible {
 #analyzing-frame-number-input {
   max-width: 10rem;
 }
-
-
-
 
 
 .inner-workflow-card-radio-container {
@@ -1531,12 +1167,9 @@ input[type="range"]:focus-visible {
 .inner-workflow-radio-label {
   font-size: var(--font-size-2);
   font-weight: var(--font-weight-1);
-  /* line-height: var(--line-height-5); */
   line-height: var(--line-height-1);
   color: var(--text-color-3);
   flex: 1;
-  /* margin-top: 1rem; */
-  /* margin: -1rem; */
   padding: 1rem;
   padding-left: 0rem;
   margin-right: -1rem;
@@ -1596,7 +1229,6 @@ input[type="range"]:focus-visible {
 }
 
 
-
 progress[value] {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -1607,7 +1239,6 @@ progress[value] {
   border: none;
   border-radius: var(--border-radius-1);
 
-  /* flex: 1; */
   width: 100%;
   height: 0.5rem;
 

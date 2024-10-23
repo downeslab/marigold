@@ -43,8 +43,8 @@ class MP4Parser {
   numFrames = null;
   frameWidth = null;
   frameHeight = null;
-  syncFrames = new Set(); // null?
-  entrySizes = []; // null?
+  syncFrames = new Set();
+  entrySizes = [];
 
   codecProfileInfo = null;
   infoNeededForDecoder = null;
@@ -81,7 +81,6 @@ class MP4Parser {
     let frameIndex = 0;
     let chunkOffset = 0;
     for (let i = 0; i < this.samplesPerChunk.length; ++i) {
-      // chunkOffset = this.chunkOffsets[i];
       chunkOffset = Number(this.chunkOffsets[i]);
       let sampleOffset = 0;
       for (let j = 0; j < this.samplesPerChunk[i]; ++j) {
@@ -93,23 +92,9 @@ class MP4Parser {
   }
 
   findOffset(query, startFrom = 0) {
-    // const test = new Uint8Array(this.buffer);
-
-    // let offset = null;
-    // for (let i = 0; i < test.byteLength - 3; ++i) {
-    //   if (test[i + 0] === query.charCodeAt(0) && test[i + 1] === query.charCodeAt(1)
-    //     && test[i + 2] === query.charCodeAt(2) && test[i + 3] === query.charCodeAt(3)) {
-    //     offset = i + 4;
-    //     break;
-    //   }
-    // }
-
-    // return offset;
-
     const test = new Uint8Array(this.buffer);
 
     let offset = null;
-    // reminder: should i be using query.charCodeAt or query.codePointAt?
     for (let i = startFrom; i < test.byteLength - 3; ++i) {
       if (test[i + 0] === query.charCodeAt(0) && test[i + 1] === query.charCodeAt(1)
         && test[i + 2] === query.charCodeAt(2) && test[i + 3] === query.charCodeAt(3)) {
@@ -134,16 +119,13 @@ class MP4Parser {
   }
 
   parseMdat() {
-    // this.mdatOffset = this.findOffset("mdat");
     // // reminder: there can be more than one (or even zero) mdat boxes per file
 
     let offset = 0;
     while (offset < this.buffer.byteLength - 3 && offset !== null) {
-      // console.log("looping");
       offset = this.findOffset("mdat", offset);
       if (offset !== null) {
         this.mdatOffset = offset;
-        // console.log("mdat:", this.mdatOffset);
       }
     }
   }
@@ -195,15 +177,9 @@ class MP4Parser {
   }
 
   parseTrak() {
-    // this.trakOffset = this.findOffset("trak");
-
-    // reminder: this will probably fail if there are no video tracks, possibly by looping forever
     let offset = 0;
     while (offset < this.buffer.byteLength - 3) {
-      // console.log("looping");
       offset = this.findOffset("trak", offset);
-
-      //
 
       let hdlrOffset = this.findOffset("hdlr", offset);
 
@@ -217,14 +193,11 @@ class MP4Parser {
 
       let isVideo = false;
       if (handlrType === 1986618469) {
-        // console.log("isVideo: true");
         isVideo = true;
         this.trakOffset = offset;
-        // console.log("breaking");
         break;
       }
       else {
-        // console.log("isVideo: false");
         isVideo = false;
       }
     }
@@ -302,69 +275,20 @@ class MP4Parser {
     offset += 4;
 
     if (handlrType === 1986618469) {
-      // console.log("isVideo: true");
     }
     else {
-      // console.log("isVideo: false");
     }
-
-    //
-
-    // let isVideo = false;
-    // this.hdlrOffset = this.findOffset("hdlr");
-
-    // let offset = this.hdlrOffset;
-
-    // offset += 4; // version
-    // offset += 4; // pre_defined
-
-    // let handlrType = this.dataView.getUint32(offset, false);
-    // offset += 4;
-
-    // if (handlrType === 1986618469) {
-    //   isVideo = true;
-    //   // console.log("isVideo: true");
-    // }
-    // else {
-    //   isVideo = false;
-    //   // console.log("isVideo: false");
-    // }
-
-    // // reminder: this will loop forever if no video is found; should check when offset reaches end of file and break
-    // while (!isVideo) {
-    //   this.hdlrOffset = this.findOffset("hdlr", this.hdlrOffset);
-
-    //   offset = this.hdlrOffset;
-
-    //   offset += 4; // version
-    //   offset += 4; // pre_defined
-
-    //   handlrType = this.dataView.getUint32(offset, false);
-    //   offset += 4;
-
-    //   if (handlrType === 1986618469) {
-    //     isVideo = true;
-    //     // console.log("isVideo: true");
-    //   }
-    //   else {
-    //     isVideo = false;
-    //     // console.log("isVideo: false");
-    //   }
-    // }
   }
 
   parseMinf() {
-    // this.minfOffset = this.findOffset("minf");
     this.minfOffset = this.findOffset("minf", this.trakOffset);
   }
 
   parseStbl() {
-    // this.stblOffset = this.findOffset("stbl");
     this.stblOffset = this.findOffset("stbl", this.trakOffset);
   }
 
   parseStsd() {
-    // this.stsdOffset = this.findOffset("stsd");
     this.stsdOffset = this.findOffset("stsd", this.trakOffset);
 
     const test = new Uint8Array(this.buffer);
@@ -418,13 +342,11 @@ class MP4Parser {
 
       const decoderInfoName = this.dataView.getUint32(offset, false);
       offset += 4;
-      // console.log("decoderInfoName:", decoderInfoName);
 
       const decoderInfo = test.subarray(offset, offset + decoderInfoSize - 2 * 4);
       offset += decoderInfoSize;
 
       this.infoNeededForDecoder = decoderInfo;
-      // console.log("decoderInfo:", decoderInfo);
 
       if (decoderInfoName === 1635148611) {
         this.codecProfileInfo = "avc1.";
@@ -436,7 +358,6 @@ class MP4Parser {
   }
 
   parseStts() {
-    // this.sttsOffset = this.findOffset("stts");
     this.sttsOffset = this.findOffset("stts", this.trakOffset);
 
     let offset = this.sttsOffset;
@@ -456,38 +377,9 @@ class MP4Parser {
   }
 
   parseCtts() {
-    // // this.cttsOffset = this.findOffset("ctts");
-    // this.cttsOffset = this.findOffset("ctts", this.trakOffset);
-    // console.log(this.cttsOffset);
-
-    // let offset = this.cttsOffset;
-
-    // const version = this.dataView.getUint8(offset, false);
-    // offset += 4;
-
-    // const entryCount = this.dataView.getUint32(offset, false);
-    // offset += 4;
-
-    // for (let i = 0; i < entryCount; ++i) {
-    //   if (version === 0) {
-    //     const sampleCount = this.dataView.getUint32(offset, false);
-    //     offset += 4;
-
-    //     const sampleOffset = this.dataView.getUint32(offset, false);
-    //     offset += 4;
-    //   }
-    //   else if (version === 1) {
-    //     const sampleCount = this.dataView.getUint32(offset, false);
-    //     offset += 4;
-
-    //     const sampleOffset = this.dataView.getInt32(offset, false);
-    //     offset += 4;
-    //   }
-    // }
   }
 
   parseStss() {
-    // this.stssOffset = this.findOffset("stss");
     this.stssOffset = this.findOffset("stss", this.trakOffset);
 
     let offset = this.stssOffset;
@@ -507,7 +399,6 @@ class MP4Parser {
 
   parseStco() {
     this.stcoOffset = this.findOffset("stco", this.trakOffset);
-    // console.log(this.stcoOffset);
     if (this.stcoOffset !== null) {
       let offset = this.stcoOffset;
 
@@ -525,8 +416,6 @@ class MP4Parser {
     }
     else {
       this.stcoOffset = this.findOffset("co64", this.trakOffset);
-      // console.log(this.stcoOffset);
-
       let offset = this.stcoOffset;
 
       offset += 4; // version
@@ -534,21 +423,16 @@ class MP4Parser {
       const entryCount = this.dataView.getUint32(offset, false);
       offset += 4;
 
-      // console.log("entryCount:", entryCount);
-
       for (let i = 0; i < entryCount; ++i) {
         const chunkOffset = this.dataView.getBigUint64(offset, false);
-        // console.log("chunkOffset:", chunkOffset);
         offset += 8;
 
         this.chunkOffsets.push(chunkOffset);
       }
-      // console.log("this.chunkOffsets:", this.chunkOffsets);
     }
   }
 
   parseStsc() {
-    // this.stscOffset = this.findOffset("stsc");
     this.stscOffset = this.findOffset("stsc", this.trakOffset);
 
     let offset = this.stscOffset;
@@ -587,8 +471,6 @@ class MP4Parser {
         offset += 4;
 
         const nextFirstChunk = this.dataView.getUint32(offset, false);
-        // reminder: don't add to offset here
-
         for (let j = 0; j < nextFirstChunk - firstChunk; ++j) {
           this.samplesPerChunk.push(samplesPerChunk);
         }
@@ -610,7 +492,6 @@ class MP4Parser {
   }
 
   parseStsz() {
-    // this.stszOffset = this.findOffset("stsz");
     this.stszOffset = this.findOffset("stsz", this.trakOffset);
 
     let offset = this.stszOffset;
@@ -638,8 +519,6 @@ class MP4Parser {
 
 
 export class MovieReader {
-  // reminder: need to detect when codec isn't available in browser
-
   decoderConfig = null;
   decoder = null;
   buffer = null;
@@ -665,7 +544,6 @@ export class MovieReader {
           await this.processFrame(frame);
         },
         error: (e) => {
-          // console.log("Oops!");
         }
       }
     );
@@ -675,19 +553,10 @@ export class MovieReader {
       codedWidth: this.mp4Parser.frameWidth,
       codedHeight: this.mp4Parser.frameHeight,
       description: this.mp4Parser.infoNeededForDecoder,
-      // hardwareAcceleration: "prefer-hardware",
-      // hardwareAcceleration: "prefer-software",
-      // optimizeForLatency: true
       optimizeForLatency: false
     };
 
-    // try {
     this.decoder.configure(this.decoderConfig);
-    // }
-    // catch (error) {
-    // console.log(error);
-    // throw error;
-    // }
 
     this.decoder.addEventListener(
       "dequeue",
@@ -711,10 +580,7 @@ export class MovieReader {
 
   async processFrame(frame) {
     if (this.samplesPulledFromDecoder === this.targetFrame) {
-      // const start = performance.now();
       this.cachedFrames[this.samplesPulledFromDecoder] = await createImageBitmap(frame);
-      // const finish = performance.now();
-      // console.log("createImageBitmap t =", (finish - start) / 1000, "s");
       frame.close();
       await this.renderFrame(this.targetFrame);
     }
@@ -776,9 +642,6 @@ export class MovieReader {
         }
       );
       this.decoder.decode(chunk);
-      // ++this.samplesPushedToDecoder;
-
-      // await this.decoder.flush();
     }
   }
 
@@ -815,8 +678,4 @@ export class MovieReader {
       await this.pushSample();
     }
   }
-
-  // close() {
-  //   this.decoder.close();
-  // }
 }

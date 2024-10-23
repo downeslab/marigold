@@ -52,7 +52,6 @@ export class SectionWorker {
   }
 
 
-  // reset() {
   async reset() {
     this.fileHandle = null;
     this.data = null;
@@ -111,11 +110,9 @@ export class SectionWorker {
 
   async maybeSaveFile() {
     if (await this.fileHandle.queryPermission({ mode: "readwrite" }) !== "granted") {
-      // console.log("blah");
       self.postMessage({ type: "saveFileFailure", reason: "permission", fileHandle: this.fileHandle });
     }
     else {
-      // console.log("blahblah");
       try {
         await this.saveFileUnchecked();
         self.postMessage({ type: "saveFileSuccess" });
@@ -127,12 +124,6 @@ export class SectionWorker {
   }
 
   async saveFileUnchecked() {
-    // console.log(this.fileHandle);
-    // const options = {};
-    // options.mode = "readwrite";
-    // console.log(await this.fileHandle.queryPermission(options));
-    // console.log(await this.fileHandle.requestPermission(options));
-
     const writable = await this.fileHandle.createWritable();
     await writable.write(JSON.stringify(this.data));
     await writable.close();

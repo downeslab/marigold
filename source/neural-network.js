@@ -31,7 +31,6 @@ randomWebAssemblyInstance.exports._start();
 
 const neuralNetworkWasmModule = await WebAssembly.compileStreaming(fetch("../neural-network.wasm"));
 
-// const instance = await WebAssembly.instantiate(neuralNetworkWasmModule);
 const instance = await WebAssembly.instantiate(
   neuralNetworkWasmModule,
   {
@@ -43,14 +42,6 @@ const instance = await WebAssembly.instantiate(
   }
 );
 instance.exports._start();
-
-// for (let i = 0; i < 10; ++i) {
-//   // console.log(instance.exports.b1_vals_table_lookup(i), instance.exports.b2_vals_table_lookup(i));
-// }
-
-// for (let i = 0; i < 10; ++i) {
-//   // console.log("exp:", Math.exp(-i / 5), instance.exports.fast_approx_exp(-i / 5));
-// }
 
 const memoryPageSize = 64 * 1024;
 const elementByteSize = 4;
@@ -109,16 +100,6 @@ class InputLayer extends Layer {
   }
 
   forward(image, height, width, channels) {
-    // const imageArray = new Float32Array(
-    //   instance.exports.memory.buffer,
-    //   this.bufferOffsets[0],
-    //   height * width * channels
-    // );
-
-    // for (let i = 0; i < height * width * channels; ++i) {
-    //   imageArray[i] = image[i];
-    // }
-
     this.cache = image;
 
     this.currentHeight = height;
@@ -128,7 +109,6 @@ class InputLayer extends Layer {
 
   currentForwardOutput() {
     return [
-      // this.bufferOffsets[0],
       this.cache,
       this.currentHeight,
       this.currentWidth,
@@ -171,37 +151,6 @@ class OutputLayer extends Layer {
   }
 
   backward(gradient) {
-    // const gradientArray = new Float32Array(
-    //   instance.exports.memory.buffer,
-    //   this.bufferOffsets[0],
-    //   this.currentHeight * this.currentWidth * this.currentChannels
-    // );
-
-    // for (let i = 0; i < this.currentHeight * this.currentWidth * this.currentChannels; ++i) {
-    //   gradientArray[i] = gradient[i];
-    // }
-
-    //
-
-    // {
-    //   const gradientArray = new Float32Array(
-    //     instance.exports.memory.buffer,
-    //     this.bufferOffsets[0],
-    //     this.currentHeight * this.currentWidth * this.currentChannels
-    //   );
-
-    //   const gradientArray_ = new Float32Array(
-    //     instance.exports.memory.buffer,
-    //     gradient,
-    //     this.currentHeight * this.currentWidth * this.currentChannels
-    //   );
-
-    //   for (let i = 0; i < this.currentHeight * this.currentWidth * this.currentChannels; ++i) {
-    //     gradientArray[i] = gradientArray_[i];
-    //     // console.log("values:", gradientArray[i], gradientArray_[i]);
-    //   }
-    // }
-
     this.cache = gradient;
   }
 
@@ -211,7 +160,6 @@ class OutputLayer extends Layer {
 
   currentBackwardOutput() {
     return [
-      // this.bufferOffsets[0],
       this.cache,
       this.currentHeight,
       this.currentWidth,
@@ -328,16 +276,11 @@ class HardSwishLayer extends Layer {
   forward() {
     let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
 
-    {
-      // const start = performance.now();
-      instance.exports.hard_swish_forward(
-        inputOffset,
-        this.bufferOffsets[0],
-        inputHeight * inputWidth * inputChannels
-      );
-      // const finish = performance.now();
-      // console.log("[hard_swish forward] t =", (finish - start) / 1000, "s");
-    }
+    instance.exports.hard_swish_forward(
+      inputOffset,
+      this.bufferOffsets[0],
+      inputHeight * inputWidth * inputChannels
+    );
 
     this.currentHeight = inputHeight;
     this.currentWidth = inputWidth;
@@ -348,18 +291,13 @@ class HardSwishLayer extends Layer {
     let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
     instance.exports.zero(this.bufferOffsets[1], this.bufferSizes[1]);
 
-    {
-      // const start = performance.now();
-      for (const downstreamLayer of this.downstreamLayers) {
-        instance.exports.hard_swish_backward(
-          downstreamLayer.currentBackwardOutput()[0],
-          this.bufferOffsets[1],
-          inputOffset,
-          this.bufferSizes[1],
-        );
-      }
-      // const finish = performance.now();
-      // console.log("[hard_swish backward] t =", (finish - start) / 1000, "s");
+    for (const downstreamLayer of this.downstreamLayers) {
+      instance.exports.hard_swish_backward(
+        downstreamLayer.currentBackwardOutput()[0],
+        this.bufferOffsets[1],
+        inputOffset,
+        this.bufferSizes[1],
+      );
     }
   }
 
@@ -417,18 +355,13 @@ class PixelShuffleLayer extends Layer {
   forward() {
     let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
 
-    {
-      // const start = performance.now();
-      instance.exports.pixel_shuffle_forward(
-        inputOffset,
-        this.bufferOffsets[0],
-        inputHeight,
-        inputWidth,
-        inputChannels
-      );
-      // const finish = performance.now();
-      // console.log("[pixel_shuffle forward] t =", (finish - start) / 1000, "s");
-    }
+    instance.exports.pixel_shuffle_forward(
+      inputOffset,
+      this.bufferOffsets[0],
+      inputHeight,
+      inputWidth,
+      inputChannels
+    );
 
     this.currentHeight = inputHeight * this.stride;
     this.currentWidth = inputWidth * this.stride;
@@ -439,19 +372,14 @@ class PixelShuffleLayer extends Layer {
     let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
     instance.exports.zero(this.bufferOffsets[1], this.bufferSizes[1]);
 
-    {
-      // const start = performance.now();
-      for (const downstreamLayer of this.downstreamLayers) {
-        instance.exports.pixel_shuffle_backward(
-          downstreamLayer.currentBackwardOutput()[0],
-          this.bufferOffsets[1],
-          inputHeight,
-          inputWidth,
-          inputChannels
-        );
-      }
-      // const finish = performance.now();
-      // console.log("[pixel_shuffle backward] t =", (finish - start) / 1000, "s");
+    for (const downstreamLayer of this.downstreamLayers) {
+      instance.exports.pixel_shuffle_backward(
+        downstreamLayer.currentBackwardOutput()[0],
+        this.bufferOffsets[1],
+        inputHeight,
+        inputWidth,
+        inputChannels
+      );
     }
   }
 
@@ -480,9 +408,7 @@ class InstanceNormalizationLayer extends Layer {
   channels = null;
   epsilon = null;
 
-  // constructor(upstreamLayer, channels, epsilon = 1.0e-5) {
   constructor(upstreamLayer, channels, epsilon = 1.0e-4) {
-    // constructor(upstreamLayer, channels, epsilon = 1.0e-3) {
     super();
     upstreamLayer.downstreamLayers.push(this);
     this.upstreamLayers.push(upstreamLayer);
@@ -560,42 +486,18 @@ class InstanceNormalizationLayer extends Layer {
   forward() {
     let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
 
-    {
-      // const start = performance.now();
-      instance.exports.instance_normalization_forward(
-        inputOffset,
-        this.bufferOffsets[0],
-        this.parameterOffsets[0],
-        this.parameterOffsets[1],
-        this.bufferOffsets[2],
-        this.bufferOffsets[3],
-        this.epsilon,
-        inputHeight,
-        inputWidth,
-        inputChannels
-      );
-      // const finish = performance.now();
-      // console.log("[norm forward] t =", (finish - start) / 1000, "s");
-    }
-
-
-    {
-      // // const start = performance.now();
-      // instance.exports.instance_normalization_forward_template_outer(
-      //   inputOffset,
-      //   this.bufferOffsets[0],
-      //   this.parameterOffsets[0],
-      //   this.parameterOffsets[1],
-      //   this.bufferOffsets[2],
-      //   this.bufferOffsets[3],
-      //   this.epsilon,
-      //   inputHeight,
-      //   inputWidth,
-      //   inputChannels
-      // );
-      // // const finish = performance.now();
-      // console.log("[norm new] t =", (finish - start) / 1000, "s");
-    }
+    instance.exports.instance_normalization_forward(
+      inputOffset,
+      this.bufferOffsets[0],
+      this.parameterOffsets[0],
+      this.parameterOffsets[1],
+      this.bufferOffsets[2],
+      this.bufferOffsets[3],
+      this.epsilon,
+      inputHeight,
+      inputWidth,
+      inputChannels
+    );
 
     this.currentHeight = inputHeight;
     this.currentWidth = inputWidth;
@@ -608,27 +510,22 @@ class InstanceNormalizationLayer extends Layer {
     instance.exports.zero(this.bufferOffsets[4], this.bufferSizes[4]);
     instance.exports.zero(this.bufferOffsets[5], this.bufferSizes[5]);
 
-    {
-      // const start = performance.now();
-      for (const downstreamLayer of this.downstreamLayers) {
-        instance.exports.instance_normalization_backward(
-          downstreamLayer.currentBackwardOutput()[0],
-          this.bufferOffsets[1],
-          this.gradientOffsets[0],
-          this.gradientOffsets[1],
-          this.parameterOffsets[0],
-          this.bufferOffsets[2],
-          this.bufferOffsets[3],
-          inputOffset,
-          this.bufferOffsets[4],
-          this.bufferOffsets[5],
-          inputHeight,
-          inputWidth,
-          inputChannels
-        );
-        // const finish = performance.now();
-        // console.log("[norm backward] t =", (finish - start) / 1000, "s");
-      }
+    for (const downstreamLayer of this.downstreamLayers) {
+      instance.exports.instance_normalization_backward(
+        downstreamLayer.currentBackwardOutput()[0],
+        this.bufferOffsets[1],
+        this.gradientOffsets[0],
+        this.gradientOffsets[1],
+        this.parameterOffsets[0],
+        this.bufferOffsets[2],
+        this.bufferOffsets[3],
+        inputOffset,
+        this.bufferOffsets[4],
+        this.bufferOffsets[5],
+        inputHeight,
+        inputWidth,
+        inputChannels
+      );
     }
   }
 
@@ -655,19 +552,16 @@ class InstanceNormalizationLayer extends Layer {
 class PointwiseConvolutionLayer extends Layer {
   channelsIn = null;
   channelsOut = null;
-  groups = null;
 
-  constructor(upstreamLayer, channelsIn, channelsOut, groups) {
+  constructor(upstreamLayer, channelsIn, channelsOut) {
     super();
     upstreamLayer.downstreamLayers.push(this);
     this.upstreamLayers.push(upstreamLayer);
 
     this.channelsIn = channelsIn;
     this.channelsOut = channelsOut;
-    this.groups = groups;
 
-    // const kernelSize = this.channelsIn * this.channelsOut;
-    const kernelSize = this.groups * (this.channelsIn / this.groups) * (this.channelsOut / this.groups);
+    const kernelSize = this.channelsIn * this.channelsOut;
     const biasSize = this.channelsOut;
     this.parameterSizes.push(kernelSize);
     this.parameterSizes.push(biasSize);
@@ -687,8 +581,6 @@ class PointwiseConvolutionLayer extends Layer {
   initializeParametersAndGradients() {
     const fanIn = this.channelsIn;
     const fanOut = this.channelsOut;
-    // const fanIn = this.channelsIn / this.groups;
-    // const fanOut = this.channelsOut / this.groups;
     const glorot_uniform = Math.sqrt(6.0 / (fanIn + fanOut));
 
     const kernelSize = this.parameterSizes[0];
@@ -722,19 +614,10 @@ class PointwiseConvolutionLayer extends Layer {
   bufferSizesFor(height, width, channels) {
     const bufferSizes = [];
 
-    // bufferSizes.push(height * width * channels); // y
-    // bufferSizes.push(height * width * this.channelsOut); // d_x
     bufferSizes.push(height * width * this.channelsOut); // y
     bufferSizes.push(height * width * this.channelsIn); // d_x
     bufferSizes.push(this.parameterSizes[0]); // kernel buffer
-
     bufferSizes.push(this.parameterSizes[0]); // kernel_ buffer
-
-    // console.log("bufferSizes:");
-    // console.log(bufferSizes[0]);
-    // console.log(bufferSizes[1]);
-    // console.log(bufferSizes[2]);
-    // console.log(bufferSizes[3]);
 
     return bufferSizes;
   }
@@ -746,177 +629,17 @@ class PointwiseConvolutionLayer extends Layer {
   forward() {
     let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
 
-    // console.log("bufferOffsets:");
-    // for (const bufferOffset of this.bufferOffsets) {
-    //   // console.log(bufferOffset);
-    // }
-    // console.log("!");
-
-    // {
-    //   // const start = performance.now();
-    // instance.exports.pointwise_convolution_forward_grouped(
-    //   inputOffset,
-    //   this.bufferOffsets[0],
-    //   this.parameterOffsets[0],
-    //   this.parameterOffsets[1],
-    //   inputHeight,
-    //   inputWidth,
-    //   this.channelsIn,
-    //   this.channelsOut,
-    //   this.groups
-    // );
-    //   // const finish = performance.now();
-    //   // console.log("[pointwise forward] t =", (finish - start) / 1000, "s");
-    // }
-
-    // instance.exports.pointwise_convolution_forward_grouped(
-    //   inputOffset,
-    //   this.bufferOffsets[0],
-    //   this.parameterOffsets[0],
-    //   this.parameterOffsets[1],
-    //   inputHeight,
-    //   inputWidth,
-    //   this.channelsIn,
-    //   this.channelsOut,
-    //   this.groups
-    // );
-
-    // console.log("this.channelsIn:", this.channelsIn, "this.channelsOut:", this.channelsOut);
-
-    let n = 10;
-
-    // {
-    //   // const start = performance.now();
-    //   for (let i = 0; i < n; ++i) {
-    //     instance.exports.pointwise_convolution_forward(
-    //       inputOffset,
-    //       this.bufferOffsets[0],
-    //       this.parameterOffsets[0],
-    //       this.parameterOffsets[1],
-    //       inputHeight,
-    //       inputWidth,
-    //       this.channelsIn,
-    //       this.channelsOut
-    //     );
-    //   }
-    //   // const finish = performance.now();
-    //   // console.log("[pointwise forward] t =", (finish - start) / 1000, "s");
-    // }
-
-    // {
-    //   // const start = performance.now();
-    //   for (let i = 0; i < n; ++i) {
-    //     instance.exports.pointwise_convolution_forward_test_1(
-    //       inputOffset,
-    //       this.bufferOffsets[0],
-    //       this.parameterOffsets[0],
-    //       this.parameterOffsets[1],
-    //       this.bufferOffsets[3],
-    //       inputHeight,
-    //       inputWidth,
-    //       this.channelsIn,
-    //       this.channelsOut
-    //     );
-    //   }
-    //   // const finish = performance.now();
-    //   // console.log("[pointwise forward test 1] t =", (finish - start) / 1000, "s");
-    // }
-
-    // {
-    //   // const start = performance.now();
-    //   for (let i = 0; i < n; ++i) {
-    //     instance.exports.pointwise_convolution_forward_test_2(
-    //       inputOffset,
-    //       this.bufferOffsets[0],
-    //       this.parameterOffsets[0],
-    //       this.parameterOffsets[1],
-    //       this.bufferOffsets[3],
-    //       inputHeight,
-    //       inputWidth,
-    //       this.channelsIn,
-    //       this.channelsOut
-    //     );
-    //   }
-    //   // const finish = performance.now();
-    //   // console.log("[pointwise forward test 2] t =", (finish - start) / 1000, "s");
-    // }
-
-    {
-      // const start = performance.now();
-      // for (let i = 0; i < n; ++i) {
-      instance.exports.pointwise_convolution_forward_test_3(
-        inputOffset,
-        this.bufferOffsets[0],
-        this.parameterOffsets[0],
-        this.parameterOffsets[1],
-        this.bufferOffsets[3],
-        inputHeight,
-        inputWidth,
-        this.channelsIn,
-        this.channelsOut
-      );
-      // }
-      // const finish = performance.now();
-      // console.log("[pointwise forward test 3] t =", (finish - start) / 1000, "s");
-    }
-
-    // {
-    //   // const start = performance.now();
-    //   for (let i = 0; i < n; ++i) {
-    //     instance.exports.pointwise_convolution_forward_test_4(
-    //       inputOffset,
-    //       this.bufferOffsets[0],
-    //       this.parameterOffsets[0],
-    //       this.parameterOffsets[1],
-    //       this.bufferOffsets[3],
-    //       inputHeight,
-    //       inputWidth,
-    //       this.channelsIn,
-    //       this.channelsOut
-    //     );
-    //   }
-    //   // const finish = performance.now();
-    //   // console.log("[pointwise forward test 4] t =", (finish - start) / 1000, "s");
-    // }
-
-    // {
-    //   // const start = performance.now();
-    //   for (let i = 0; i < n; ++i) {
-    //     instance.exports.pointwise_convolution_forward_test_5(
-    //       inputOffset,
-    //       this.bufferOffsets[0],
-    //       this.parameterOffsets[0],
-    //       this.parameterOffsets[1],
-    //       this.bufferOffsets[3],
-    //       inputHeight,
-    //       inputWidth,
-    //       this.channelsIn,
-    //       this.channelsOut
-    //     );
-    //   }
-    //   // const finish = performance.now();
-    //   // console.log("[pointwise forward test 5] t =", (finish - start) / 1000, "s");
-    // }
-
-    // if (this.channelsIn == 4 && this.channelsOut == 8) {
-    //   const k = new Float32Array(
-    //     instance.exports.memory.buffer,
-    //     this.parameterOffsets[0],
-    //     this.parameterSizes[0]
-    //   );
-
-    //   const k_ = new Float32Array(
-    //     instance.exports.memory.buffer,
-    //     this.bufferOffsets[3],
-    //     this.bufferSizes[3]
-    //   );
-
-    //   for (let i = 0; i < this.channelsIn; ++i) {
-    //     for (let j = 0; j < this.channelsOut; ++j) {
-    //       // console.log("k[", i, ", ", j, "]: ", k[i * this.channelsOut + j], " ; k_[", j, ", ", i, "]: ", k_[i * this.channelsOut + j]);
-    //     }
-    //   }
-    // }
+    instance.exports.pointwise_convolution_forward(
+      inputOffset,
+      this.bufferOffsets[0],
+      this.parameterOffsets[0],
+      this.parameterOffsets[1],
+      this.bufferOffsets[3],
+      inputHeight,
+      inputWidth,
+      this.channelsIn,
+      this.channelsOut
+    );
 
     this.currentHeight = inputHeight;
     this.currentWidth = inputWidth;
@@ -926,147 +649,23 @@ class PointwiseConvolutionLayer extends Layer {
   backward() {
     let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
     instance.exports.zero(this.bufferOffsets[1], this.bufferSizes[1]);
-    // instance.exports.zero(this.bufferOffsets[2], this.bufferSizes[2]);
+    instance.exports.zero(this.bufferOffsets[2], this.bufferSizes[2]);
 
-    // {
-    //   // const start = performance.now();
-    // for (const downstreamLayer of this.downstreamLayers) {
-    //   instance.exports.pointwise_convolution_backward_grouped(
-    //     downstreamLayer.currentBackwardOutput()[0],
-    //     this.bufferOffsets[1],
-    //     this.gradientOffsets[0],
-    //     this.gradientOffsets[1],
-    //     inputOffset,
-    //     this.parameterOffsets[0],
-    //     this.bufferOffsets[2],
-    //     inputHeight,
-    //     inputWidth,
-    //     this.channelsIn,
-    //     this.channelsOut,
-    //     this.groups
-    //   );
-    //   // const finish = performance.now();
-    //   // console.log("[pointwise backward] t =", (finish - start) / 1000, "s");
-    // }
-
-    // console.log("this.channelsIn:", this.channelsIn, "this.channelsOut:", this.channelsOut);
-
-    let n = 10;
-
-    // {
-    //   // const start = performance.now();
-    //   for (let i = 0; i < n; ++i) {
-    //     for (const downstreamLayer of this.downstreamLayers) {
-    //       instance.exports.pointwise_convolution_backward_test_1(
-    //         downstreamLayer.currentBackwardOutput()[0],
-    //         this.bufferOffsets[1],
-    //         this.gradientOffsets[0],
-    //         this.gradientOffsets[1],
-    //         inputOffset,
-    //         this.parameterOffsets[0],
-    //         this.bufferOffsets[2],
-    //         inputHeight,
-    //         inputWidth,
-    //         this.channelsIn,
-    //         this.channelsOut
-    //       );
-    //     }
-    //   }
-    //   // const finish = performance.now();
-    //   // console.log("[pointwise backward test 1] t =", (finish - start) / 1000, "s");
-    // }
-
-    {
-      // const start = performance.now();
-      // for (let i = 0; i < n; ++i) {
-      for (const downstreamLayer of this.downstreamLayers) {
-        instance.exports.pointwise_convolution_backward_test_2(
-          downstreamLayer.currentBackwardOutput()[0],
-          this.bufferOffsets[1],
-          this.gradientOffsets[0],
-          this.gradientOffsets[1],
-          inputOffset,
-          this.parameterOffsets[0],
-          this.bufferOffsets[2],
-          inputHeight,
-          inputWidth,
-          this.channelsIn,
-          this.channelsOut
-        );
-      }
-      // }
-      // const finish = performance.now();
-      // console.log("[pointwise backward test 2] t =", (finish - start) / 1000, "s");
+    for (const downstreamLayer of this.downstreamLayers) {
+      instance.exports.pointwise_convolution_backward(
+        downstreamLayer.currentBackwardOutput()[0],
+        this.bufferOffsets[1],
+        this.gradientOffsets[0],
+        this.gradientOffsets[1],
+        inputOffset,
+        this.parameterOffsets[0],
+        this.bufferOffsets[2],
+        inputHeight,
+        inputWidth,
+        this.channelsIn,
+        this.channelsOut
+      );
     }
-
-    // {
-    //   // const start = performance.now();
-    //   for (let i = 0; i < n; ++i) {
-    //     for (const downstreamLayer of this.downstreamLayers) {
-    //       instance.exports.pointwise_convolution_backward_test_3(
-    //         downstreamLayer.currentBackwardOutput()[0],
-    //         this.bufferOffsets[1],
-    //         this.gradientOffsets[0],
-    //         this.gradientOffsets[1],
-    //         inputOffset,
-    //         this.parameterOffsets[0],
-    //         this.bufferOffsets[2],
-    //         inputHeight,
-    //         inputWidth,
-    //         this.channelsIn,
-    //         this.channelsOut
-    //       );
-    //     }
-    //   }
-    //   // const finish = performance.now();
-    //   // console.log("[pointwise backward test 3] t =", (finish - start) / 1000, "s");
-    // }
-
-    // {
-    //   // const start = performance.now();
-    //   for (let i = 0; i < n; ++i) {
-    //     for (const downstreamLayer of this.downstreamLayers) {
-    //       instance.exports.pointwise_convolution_backward_d_out_test_1(
-    //         downstreamLayer.currentBackwardOutput()[0],
-    //         this.bufferOffsets[1],
-    //         this.gradientOffsets[0],
-    //         this.gradientOffsets[1],
-    //         inputOffset,
-    //         this.parameterOffsets[0],
-    //         this.bufferOffsets[2],
-    //         inputHeight,
-    //         inputWidth,
-    //         this.channelsIn,
-    //         this.channelsOut
-    //       );
-    //     }
-    //   }
-    //   // const finish = performance.now();
-    //   // console.log("[pointwise backward test 1] t =", (finish - start) / 1000, "s");
-    // }
-
-    // {
-    //   // const start = performance.now();
-    //   for (let i = 0; i < n; ++i) {
-    //     for (const downstreamLayer of this.downstreamLayers) {
-    //       instance.exports.pointwise_convolution_backward_d_out_test_2(
-    //         downstreamLayer.currentBackwardOutput()[0],
-    //         this.bufferOffsets[1],
-    //         this.gradientOffsets[0],
-    //         this.gradientOffsets[1],
-    //         inputOffset,
-    //         this.parameterOffsets[0],
-    //         this.bufferOffsets[2],
-    //         inputHeight,
-    //         inputWidth,
-    //         this.channelsIn,
-    //         this.channelsOut
-    //       );
-    //     }
-    //   }
-    //   // const finish = performance.now();
-    //   // console.log("[pointwise backward test 2] t =", (finish - start) / 1000, "s");
-    // }
   }
 
   currentForwardOutput() {
@@ -1121,8 +720,6 @@ class DepthwiseConvolutionLayer extends Layer {
   initializeParametersAndGradients() {
     const fanIn = this.channels * this.filterSize * this.filterSize;
     const fanOut = this.channels * this.filterSize * this.filterSize;
-    // const fanIn = this.filterSize * this.filterSize;
-    // const fanOut = this.filterSize * this.filterSize;
     const glorot_uniform = Math.sqrt(6.0 / (fanIn + fanOut));
 
     const kernelSize = this.parameterSizes[0];
@@ -1157,12 +754,7 @@ class DepthwiseConvolutionLayer extends Layer {
     const bufferSizes = [];
 
     bufferSizes.push(height * width * channels); // y
-    // bufferSizes.push(height * width * this.channelsOut); // d_x
     bufferSizes.push(height * width * channels); // d_x
-    // bufferSizes.push((height + 2 * 3) * (width + 2 * 3) * channels); // x_pad
-    // bufferSizes.push((height + 2 * 3) * (width + 2 * 3) * channels); // d_x_pad
-    // bufferSizes.push((height + 2 * 2) * (width + 2 * 2) * channels); // x_pad
-    // // bufferSizes.push((height + 2 * 2) * (width + 2 * 2) * channels); // d_x_pad
     bufferSizes.push((height + 2 * 1) * (width + 2 * 1) * channels); // x_pad
     bufferSizes.push((height + 2 * 1) * (width + 2 * 1) * channels); // d_x_pad
 
@@ -1176,74 +768,15 @@ class DepthwiseConvolutionLayer extends Layer {
   forward() {
     let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
 
-    // {
-    //   // const start = performance.now();
-    //   for (let i = 0; i < 10; ++i) {
-    //     instance.exports.depthwise_convolution_forward(
-    //       inputOffset,
-    //       this.bufferOffsets[0],
-    //       this.parameterOffsets[0],
-    //       this.parameterOffsets[1],
-    //       this.bufferOffsets[2],
-    //       inputHeight,
-    //       inputWidth,
-    //       inputChannels
-    //     );
-    //   }
-    //   // const finish = performance.now();
-    //   // console.log("[depthwise forward] t =", (finish - start) / 1000, "s");
-    // }
-
-    // {
-    //   // const start = performance.now();
-    //   for (let i = 0; i < 10; ++i) {
-    //     instance.exports.depthwise_convolution_forward_unpadded(
-    //       inputOffset,
-    //       this.bufferOffsets[0],
-    //       this.parameterOffsets[0],
-    //       this.parameterOffsets[1],
-    //       // this.bufferOffsets[2],
-    //       inputHeight,
-    //       inputWidth,
-    //       inputChannels
-    //     );
-    //   }
-    //   // const finish = performance.now();
-    //   // console.log("[depthwise forward unpadded] t =", (finish - start) / 1000, "s");
-    // }
-
-    {
-      // const start = performance.now();
-      // for (let i = 0; i < 10; ++i) {
-      instance.exports.depthwise_convolution_forward_unpadded_(
-        inputOffset,
-        this.bufferOffsets[0],
-        this.parameterOffsets[0],
-        this.parameterOffsets[1],
-        // this.bufferOffsets[2],
-        inputHeight,
-        inputWidth,
-        inputChannels
-      );
-      // }
-      // const finish = performance.now();
-      // console.log("[depthwise forward unpadded boop] t =", (finish - start) / 1000, "s");
-    }
-
-    // {
-    //   // const start = performance.now();
-    //   instance.exports.depthwise_convolution_forward_template(
-    //     inputOffset,
-    //     this.bufferOffsets[0],
-    //     this.parameterOffsets[0],
-    //     this.parameterOffsets[1],
-    //     this.bufferOffsets[2],
-    //     inputHeight,
-    //     inputWidth
-    //   );
-    //   // const finish = performance.now();
-    //   // console.log("[depthwise forward new] t =", (finish - start) / 1000, "s");
-    // }
+    instance.exports.depthwise_convolution_forward(
+      inputOffset,
+      this.bufferOffsets[0],
+      this.parameterOffsets[0],
+      this.parameterOffsets[1],
+      inputHeight,
+      inputWidth,
+      inputChannels
+    );
 
     this.currentHeight = inputHeight;
     this.currentWidth = inputWidth;
@@ -1256,80 +789,17 @@ class DepthwiseConvolutionLayer extends Layer {
     instance.exports.zero(this.bufferOffsets[3], this.bufferSizes[3]);
 
     for (const downstreamLayer of this.downstreamLayers) {
-      // {
-      //   // const start = performance.now();
-      //   // for (let i = 0; i < 10; ++i) {
-      //   instance.exports.depthwise_convolution_backward(
-      //     downstreamLayer.currentBackwardOutput()[0],
-      //     this.bufferOffsets[1],
-      //     this.gradientOffsets[0],
-      //     this.gradientOffsets[1],
-      //     this.parameterOffsets[0],
-      //     this.bufferOffsets[2],
-      //     this.bufferOffsets[3],
-      //     inputHeight,
-      //     inputWidth,
-      //     inputChannels
-      //   );
-      //   // }
-      //   // const finish = performance.now();
-      //   // console.log("[depthwise backward] t =", (finish - start) / 1000, "s");
-      // }
-
-      // {
-      //   // const start = performance.now();
-      //   for (let i = 0; i < 10; ++i) {
-      //     instance.exports.depthwise_convolution_backward_unpadded_(
-      //       downstreamLayer.currentBackwardOutput()[0],
-      //       this.bufferOffsets[1],
-      //       this.gradientOffsets[0],
-      //       this.gradientOffsets[1],
-      //       this.parameterOffsets[0],
-      //       inputOffset,
-      //       inputHeight,
-      //       inputWidth,
-      //       inputChannels
-      //     );
-      //   }
-      //   // const finish = performance.now();
-      //   // console.log("[depthwise backward unpadded boop] t =", (finish - start) / 1000, "s");
-      // }
-
-      {
-        // const start = performance.now();
-        // for (let i = 0; i < 10; ++i) {
-        instance.exports.depthwise_convolution_backward_unpadded(
-          downstreamLayer.currentBackwardOutput()[0],
-          this.bufferOffsets[1],
-          this.gradientOffsets[0],
-          this.gradientOffsets[1],
-          this.parameterOffsets[0],
-          inputOffset,
-          inputHeight,
-          inputWidth,
-          inputChannels
-        );
-        // }
-        // const finish = performance.now();
-        // console.log("[depthwise backward unpadded] t =", (finish - start) / 1000, "s");
-      }
-
-      // {
-      //   // const start = performance.now();
-      //   instance.exports.depthwise_convolution_backward_template(
-      //     downstreamLayer.currentBackwardOutput()[0],
-      //     this.bufferOffsets[1],
-      //     this.gradientOffsets[0],
-      //     this.gradientOffsets[1],
-      //     this.parameterOffsets[0],
-      //     this.bufferOffsets[2],
-      //     this.bufferOffsets[3],
-      //     inputHeight,
-      //     inputWidth
-      //   );
-      //   // const finish = performance.now();
-      //   // console.log("[depthwise backward new] t =", (finish - start) / 1000, "s");
-      // }
+      instance.exports.depthwise_convolution_backward(
+        downstreamLayer.currentBackwardOutput()[0],
+        this.bufferOffsets[1],
+        this.gradientOffsets[0],
+        this.gradientOffsets[1],
+        this.parameterOffsets[0],
+        inputOffset,
+        inputHeight,
+        inputWidth,
+        inputChannels
+      );
     }
   }
 
@@ -1435,60 +905,16 @@ class PatchifiedConvolutionLayer extends Layer {
   forward() {
     let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
 
-    let n = 10;
-
-    // {
-    //   // const start = performance.now();
-    //   // for (let i = 0; i < n; ++i) {
-    //   instance.exports.patchified_convolution_forward(
-    //     inputOffset,
-    //     this.bufferOffsets[0],
-    //     this.parameterOffsets[0],
-    //     this.parameterOffsets[1],
-    //     inputHeight,
-    //     inputWidth,
-    //     this.channelsOut
-    //   );
-    //   // }
-    //   // const finish = performance.now();
-    //   // console.log("patchified forward direct t =", (finish - start) / 1000, "s");
-    // }
-
-    // {
-    //   // const start = performance.now();
-    //   // for (let i = 0; i < n; ++i) {
-    //   instance.exports.patchified_convolution_im2row_forward(
-    //     inputOffset,
-    //     this.bufferOffsets[0],
-    //     this.parameterOffsets[0],
-    //     this.parameterOffsets[1],
-    //     this.bufferOffsets[2],
-    //     inputHeight,
-    //     inputWidth,
-    //     this.channelsOut
-    //   );
-    //   // }
-    //   // const finish = performance.now();
-    //   // console.log("patchified forward im2row old t =", (finish - start) / 1000, "s");
-    // }
-
-    {
-      // const start = performance.now();
-      // for (let i = 0; i < n; ++i) {
-      instance.exports.patchified_convolution_im2row_forward_(
-        inputOffset,
-        this.bufferOffsets[0],
-        this.parameterOffsets[0],
-        this.parameterOffsets[1],
-        this.bufferOffsets[2],
-        inputHeight,
-        inputWidth,
-        this.channelsOut
-      );
-      // }
-      // const finish = performance.now();
-      // console.log("patchified forward im2row new t =", (finish - start) / 1000, "s");
-    }
+    instance.exports.patchified_convolution_forward(
+      inputOffset,
+      this.bufferOffsets[0],
+      this.parameterOffsets[0],
+      this.parameterOffsets[1],
+      this.bufferOffsets[2],
+      inputHeight,
+      inputWidth,
+      this.channelsOut
+    );
 
     this.currentHeight = inputHeight / this.stride;
     this.currentWidth = inputWidth / this.stride;
@@ -1498,50 +924,22 @@ class PatchifiedConvolutionLayer extends Layer {
   backward() {
     let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
     instance.exports.zero(this.bufferOffsets[1], this.bufferSizes[1]);
-    // instance.exports.zero(this.bufferOffsets[2], this.bufferSizes[2]);
+    instance.exports.zero(this.bufferOffsets[2], this.bufferSizes[2]);
     // instance.exports.zero(this.bufferOffsets[3], this.bufferSizes[3]);
 
-    let n = 10;
-
     for (const downstreamLayer of this.downstreamLayers) {
-      // {
-      //   // const start = performance.now();
-      //   // for (let i = 0; i < n; ++i) {
-      //   instance.exports.patchified_convolution_backward(
-      //     downstreamLayer.currentBackwardOutput()[0],
-      //     this.bufferOffsets[1],
-      //     this.gradientOffsets[0],
-      //     this.gradientOffsets[1],
-      //     inputOffset,
-      //     this.parameterOffsets[0],
-      //     inputHeight,
-      //     inputWidth,
-      //     this.channelsOut
-      //   );
-      //   // }
-      //   // const finish = performance.now();
-      //   // console.log("patchified backward direct t =", (finish - start) / 1000, "s");
-      // }
-
-      {
-        // const start = performance.now();
-        // for (let i = 0; i < n; ++i) {
-        instance.exports.patchified_convolution_im2row_backward(
-          downstreamLayer.currentBackwardOutput()[0],
-          this.bufferOffsets[1],
-          this.gradientOffsets[0],
-          this.gradientOffsets[1],
-          inputOffset,
-          this.parameterOffsets[0],
-          this.bufferOffsets[2],
-          inputHeight,
-          inputWidth,
-          this.channelsOut
-        );
-        // }
-        // const finish = performance.now();
-        // console.log("patchified backward im2row t =", (finish - start) / 1000, "s");
-      }
+      instance.exports.patchified_convolution_backward(
+        downstreamLayer.currentBackwardOutput()[0],
+        this.bufferOffsets[1],
+        this.gradientOffsets[0],
+        this.gradientOffsets[1],
+        inputOffset,
+        this.parameterOffsets[0],
+        this.bufferOffsets[2],
+        inputHeight,
+        inputWidth,
+        this.channelsOut
+      );
     }
   }
 
@@ -1595,34 +993,8 @@ export class NeuralNetwork {
     this.maxImageSize = maxImageSize;
     this.learningRate = learningRate;
 
-    // console.log(`this.channelsIn: ${this.channelsIn}`);
-    // console.log(`this.channelsMiddle: ${this.channelsMiddle}`);
-    // console.log(`this.channelsOut: ${this.channelsOut}`);
-    // console.log(`this.blockCount: ${this.blockCount}`);
-    // console.log(`this.maxImageSize: ${this.maxImageSize}`);
-    // console.log(`this.learningRate: ${this.learningRate}`);
-
     const inputLayer = new InputLayer();
     this.layers.push(inputLayer);
-
-    //
-
-    // const introPatchifiedConv = new PatchifiedConvolutionLayer(inputLayer, channelsIn, this.channelsMiddle * 4, 8);
-    // this.layers.push(introPatchifiedConv);
-
-    // const introInstanceNorm = new InstanceNormalizationLayer(introPatchifiedConv, this.channelsMiddle * 4);
-    // this.layers.push(introInstanceNorm);
-
-    // const introHardSwish = new HardSwishLayer(introInstanceNorm);
-    // this.layers.push(introHardSwish);
-
-    // const introPointwiseConv = new PointwiseConvolutionLayer(introHardSwish, this.channelsMiddle * 4, this.channelsMiddle, 1);
-    // this.layers.push(introPointwiseConv);
-
-    // const introInstanceNorm_ = new InstanceNormalizationLayer(introPointwiseConv, this.channelsMiddle);
-    // this.layers.push(introInstanceNorm_);
-
-    //
 
     const introPatchifiedConv = new PatchifiedConvolutionLayer(inputLayer, channelsIn, this.channelsMiddle, 8);
     this.layers.push(introPatchifiedConv);
@@ -1630,14 +1002,10 @@ export class NeuralNetwork {
     const introInstanceNorm = new InstanceNormalizationLayer(introPatchifiedConv, this.channelsMiddle);
     this.layers.push(introInstanceNorm);
 
-    //
-
-    // let previousLayer = introInstanceNorm_;
     let previousLayer = introInstanceNorm;
 
-    // console.log("previousLayer before:", previousLayer);
     for (let i = 0; i < blockCount; ++i) {
-      const expansionConv = new PointwiseConvolutionLayer(previousLayer, this.channelsMiddle, this.channelsMiddle * 3, 1);
+      const expansionConv = new PointwiseConvolutionLayer(previousLayer, this.channelsMiddle, this.channelsMiddle * 3);
       this.layers.push(expansionConv);
 
       const hardSwish = new HardSwishLayer(expansionConv);
@@ -1649,27 +1017,25 @@ export class NeuralNetwork {
       const InstanceNorm = new InstanceNormalizationLayer(depthwiseConv, this.channelsMiddle * 3);
       this.layers.push(InstanceNorm);
 
-      const reductionConv = new PointwiseConvolutionLayer(InstanceNorm, this.channelsMiddle * 3, this.channelsMiddle, 1);
+      const reductionConv = new PointwiseConvolutionLayer(InstanceNorm, this.channelsMiddle * 3, this.channelsMiddle);
       this.layers.push(reductionConv);
 
       const addition = new AdditionLayer([previousLayer, reductionConv]);
       this.layers.push(addition);
 
       previousLayer = addition;
-      // console.log("previousLayer during:", previousLayer);
     }
-    // console.log("previousLayer after:", previousLayer);
 
     const outroInstanceNorm = new InstanceNormalizationLayer(previousLayer, this.channelsMiddle);
     this.layers.push(outroInstanceNorm);
 
-    const outroExpansionConv = new PointwiseConvolutionLayer(outroInstanceNorm, this.channelsMiddle, this.channelsMiddle * 8, 1);
+    const outroExpansionConv = new PointwiseConvolutionLayer(outroInstanceNorm, this.channelsMiddle, this.channelsMiddle * 8);
     this.layers.push(outroExpansionConv);
 
     const outroHardSwish = new HardSwishLayer(outroExpansionConv);
     this.layers.push(outroHardSwish);
 
-    const outroReductionConv = new PointwiseConvolutionLayer(outroHardSwish, this.channelsMiddle * 8, channelsOut * 4 * 4, 1);
+    const outroReductionConv = new PointwiseConvolutionLayer(outroHardSwish, this.channelsMiddle * 8, channelsOut * 4 * 4);
     this.layers.push(outroReductionConv);
 
     const outroPixelShuffle = new PixelShuffleLayer(outroReductionConv, 4);
@@ -1709,9 +1075,6 @@ export class NeuralNetwork {
     this.parameterLength = (this.gradientOffset - this.parameterOffset) / elementByteSize;
     offset += 2 * this.parameterLength * elementByteSize;
 
-
-    //
-
     this.bufferOffset = offset;
 
     let tempHeight = this.maxImageSize;
@@ -1729,12 +1092,6 @@ export class NeuralNetwork {
 
     this.lastOffset = offset;
 
-    // console.log("[old] MEMORY:", instance.exports.memory);
-    // console.log("[old] instance.exports.memory.buffer.byteLength: ", instance.exports.memory.buffer.byteLength);
-
-    // console.log("this.bufferOffset:", this.bufferOffset);
-    // console.log("this.lastOffset:", this.lastOffset);
-
     this.originalOffset = offset;
     offset += 4096 * 4096 * 4 * elementByteSize;
     this.resizedOffset = offset;
@@ -1748,20 +1105,11 @@ export class NeuralNetwork {
     this.gaussianCoordinatesOffset = offset;
     offset += 2 * 10 * elementByteSize;
 
-    // const extraBytesForPreprocessing = 2 * 4 * 4096 * 4096 * elementByteSize;
-    // const extraBytesForPreprocessing = 3 * 4 * 4096 * 4096 * elementByteSize;
     const extraBytesForPreprocessing = 50 * 4096 * 4096 * elementByteSize;
     const extraPagesNeeded = Math.ceil((this.lastOffset + extraBytesForPreprocessing) / memoryPageSize) - instance.exports.memory.buffer.byteLength / memoryPageSize;
-    // console.log("extraPagesNeeded:", extraPagesNeeded);
     if (extraPagesNeeded > 0) {
       const previousPageCount = instance.exports.memory.grow(extraPagesNeeded);
-      // console.log(`previousPageCount: ${previousPageCount}`);
     }
-
-    // console.log("[new] MEMORY:", instance.exports.memory);
-    // console.log("[new] instance.exports.memory.buffer.byteLength: ", instance.exports.memory.buffer.byteLength);
-
-    //
 
     instance.exports.zero(instance.exports.heap_base(), (this.lastOffset - instance.exports.heap_base()) / elementByteSize);
     for (const layer of this.layers) {
@@ -1786,12 +1134,9 @@ export class NeuralNetwork {
       [tempHeight, tempWidth, tempChannels] = layer.outputShapeFor(tempHeight, tempWidth, tempChannels);
     }
 
-    // this.lastOffset = offset;
-
     let index = 0;
     for (const layer of this.layers) {
       if (index === 0) {
-        // layer.forward(image, height, width, channels); // Feed data to input layer.
         layer.forward(image, height, width, channels); // Feed data to input layer.
       }
       else {
@@ -1833,34 +1178,6 @@ export class NeuralNetwork {
   }
 
   updateParameters() {
-    // const parametersArray = new Float32Array(
-    //   instance.exports.memory.buffer,
-    //   this.parameterOffset,
-    //   this.parameterLength
-    // );
-
-    // const gradientsArray = new Float32Array(
-    //   instance.exports.memory.buffer,
-    //   this.gradientOffset,
-    //   this.parameterLength
-    // );
-
-    // const mArray = new Float32Array(
-    //   instance.exports.memory.buffer,
-    //   this.optimizerOffset,
-    //   this.parameterLength
-    // );
-
-    // const vArray = new Float32Array(
-    //   instance.exports.memory.buffer,
-    //   this.optimizerOffset + this.parameterLength * elementByteSize,
-    //   this.parameterLength
-    // );
-
-    // const beta1 = 0.9;
-    // const beta2 = 0.999;
-    // const epsilon = 1.0e-8;
-
     const beta1 = 0.9;
     const beta2 = 0.999;
     const epsilon = 1.0e-6;
@@ -1869,38 +1186,11 @@ export class NeuralNetwork {
 
     const scheduleMultiplier = 1.0;
 
-    //
-
-    // {
-    //   // const start = performance.now();
-
-    //   for (let i = 0; i < this.parameterLength; ++i) {
-    //     mArray[i] = beta1 * mArray[i] + (1.0 - beta1) * gradientsArray[i];
-    //     vArray[i] = beta2 * vArray[i] + (1.0 - beta2) * gradientsArray[i] ** 2;
-
-    //     const m = mArray[i] / (1.0 - beta1 ** this.optimizerT);
-    //     const v = vArray[i] / (1.0 - beta2 ** this.optimizerT);
-
-    //     parametersArray[i] = parametersArray[i] - scheduleMultiplier * (this.learningRate * m / (Math.sqrt(v) + epsilon) + weightDecay * parametersArray[i]);
-    //   }
-    //   ++this.optimizerT;
-
-    //   // const finish = performance.now();
-    //   // console.log("[ecma] update t =", (finish - start) / 1000, "s");
-    // }
-
-    //
-
-    // {
-    //   // const start = performance.now();
-
-    // console.log("table lookups:", instance.exports.b1_vals_table_lookup(this.optimizerT), instance.exports.b2_vals_table_lookup(this.optimizerT));
-
     instance.exports.update_parameters(
       this.gradientOffset,
       this.parameterOffset,
-      this.optimizerOffset, // reminder: use "first moment" terminology
-      this.optimizerOffset + this.parameterLength * elementByteSize, // reminder: use "second moment" terminology
+      this.optimizerOffset,
+      this.optimizerOffset + this.parameterLength * elementByteSize,
       this.parameterLength,
       beta1,
       beta2,
@@ -1911,42 +1201,9 @@ export class NeuralNetwork {
       this.optimizerT
     );
     ++this.optimizerT;
-
-    //   // const finish = performance.now();
-    //   // console.log("[wasm] update t =", (finish - start) / 1000, "s");
-    // }
-
-    //
-
-    // {
-    //   // const start = performance.now();
-
-    //   instance.exports.update_parameters_alt(
-    //     this.gradientOffset,
-    //     this.parameterOffset,
-    //     this.optimizerOffset,
-    //     this.optimizerOffset + this.parameterLength * elementByteSize,
-    //     this.parameterLength,
-    //     beta1,
-    //     beta2,
-    //     epsilon,
-    //     scheduleMultiplier,
-    //     this.learningRate,
-    //     weightDecay,
-    //     this.optimizerT
-    //   );
-    //   ++this.optimizerT;
-
-    //   // const finish = performance.now();
-    //   // console.log("[Math] update t =", (finish - start) / 1000, "s");
-    // }
   }
 
   resize(x, heightIn, widthIn, heightOut, widthOut) {
-    // console.log("instance.exports.memory.buffer.byteLength: ", instance.exports.memory.buffer.byteLength);
-    // console.log("xArray: ", this.lastOffset, heightIn * widthIn * channelsRgba);
-    // console.log("yArray: ", this.lastOffset + heightIn * widthIn * channelsRgba, heightOut * widthOut * channelsRgb * elementByteSize);
-
     const xArray = new Uint8ClampedArray(
       instance.exports.memory.buffer,
       this.originalOffset,
@@ -1957,22 +1214,7 @@ export class NeuralNetwork {
       xArray[i] = x[i];
     }
 
-    // const yArray = new Float32Array(
-    //   instance.exports.memory.buffer,
-    //   this.lastOffset + heightIn * widthIn * channelsRgba,
-    //   heightOut * widthOut * channelsRgb
-    // );
-
-    // {
-    //   // const start = performance.now();
     instance.exports.resize_bilinear_rgba_to_rgb(this.originalOffset, this.resizedOffset, heightIn, widthIn, heightOut, widthOut);
-    //   // const finish = performance.now();
-    //   // console.log("[resize wasm inner] t =", (finish - start) / 1000, "s");
-    // }
-
-    // for (let i = 0; i < heightOut * widthOut * channelsRgb; ++i) {
-    //   y[i] = yArray[i];
-    // }
   }
 
   flipHorizontal(height, width) {
@@ -1988,61 +1230,10 @@ export class NeuralNetwork {
   }
 
   rotate(height, width, cosTheta, sinTheta, padValue) {
-    // console.log("instance.exports.memory.buffer.byteLength: ", instance.exports.memory.buffer.byteLength);
-    // console.log("xArray: ", this.lastOffset, height * width * channelsRgb * elementByteSize);
-    // console.log("yArray: ", this.lastOffset + height * width * channelsRgb * elementByteSize, height * width * channelsRgb * elementByteSize);
-
-    // const xArray = new Float32Array(
-    //   instance.exports.memory.buffer,
-    //   this.lastOffset,
-    //   height * width * channelsRgb
-    // );
-
-    // for (let i = 0; i < height * width * channelsRgb; ++i) {
-    //   xArray[i] = x[i];
-    // }
-
-    // const yArray = new Float32Array(
-    //   instance.exports.memory.buffer,
-    //   this.lastOffset + height * width * channelsRgb * elementByteSize,
-    //   height * width * channelsRgb
-    // );
-
-    // {
-    // // const start = performance.now();
-    // const resizedArray = new Float32Array(
-    //   instance.exports.memory.buffer,
-    //   this.resizedOffset,
-    //   height * width * channelsRgb
-    // );
-
-    // const sortedResizedArray = resizedArray.toSorted((a, b) => { return a - b; });
-    // const half = Math.floor(sortedResizedArray.length / 2);
-    // const median = (sortedResizedArray.length % 2 ? sortedResizedArray[half] : (sortedResizedArray[half - 1] + sortedResizedArray[half]) / 2);
-    // padValue = median;
-    // // const finish = performance.now();
-    // console.log("[rotate wasm inner median] t =", (finish - start) / 1000, "s");
-    // }
-
-    // {
-    //   // const start = performance.now();
     instance.exports.rotate_bilinear(this.resizedOffset, this.rotatedOffset, height, width, cosTheta, sinTheta, padValue);
-    //   // const finish = performance.now();
-    //   // console.log("[rotate wasm inner] t =", (finish - start) / 1000, "s");
-    // }
-
-    // for (let i = 0; i < height * width * channelsRgb; ++i) {
-    //   y[i] = yArray[i];
-    // }
   }
 
   drawGaussians(resizedGaussianHeight, resizedGaussianWidth, keypointCount, coordinates, gaussianStdDev) {
-    // const gaussiansArray = new Float32Array(
-    //   instance.exports.memory.buffer,
-    //   this.gaussianOffset,
-    //   resizedGaussianHeight * resizedGaussianWidth * keypointCount
-    // );
-
     const coordinatesArray = new Float32Array(
       instance.exports.memory.buffer,
       this.gaussianCoordinatesOffset,
@@ -2054,23 +1245,7 @@ export class NeuralNetwork {
       coordinatesArray[i * 2 + 1] = coordinates[i][1];
     }
 
-    // {
-    //   // const start = performance.now();
     instance.exports.draw_gaussians(this.gaussianOffset, resizedGaussianHeight, resizedGaussianWidth, keypointCount, this.gaussianCoordinatesOffset, gaussianStdDev);
-    //   // const finish = performance.now();
-    //   // console.log("[gaussians old] t =", (finish - start) / 1000, "s");
-    // }
-
-    // {
-    //   // const start = performance.now();
-    //   instance.exports.draw_gaussians_fast(this.gaussianOffset, resizedGaussianHeight, resizedGaussianWidth, keypointCount, this.gaussianCoordinatesOffset, gaussianStdDev);
-    //   // const finish = performance.now();
-    //   // console.log("[gaussians new] t =", (finish - start) / 1000, "s");
-    // }
-
-    // for (let i = 0; i < resizedGaussianHeight * resizedGaussianWidth * keypointCount; ++i) {
-    //   gaussians[i] = gaussiansArray[i];
-    // }
   }
 
   lossForward() {
@@ -2089,17 +1264,6 @@ export class NeuralNetwork {
       this.gaussianOffset,
       this.layers[this.layers.length - 1].currentHeight * this.layers[this.layers.length - 1].currentWidth * this.layers[this.layers.length - 1].currentChannels
     );
-
-    // const gradientsArray = new Float32Array(
-    //   instance.exports.memory.buffer,
-    //   this.gaussianGradientOffset,
-    //   this.layers[this.layers.length - 1].currentHeight * this.layers[this.layers.length - 1].currentWidth * this.layers[this.layers.length - 1].currentChannels
-    // );
-
-    // for (let i = 0; i < this.layers[this.layers.length - 1].currentHeight * this.layers[this.layers.length - 1].currentWidth * this.layers[this.layers.length - 1].currentChannels; ++i) {
-    //   gradients[i] = gradientsArray[i];
-    //   // console.log("values:", gradients[i], gradientsArray[i]);
-    // }
   }
 
   getParameters() {
@@ -2126,7 +1290,6 @@ export class NeuralNetwork {
     );
 
     for (let i = 0; i < this.parameterLength; ++i) {
-      // console.log("copying", i, parameterArray[i]);
       parameterArrayActual[i] = parameterArray[i];
     }
   }

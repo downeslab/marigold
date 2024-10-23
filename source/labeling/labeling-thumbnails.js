@@ -28,24 +28,16 @@ export class LabelingThumbnails {
   }
 
   async push(frameBlob, arenaWidth, arenaHeight, keypointCount, coordinates, filename, frameNumber) {
-    // console.log(frameBlob, await frameBlob.text(), arenaWidth, arenaHeight, keypointCount, coordinates, filename, frameNumber);
-
     let divElement = document.createElement("div");
     divElement.classList.add("labeling-thumbnail-container");
     divElement.id = `labeling-thumbnail-${this.currentLength}`;
 
-    //
-
     let canvasElement = document.createElement("canvas");
     canvasElement.classList.add("labeling-thumbnail-canvas");
-    // canvasElement.width = arenaWidth;
-    // canvasElement.height = arenaHeight;
     canvasElement.width = Math.max(arenaWidth, arenaHeight);
     canvasElement.height = Math.max(arenaWidth, arenaHeight);
     let canvasContext = canvasElement.getContext("2d");
     const imageBitmap = await createImageBitmap(frameBlob, { colorSpaceConversion: "none" });
-    // canvasContext.drawImage(imageBitmap, 0, 0, arenaWidth, arenaHeight, 0, 0, canvasElement.width, canvasElement.height);
-    // canvasContext.drawImage(imageBitmap, 0, 0, arenaWidth, arenaHeight, 0, 0, arenaWidth, arenaHeight);
     canvasContext.drawImage(imageBitmap, 0, 0, arenaWidth, arenaHeight, Math.round((Math.max(arenaWidth, arenaHeight) - arenaWidth) / 2), Math.round((Math.max(arenaWidth, arenaHeight) - arenaHeight) / 2), arenaWidth, arenaHeight);
 
     const xOffset = Math.round((Math.max(arenaWidth, arenaHeight) - arenaWidth) / 2);
@@ -54,8 +46,6 @@ export class LabelingThumbnails {
     const colormap = interpolateColormap("plasma", keypointCount, true);
     let i = 0;
     for (const label of coordinates) {
-      // let radius = 10;
-      // let radius = 5;
       const radius = 3.75 * Math.min(imageBitmap.width, imageBitmap.height) / 512;
       canvasContext.fillStyle = `rgb(${colormap[i][0] * 255}, ${colormap[i][1] * 255}, ${colormap[i][2] * 255}, 0.75)`;
       canvasContext.beginPath();
@@ -66,13 +56,9 @@ export class LabelingThumbnails {
 
     divElement.appendChild(canvasElement);
 
-    //
-
     let dividerElement = document.createElement("div");
     dividerElement.classList.add("generic-divider");
     divElement.appendChild(dividerElement);
-
-    //
 
     let metadataDivElement = document.createElement("div");
     metadataDivElement.classList.add("labeling-thumbnail-metadata-container");
@@ -108,8 +94,6 @@ export class LabelingThumbnails {
     frameNumberNameElement.textContent = `${frameNumber + 1}`;
     metadataDivElement.appendChild(frameNumberNameElement);
 
-    //
-
     let buttonElement = document.createElement("button");
     buttonElement.classList.add("generic-button");
     buttonElement.textContent = "Delete";
@@ -118,16 +102,11 @@ export class LabelingThumbnails {
 
     this.currentElements.push(divElement);
 
-    //
-
     document.querySelector("#labeling-thumbnails").appendChild(divElement);
-
-    //
 
     buttonElement.addEventListener(
       "click",
       (event) => {
-        // console.log(`scheduled for deletion: ${divElement.id}`);
         this.remove(divElement);
       }
     );
@@ -138,11 +117,6 @@ export class LabelingThumbnails {
   }
 
   remove(divElement) {
-    // console.log("this.currentElements:", this.currentElements);
-    // const divElement = this.currentElements[index];
-    // const divElement = document.querySelector(`#labeling-thumbnail-${index}`);
-    // console.log(divElement);
-
     let index = 0;
     for (const element of this.currentElements) {
       if (element === divElement) {
@@ -156,16 +130,8 @@ export class LabelingThumbnails {
     while (divElement.firstChild) {
       divElement.removeChild(divElement.firstChild);
     }
-    // for (const element of divElement.childNodes) {
-    //   element.remove();
-    // }
 
     divElement.remove();
-
-    // let i = 0;
-    // for (const element of this.currentElements) {
-    //   element.id = i;
-    // }
 
     this.currentElements.splice(index, 1);
 
@@ -175,22 +141,17 @@ export class LabelingThumbnails {
       element.id = `labeling-thumbnail-${i - 1}`;
 
       for (const child of document.querySelector(`#labeling-thumbnail-${i - 1} .labeling-thumbnail-metadata-container`).children) {
-        // console.log("child.textContent:", child.textContent);
         if (child.textContent === "Label number:") {
-          // console.log("found");
           child.nextElementSibling.textContent = `${i}`;
         }
       }
     }
-
-    // console.log("this.currentElements:", this.currentElements);
 
     document.querySelector("#labeling-thumbnails").dispatchEvent(new CustomEvent("labelRemoved", { detail: index }));
 
     --this.currentLength;
   }
 
-  // reset() ?
   clear() {
     for (const element of this.currentElements) {
       this.remove(element);

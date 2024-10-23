@@ -37,58 +37,33 @@ If not, see <https://www.gnu.org/licenses/>.
       <div id="analysis-header-status" class="inner-workflow-card-blurb">…</div>
     </div>
 
-    <!-- <div class="inner-workflow-card-container"> -->
     <div id="analyzing-calibration-button-divider" class="inner-workflow-card-divider"></div>
     <button id="analyzing-calibration-button" class="inner-workflow-top-button">
-      <!-- Set calibration -->
       Configure calibration
-      <!-- Calibrate scale and framerate -->
       <svg aria-hidden="true" class="icon">
         <use href="#chevron-right" />
       </svg>
     </button>
-    <!-- </div> -->
 
-    <!-- <div class="inner-workflow-card-container"> -->
     <div id="analyzing-analysis-button-divider" class="inner-workflow-card-divider"></div>
     <button id="analyzing-analysis-button" class="inner-workflow-top-button">
-      <!-- Analysis -->
-      <!-- Process frames -->
-      <!-- Track poses and/or locomotion -->
       Track poses and locomotion
       <svg aria-hidden="true" class="icon">
         <use href="#chevron-right" />
       </svg>
     </button>
-    <!-- </div> -->
 
-    <!-- <div class="inner-workflow-card-container"> -->
     <div id="analyzing-kinematics-button-divider" class="inner-workflow-card-divider"></div>
     <button id="analyzing-kinematics-button" class="inner-workflow-bottom-button">
-      <!-- Kinematics -->
       Export data and visualizations
       <svg aria-hidden="true" class="icon">
         <use href="#chevron-right" />
       </svg>
     </button>
-    <!-- </div> -->
   </div>
 
 
   <div id="analyzing-calibration-inner-section-left-side" class="inner-section-left-side">
-    <!-- <legend>
-            Calibration method
-          </legend> -->
-
-    <!-- <input type="radio" name="analyzing-calibration-method-radio-button"
-            id="analyzing-calibration-method-radio-button-1" checked>
-          <label for="analyzing-calibration-method-radio-button-1">Use arbitrary units (frames and pixels)</label>
-          <input type="radio" name="analyzing-calibration-method-radio-button"
-            id="analyzing-calibration-method-radio-button-2">
-          <label for="analyzing-calibration-method-radio-button-2">Manually enter values</label>
-          <input type="radio" name="analyzing-calibration-method-radio-button"
-            id="analyzing-calibration-method-radio-button-3">
-          <label for="analyzing-calibration-method-radio-button-3">Use a calibration movie</label> -->
   </div>
 
 
@@ -152,7 +127,6 @@ If not, see <https://www.gnu.org/licenses/>.
   <div id="analyzing-analysis-inner-section-left-side-3" class="inner-section-left-side">
     <h2 class="inner-workflow-card-heading-alt">Arena grid</h2>
     <div class="inner-workflow-card-blurb-alt">
-      <!-- Set the arena grid. -->
       Set up a grid of arenas to analyze. Each arena should contain a single animal and be fully contained within the
       bounds of the movie.
     </div>
@@ -215,7 +189,6 @@ If not, see <https://www.gnu.org/licenses/>.
     </div>
 
     <div id="analyzing-manual-correction-arena-details">
-      <!-- <p class="home-workflow-card-blurb">Enter the column and row that needs to be manually corrected or click on the arena.</p> -->
 
       <label for="analyzing-manual-correction-column-input">Column</label>
       <input id="analyzing-manual-correction-column-input" type="number" min="1" max="10000" value="0">
@@ -225,7 +198,6 @@ If not, see <https://www.gnu.org/licenses/>.
     </div>
 
     <div id="analyzing-manual-correction-keypoint-details">
-      <!-- <p class="home-workflow-card-blurb">Click on the movie frame or manually enter values to set the keypoints.</p> -->
 
       <label id="analyzing-keypoint-0-x-input-label" for="analyzing-keypoint-0-x-input">X<sub>1</sub></label>
       <input id="analyzing-keypoint-0-x-input" type="number" min="0" max="10000" value="0">
@@ -320,7 +292,6 @@ If not, see <https://www.gnu.org/licenses/>.
     <div id="analyzing-trajectory-plot-controls">
       <h4>Background</h4>
 
-      <!-- <label>Color</label> -->
       <input type="radio" id="black" name="background-color" value="black" checked>
       <label for="black">Black</label>
 
@@ -343,8 +314,6 @@ If not, see <https://www.gnu.org/licenses/>.
 
       <label for="radius-input">Radius</label>
       <input type="number" id="radius-input" name="radius-input" min="0" max="1" value="0.3" step="0.1">
-
-      <!-- color coding by time, velocity, angle? -->
     </div>
 
     <button id="analyzing-export-results-button" class="generic-button">Export results</button>
@@ -497,16 +466,7 @@ If not, see <https://www.gnu.org/licenses/>.
 
 
   <div id="analyzing-kinematics-inner-section-right-side" class="inner-section-right-side-strict-trajectory-plot">
-    <!-- <div id="trajectory-plot-area"> -->
-    <!-- <div id="trajectory-plot-actual-plot-area"> -->
-    <!-- <svg class="trajectory-plot-selected" viewBox="0 0 24 24"></svg> -->
-    <!-- </div> -->
-    <!-- </div> -->
     <div id="analyzing-trajectory-plot-details">
-      <!-- <label for="analyzing-trajectory-plot-preview-column-input">Column</label>
-      <input type="number" id="analyzing-trajectory-plot-preview-column-input" min="1" max="1000" value="1">
-      <label for="analyzing-trajectory-plot-preview-row-input">Row</label>
-      <input type="number" id="analyzing-trajectory-plot-preview-row-input" min="1" max="1000" value="1"> -->
       <label for="analyzing-trajectory-plot-preview-keypoint-input">Keypoint</label>
       <input type="number" id="analyzing-trajectory-plot-preview-keypoint-input" min="1" max="10" value="1">
     </div>

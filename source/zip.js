@@ -49,8 +49,6 @@ export function testZip(svgFilenames, svgFileContents, csvFilenames, csvFileCont
 
   let filenamesArray = svgFilenames.concat(csvFilenames);
   let fileContentsArray = svgFileContents.concat(csvFileContents);
-  // filenamesArray.push(summaryFilename);
-  // fileContentsArray.push(summaryFileContents);
 
   let fileCRC32s = [];
 
@@ -75,10 +73,6 @@ export function testZip(svgFilenames, svgFileContents, csvFilenames, csvFileCont
 
     const fileCRC32 = CRC32(fileContents);
     fileCRC32s.push(fileCRC32);
-
-    //
-    //
-    //
 
     // 4 bytes: Signature
     blobContents.push(new Uint32Array([0x04034b50]));
@@ -130,21 +124,12 @@ export function testZip(svgFilenames, svgFileContents, csvFilenames, csvFileCont
 
     // m bytes: Extra field
 
-    //
-    //
-    //
-
     // file
     blobContents.push(fileContents);
     centralDirectoryOffset += fileContents.length;
 
     // length: variable
-
   }
-
-  //
-  //
-  //
 
   let centralDirectorySize = 0;
 
@@ -229,10 +214,6 @@ export function testZip(svgFilenames, svgFileContents, csvFilenames, csvFileCont
     // k bytes: File comment
   }
 
-  //
-  //
-  //
-
   // 4 bytes: Signature
   blobContents.push(new Uint32Array([0x06054b50]));
 
@@ -243,20 +224,15 @@ export function testZip(svgFilenames, svgFileContents, csvFilenames, csvFileCont
   blobContents.push(new Uint16Array([0]));
 
   // 2 bytes: Number of central directory records on this disk
-  // blobContents.push(new Uint16Array([0]));
   blobContents.push(new Uint16Array([filenamesArray.length]));
 
   // 2 bytes: Total number of central directory records
-  // blobContents.push(new Uint16Array([0]));
   blobContents.push(new Uint16Array([filenamesArray.length]));
 
   // 4 bytes: Size of central directory in bytes
-  // blobContents.push(new Uint32Array([0]));
-  // blobContents.push(new Uint32Array([centralDirectorySize + 22]));
   blobContents.push(new Uint32Array([centralDirectorySize]));
 
   // 4 bytes: Offset to start of central directory
-  // blobContents.push(new Uint32Array([0]));
   blobContents.push(new Uint32Array([centralDirectoryOffset]));
 
   // 2 bytes: Comment length (n)
@@ -265,12 +241,6 @@ export function testZip(svgFilenames, svgFileContents, csvFilenames, csvFileCont
   // n bytes: Comment
 
   // length: 22
-
-  //
-  //
-  //
-
-  // await writable.close();
 
   const blob = new Blob(blobContents);
   return blob;

@@ -20,9 +20,9 @@ If not, see <https://www.gnu.org/licenses/>.
 import { Section } from "../section.js";
 
 import { interpolateColormap } from "../colormap.js";
+import { maxKeypointCount } from "../constants.js";
 import { getCsvData } from "./kinematics.js";
 import { initializePlots, updatePlots, updatePlotData, clearPlotData } from "./trajectory-plot.js";
-import { maxKeypointCount } from "../core/constants.js";
 
 
 function beforeUnloadListener(event) {
@@ -45,8 +45,6 @@ export class AnalyzingSection extends Section {
 
   currentlyPlaying = false;
 
-  //
-
   calibrationNumFrames = null;
   calibrationFrameWidth = null;
   calibrationFrameHeight = null;
@@ -60,13 +58,9 @@ export class AnalyzingSection extends Section {
 
   calibrationCurrentlyPlaying = false;
 
-  //
-
   arenas = null;
 
   cachedResults = null;
-
-  //
 
   keypointCount = null;
 
@@ -78,8 +72,6 @@ export class AnalyzingSection extends Section {
 
   mouseDown = false;
 
-  //
-
   constructor() {
     super(
       "analysis",
@@ -89,8 +81,6 @@ export class AnalyzingSection extends Section {
     this.worker.addEventListener(
       "message",
       (message) => {
-        //
-        // console.log("section received message:", message.data.type);
         if (message.data.type === "loadCalibrationMovieSuccess") {
           this.onCalibrationLoadMovieSuccess(message.data.filename, message.data.numFrames, message.data.frameWidth, message.data.frameHeight);
         }
@@ -100,7 +90,7 @@ export class AnalyzingSection extends Section {
         else if (message.data.type === "calibrationFrameReady") {
           this.onCalibrationFrameReady(message.data.frame, message.data.frameNumber);
         }
-        //
+
         else if (message.data.type === "loadMovieSuccess") {
           this.onLoadMovieSuccess(message.data.filename, message.data.numFrames, message.data.frameWidth, message.data.frameHeight);
         }
@@ -110,7 +100,7 @@ export class AnalyzingSection extends Section {
         else if (message.data.type === "frameReady") {
           this.onFrameReady(message.data.frame, message.data.frameNumber);
         }
-        //
+
         else if (message.data.type === "loadModelSuccess") {
           this.onLoadModelSuccess(message.data.filename);
         }
@@ -123,15 +113,10 @@ export class AnalyzingSection extends Section {
         else if (message.data.type === "exportReady") {
           this.onExportReady(message.data.blob);
         }
-        //
       }
     );
 
     initializePlots();
-
-    //
-    //
-    //
 
     document.querySelector("#analyzing-load-model-button").addEventListener(
       "click",
@@ -139,10 +124,6 @@ export class AnalyzingSection extends Section {
         this.maybeLoadModel();
       }
     );
-
-    //
-    //
-    //
 
     document.querySelector("#analyzing-calibration-load-movie-button").addEventListener(
       "click",
@@ -158,19 +139,11 @@ export class AnalyzingSection extends Section {
       }
     );
 
-    //
-    //
-    //
-
     document.querySelector("#analyzing-calibration-load-movie-button").addEventListener(
       "click",
       (event) => {
       }
     );
-
-    //
-    //
-    //
 
     document.querySelector("#analyzing-export-results-button").addEventListener(
       "click",
@@ -179,32 +152,12 @@ export class AnalyzingSection extends Section {
       }
     );
 
-    //
-    //
-    //
-
-    // document.querySelector("#analyzing-trajectory-plot-preview-column-input").addEventListener(
-    //   "change",
-    //   (event) => {
-    //     this.updateTrajectoryPlots();
-    //   }
-    // );
-    // document.querySelector("#analyzing-trajectory-plot-preview-row-input").addEventListener(
-    //   "change",
-    //   (event) => {
-    //     this.updateTrajectoryPlots();
-    //   }
-    // );
     document.querySelector("#analyzing-trajectory-plot-preview-keypoint-input").addEventListener(
       "change",
       (event) => {
         this.updateTrajectoryPlots();
       }
     );
-
-    //
-    //
-    //
 
     document.querySelector("#analyzing-load-movie-button").addEventListener(
       "click",
@@ -252,12 +205,10 @@ export class AnalyzingSection extends Section {
       (event) => {
         this.currentlyPlaying = !this.currentlyPlaying;
         if (this.currentlyPlaying) {
-          // document.querySelector("#analyzing-play-or-pause-button").textContent = "Pause";
           document.querySelector("#analyzing-play-or-pause-button").classList.add("activated");
           this.worker.postMessage({ type: "frameRequest", index: Math.min(this.numFrames - 1, this.currentFrameIndex + 1) });
         }
         else {
-          // document.querySelector("#analyzing-play-or-pause-button").textContent = "Play";
           document.querySelector("#analyzing-play-or-pause-button").classList.remove("activated");
         }
       }
@@ -288,29 +239,16 @@ export class AnalyzingSection extends Section {
       }
     );
 
-    //
-    //
-    //
-
     document.querySelector("#analyzing-start-analysis-button").addEventListener(
       "click",
       (event) => {
         const progressElement = document.querySelector("#analysis-progress");
         progressElement.value = 0;
 
-        // this.worker.postMessage({ type: "frameRequest", index: document.querySelector("#analyzing-frame-number-input").value - 1 });
         this.worker.postMessage({ type: "startAnalysis" });
         document.querySelector("#analyzing-start-analysis-button").setAttribute("disabled", "");
-
-        // this.unsavedChanges = true;
-        // this.showStatus(Section.unsavedMessage);
-        // addEventListener("beforeunload", beforeUnloadListener);
       }
     );
-
-    //
-    //
-    //
 
     document.querySelector("#analyzing-movie-player-canvas").addEventListener(
       "mousedown",
@@ -319,11 +257,7 @@ export class AnalyzingSection extends Section {
           const canvas = document.querySelector("#analyzing-movie-player-canvas");
           const context = canvas.getContext("2d");
 
-          // const ratio = window.devicePixelRatio || 1;
           const boundingRect = canvas.getBoundingClientRect();
-
-          // canvas.width = this.currentFrame.displayWidth;
-          // canvas.height = this.currentFrame.displayHeight;
 
           context.save();
 
@@ -340,11 +274,7 @@ export class AnalyzingSection extends Section {
             (canvas.width / 2) - (panCenterX * scale * this.zoom),
             (canvas.height / 2) - (panCenterY * scale * this.zoom)
           );
-
-          // context.drawImage(this.currentFrame, 0, 0, this.currentFrame.displayWidth, this.currentFrame.displayHeight, 0, 0, canvas.width, canvas.height);
-
           const scale_ = Math.max(canvas.width / boundingRect.width, canvas.height / boundingRect.height) / this.zoom;
-          // const scale_ = Math.max(canvas.width / boundingRect.width, canvas.height / boundingRect.height) * this.zoom;
 
           let diffX = (boundingRect.width * scale_ - canvas.width) / 2;
           let diffY = (boundingRect.height * scale_ - canvas.height) / 2;
@@ -355,27 +285,13 @@ export class AnalyzingSection extends Section {
           const x_ = x + this.panOffsetX;
           const y_ = y + this.panOffsetY;
 
-          // console.log("x, y, x_, y_:", x, y, x_, y_);
-
           context.restore();
 
           this.mouseDown = true;
-          // if (this.currentlyLabelingArena) {
-          //   this.arenaX = x_;
-          //   this.arenaY = y_;
-          //   this.arenaWidth = 0;
-          //   this.arenaHeight = 0;
-          //   document.querySelector("#labeling-arena-x-input").value = this.arenaX;
-          //   document.querySelector("#labeling-arena-y-input").value = this.arenaY;
-          //   document.querySelector("#labeling-arena-width-input").value = this.arenaWidth;
-          //   document.querySelector("#labeling-arena-height-input").value = this.arenaHeight;
-          // }
-          // else if (this.currentlyLabelingKeypoints) {
           this.manualCorrection[this.manualCorrectionIndex].x = x_;
           this.manualCorrection[this.manualCorrectionIndex].y = y_;
           document.querySelector(`#analyzing-keypoint-${this.manualCorrectionIndex}-x-input`).value = x_;
           document.querySelector(`#analyzing-keypoint-${this.manualCorrectionIndex}-y-input`).value = y_;
-          // }
 
           this.draw();
         }
@@ -389,11 +305,7 @@ export class AnalyzingSection extends Section {
             const canvas = document.querySelector("#analyzing-movie-player-canvas");
             const context = canvas.getContext("2d");
 
-            // const ratio = window.devicePixelRatio || 1;
             const boundingRect = canvas.getBoundingClientRect();
-
-            // canvas.width = this.currentFrame.displayWidth;
-            // canvas.height = this.currentFrame.displayHeight;
 
             context.save();
 
@@ -411,10 +323,7 @@ export class AnalyzingSection extends Section {
               (canvas.height / 2) - (panCenterY * scale * this.zoom)
             );
 
-            // context.drawImage(this.currentFrame, 0, 0, this.currentFrame.displayWidth, this.currentFrame.displayHeight, 0, 0, canvas.width, canvas.height);
-
             const scale_ = Math.max(canvas.width / boundingRect.width, canvas.height / boundingRect.height) / this.zoom;
-            // const scale_ = Math.max(canvas.width / boundingRect.width, canvas.height / boundingRect.height) * this.zoom;
 
             let diffX = (boundingRect.width * scale_ - canvas.width) / 2;
             let diffY = (boundingRect.height * scale_ - canvas.height) / 2;
@@ -425,18 +334,8 @@ export class AnalyzingSection extends Section {
             const x_ = x + this.panOffsetX;
             const y_ = y + this.panOffsetY;
 
-            // console.log("x, y, x_, y_:", x, y, x_, y_);
-
             context.restore();
 
-            // if (this.currentlyLabelingArena) {
-            //   this.arenaWidth = x_ - this.arenaX;
-            //   this.arenaHeight = y_ - this.arenaY;
-            //   document.querySelector("#labeling-arena-width-input").value = this.arenaWidth;
-            //   document.querySelector("#labeling-arena-height-input").value = this.arenaHeight;
-            //   this.draw();
-            // }
-            // else if (this.currentlyLabelingKeypoints) {
             this.manualCorrection[this.manualCorrectionIndex].x = x_;
             this.manualCorrection[this.manualCorrectionIndex].y = y_;
             document.querySelector(`#analyzing-keypoint-${this.manualCorrectionIndex}-x-input`).value = x_;
@@ -455,11 +354,7 @@ export class AnalyzingSection extends Section {
           const canvas = document.querySelector("#analyzing-movie-player-canvas");
           const context = canvas.getContext("2d");
 
-          // const ratio = window.devicePixelRatio || 1;
           const boundingRect = canvas.getBoundingClientRect();
-
-          // canvas.width = this.currentFrame.displayWidth;
-          // canvas.height = this.currentFrame.displayHeight;
 
           context.save();
 
@@ -477,10 +372,7 @@ export class AnalyzingSection extends Section {
             (canvas.height / 2) - (panCenterY * scale * this.zoom)
           );
 
-          // context.drawImage(this.currentFrame, 0, 0, this.currentFrame.displayWidth, this.currentFrame.displayHeight, 0, 0, canvas.width, canvas.height);
-
           const scale_ = Math.max(canvas.width / boundingRect.width, canvas.height / boundingRect.height) / this.zoom;
-          // const scale_ = Math.max(canvas.width / boundingRect.width, canvas.height / boundingRect.height) * this.zoom;
 
           let diffX = (boundingRect.width * scale_ - canvas.width) / 2;
           let diffY = (boundingRect.height * scale_ - canvas.height) / 2;
@@ -491,34 +383,19 @@ export class AnalyzingSection extends Section {
           const x_ = x + this.panOffsetX;
           const y_ = y + this.panOffsetY;
 
-          // console.log("x, y, x_, y_:", x, y, x_, y_);
-
           context.restore();
 
           this.mouseDown = false;
-          // if (this.currentlyLabelingArena) {
-          //   this.arenaWidth = x_ - this.arenaX;
-          //   this.arenaHeight = y_ - this.arenaY;
-          //   document.querySelector("#labeling-arena-width-input").value = this.arenaWidth;
-          //   document.querySelector("#labeling-arena-height-input").value = this.arenaHeight;
-          //   this.draw();
-          // }
-          // else if (this.currentlyLabelingKeypoints) {
           this.manualCorrection[this.manualCorrectionIndex].x = x_;
           this.manualCorrection[this.manualCorrectionIndex].y = y_;
           document.querySelector(`#analyzing-keypoint-${this.manualCorrectionIndex}-x-input`).value = x_;
           document.querySelector(`#analyzing-keypoint-${this.manualCorrectionIndex}-y-input`).value = y_;
           this.manualCorrectionIndex = (this.manualCorrectionIndex + 1) % this.keypointCount;
-          // }
 
           this.draw();
         }
       }
     );
-
-    //
-    //
-    //
 
     document.querySelector("#analyzing-start-manual-correction-button").addEventListener(
       "click",
@@ -555,30 +432,11 @@ export class AnalyzingSection extends Section {
       (event) => {
         const firstFrameInput = document.querySelector("#analyzing-first-frame-input");
         const firstFrame = firstFrameInput.value;
-        // const lastFrameInput = document.querySelector("#analyzing-last-frame-input");
-        // const lastFrame = lastFrameInput.value;
 
         const keypointCount = this.cachedResults[firstFrame][0].length;
 
-        // const arenaRowsInput = document.querySelector("#analyzing-arena-rows-input");
-        // const arenaRows = +arenaRowsInput.value;
-
-        // const arenaColumnsInput = document.querySelector("#analyzing-arena-columns-input");
-        // const arenaColumns = +arenaColumnsInput.value;
-
-        // console.log("arenaRows, arenaColumns:", arenaRows, arenaColumns);
-
         const column = document.querySelector("#analyzing-manual-correction-column-input").value - 1;
         const row = document.querySelector("#analyzing-manual-correction-row-input").value - 1;
-
-        // const frameResult = this.cachedResults[this.currentFrameIndex];
-        // console.log("frameResult:", frameResult);
-        // const frameArenaResult = frameResult[row * arenaColumns + column];
-        // console.log("frameArenaResult:", frameArenaResult);
-        // for (let i = 0; i < keypointCount; ++i) {
-        //   document.querySelector(`#analyzing-keypoint-${i}-x-input`).value = frameArenaResult[i].x;
-        //   document.querySelector(`#analyzing-keypoint-${i}-y-input`).value = frameArenaResult[i].y;
-        // }
 
         this.manuallyCorrecting = true;
         this.manuallyCorrectingRow = row;
@@ -594,8 +452,6 @@ export class AnalyzingSection extends Section {
         }
 
         this.draw();
-
-        //
 
         document.querySelector("#analyzing-manual-correction-arena-details").style.display = "none";
         document.querySelector("#analyzing-manual-correction-keypoint-details").style.display = "grid";
@@ -645,7 +501,6 @@ export class AnalyzingSection extends Section {
           }
         );
         this.cachedResults[this.currentFrameIndex][this.manuallyCorrectingRow * arenaColumns + this.manuallyCorrectingColumn] = this.manualCorrection;
-        // this.draw();
         this.updateTrajectoryPlots();
 
         this.manuallyCorrecting = false;
@@ -660,56 +515,12 @@ export class AnalyzingSection extends Section {
     manualCorrectionColumnInput.addEventListener(
       "change",
       (event) => {
-        // const firstFrameInput = document.querySelector("#analyzing-first-frame-input");
-        // const firstFrame = firstFrameInput.value;
-        // // const lastFrameInput = document.querySelector("#analyzing-last-frame-input");
-        // // const lastFrame = lastFrameInput.value;
-
-        // const keypointCount = this.cachedResults[firstFrame][0].length;
-
-        // const arenaRowsInput = document.querySelector("#analyzing-arena-rows-input");
-        // const arenaRows = +arenaRowsInput.value;
-
-        // const arenaColumnsInput = document.querySelector("#analyzing-arena-columns-input");
-        // const arenaColumns = +arenaColumnsInput.value;
-
-        // const column = document.querySelector("#analyzing-manual-correction-column-input");
-        // const row = document.querySelector("#analyzing-manual-correction-row-input");
-
-        // const frameResult = this.cachedResults[this.currentFrameIndex];
-        // const frameArenaResult = frameResult[row * arenaColumns + column];
-        // for (let i = 0; i < keypointCount; ++i) {
-        //   document.querySelector(`#analyzing-keypoint-${i}-x-input`).value = frameArenaResult[keypointCount].x;
-        //   document.querySelector(`#analyzing-keypoint-${i}-y-input`).value = frameArenaResult[keypointCount].y;
-        // }
       }
     );
     const manualCorrectionRowInput = document.querySelector("#analyzing-manual-correction-row-input");
     manualCorrectionRowInput.addEventListener(
       "change",
       (event) => {
-        // const firstFrameInput = document.querySelector("#analyzing-first-frame-input");
-        // const firstFrame = firstFrameInput.value;
-        // // const lastFrameInput = document.querySelector("#analyzing-last-frame-input");
-        // // const lastFrame = lastFrameInput.value;
-
-        // const keypointCount = this.cachedResults[firstFrame][0].length;
-
-        // const arenaRowsInput = document.querySelector("#analyzing-arena-rows-input");
-        // const arenaRows = +arenaRowsInput.value;
-
-        // const arenaColumnsInput = document.querySelector("#analyzing-arena-columns-input");
-        // const arenaColumns = +arenaColumnsInput.value;
-
-        // const column = document.querySelector("#analyzing-manual-correction-column-input");
-        // const row = document.querySelector("#analyzing-manual-correction-row-input");
-
-        // const frameResult = this.cachedResults[this.currentFrameIndex];
-        // const frameArenaResult = frameResult[row * arenaColumns + column];
-        // for (let i = 0; i < keypointCount; ++i) {
-        //   document.querySelector(`#analyzing-keypoint-${i}-x-input`).value = frameArenaResult[keypointCount].x;
-        //   document.querySelector(`#analyzing-keypoint-${i}-y-input`).value = frameArenaResult[keypointCount].y;
-        // }
       }
     );
 
@@ -737,11 +548,9 @@ export class AnalyzingSection extends Section {
           document.querySelector("#analyzing-calibration-inner-section-right-side").style.display = "none";
         }
         else {
-          // document.querySelector("#analyzing-calibration-button-divider").style.display = "none";
           document.querySelector("#analyzing-analysis-button-divider").style.display = "none";
           document.querySelector("#analyzing-kinematics-button-divider").style.display = "none";
 
-          // document.querySelector("#analyzing-calibration-button").style.display = "none";
           document.querySelector("#analyzing-analysis-button").style.display = "none";
           document.querySelector("#analyzing-kinematics-button").style.display = "none";
 
@@ -781,11 +590,9 @@ export class AnalyzingSection extends Section {
         }
         else {
           document.querySelector("#analyzing-calibration-button-divider").style.display = "none";
-          // document.querySelector("#analyzing-analysis-button-divider").style.display = "none";
           document.querySelector("#analyzing-kinematics-button-divider").style.display = "none";
 
           document.querySelector("#analyzing-calibration-button").style.display = "none";
-          // document.querySelector("#analyzing-analysis-button").style.display = "none";
           document.querySelector("#analyzing-kinematics-button").style.display = "none";
 
           document.querySelector("#analyzing-analysis-button").classList.add("activated");
@@ -825,16 +632,13 @@ export class AnalyzingSection extends Section {
         else {
           document.querySelector("#analyzing-calibration-button-divider").style.display = "none";
           document.querySelector("#analyzing-analysis-button-divider").style.display = "none";
-          // document.querySelector("#analyzing-kinematics-button-divider").style.display = "none";
 
           document.querySelector("#analyzing-calibration-button").style.display = "none";
           document.querySelector("#analyzing-analysis-button").style.display = "none";
-          // document.querySelector("#analyzing-kinematics-button").style.display = "none";
 
           document.querySelector("#analyzing-kinematics-button").classList.add("activated");
           document.querySelector("#analyzing-kinematics-button").classList.add("panel-button-bottom");
 
-          // document.querySelector("#analyzing-kinematics-inner-section-left-side-1").style.display = "flex";
           document.querySelector("#analyzing-kinematics-inner-section-left-side-1").style.display = "none";
           document.querySelector("#analyzing-kinematics-inner-section-left-side-2").style.display = "flex";
           document.querySelector("#analyzing-kinematics-inner-section-right-side").style.display = "flex";
@@ -844,16 +648,12 @@ export class AnalyzingSection extends Section {
       }
     );
 
-    //
-
     for (const input of document.querySelectorAll("input[name=arena-shape]")) {
       input.addEventListener(
         "change",
         (event) => {
           const value = document.querySelector("input[name=arena-shape]:checked").value;
           this.worker.postMessage({ type: "arenaShape", arenaShape: value });
-
-          // console.log("new shape:", value);
 
           if (value === "circle") {
             document.querySelector("#analyzing-arena-diameter-input").style.display = "block";
@@ -939,8 +739,6 @@ export class AnalyzingSection extends Section {
       }
     }
 
-    //
-
     const arenaXInput = document.querySelector("#analyzing-arena-x-input");
     arenaXInput.addEventListener(
       "change",
@@ -1005,8 +803,6 @@ export class AnalyzingSection extends Section {
   reset() {
     super.reset();
 
-    //
-
     document.querySelector("#analyzing-calibration-inner-section-left-side-1").style.display = "none";
     document.querySelector("#analyzing-calibration-inner-section-left-side-2").style.display = "none";
     document.querySelector("#analyzing-analysis-inner-section-left-side-1").style.display = "none";
@@ -1021,13 +817,10 @@ export class AnalyzingSection extends Section {
     document.querySelector("#analyzing-analysis-inner-section-right-side").style.display = "none";
     document.querySelector("#analyzing-kinematics-inner-section-right-side").style.display = "none";
 
-    // document.querySelector("#analyzing-start-manual-correction-button").style.display = "block";
     document.querySelector("#analyzing-manual-correction-button-group").style.display = "none";
     document.querySelector("#analyzing-manual-correction-arena-details").style.display = "none";
     document.querySelector("#analyzing-manual-correction-keypoint-details").style.display = "none";
     document.querySelector("#analyzing-manual-correction-buttons").style.display = "none";
-
-    // reminder: restore all inputs to their original values
   }
 
 
@@ -1052,19 +845,13 @@ export class AnalyzingSection extends Section {
     try {
       [fileHandle] = await window.showOpenFilePicker(
         {
-          // id: `open-${this.fileType}`,
           id: "openAnalyzingMovie",
           startIn: "documents",
           types: [
             {
-              // description: "Movie files",
-              // accept: {
-              //   "application/json": [".marigold"]
-              // }
             }
           ],
           mode: "read"
-          // mode: "readwrite"
         }
       );
     }
@@ -1077,8 +864,6 @@ export class AnalyzingSection extends Section {
   }
 
   onLoadMovieSuccess(filename, numFrames, frameWidth, frameHeight) {
-    // console.log("onLoadMovieSuccess");
-
     document.querySelector("#analyzing-load-movie-button-label").textContent = filename;
 
     this.numFrames = numFrames;
@@ -1104,10 +889,7 @@ export class AnalyzingSection extends Section {
     numberInput.value = 1;
     numberInput.max = this.numFrames;
 
-    // console.log("requesting frame");
     this.worker.postMessage({ type: "frameRequest", index: 0 });
-
-    //
 
     const firstFrameInput = document.querySelector("#analyzing-first-frame-input");
     firstFrameInput.min = 1;
@@ -1118,8 +900,6 @@ export class AnalyzingSection extends Section {
     lastFrameInput.min = 1;
     lastFrameInput.value = this.numFrames;
     lastFrameInput.max = this.numFrames;
-
-    //
 
     const arenaXInput = document.querySelector("#analyzing-arena-x-input");
     arenaXInput.min = 0;
@@ -1170,11 +950,8 @@ export class AnalyzingSection extends Section {
   }
 
   onLoadMovieFailure(filename) {
-    // console.log("onLoadMovieSuccess");
-
     document.querySelector("#generic-dialog-heading").textContent = "Error opening movie file";
     document.querySelector("#generic-dialog-blurb").textContent = `Couldn't open \"${filename}.\" It might be in a movie file format that Marigold doesn't recognize.`;
-    // document.querySelector("#generic-dialog-blurb").textContent = `Couldn't open \"${filename}.\" It might be in a movie file format that Marigold doesn't recognize. Marigold can only read movie files with H264 or H265 encoding in a MP4 container.`;
 
     document.querySelector("#generic-dialog-close-button").addEventListener(
       "click",
@@ -1188,15 +965,11 @@ export class AnalyzingSection extends Section {
 
   draw() {
     if (this.currentFrame) {
-      // console.log("drawing", this.currentFrame, this.frameWidth, this.frameHeight);
       const canvas = document.querySelector("#analyzing-movie-player-canvas");
       const context = canvas.getContext("2d");
 
-      // const ratio = window.devicePixelRatio || 1;
       const boundingRect = canvas.getBoundingClientRect();
 
-      // canvas.width = this.currentFrame.displayWidth;
-      // canvas.height = this.currentFrame.displayHeight;
       canvas.width = this.frameWidth;
       canvas.height = this.frameHeight;
 
@@ -1216,11 +989,9 @@ export class AnalyzingSection extends Section {
         (canvas.height / 2) - (panCenterY * scale * this.zoom)
       );
 
-      // context.drawImage(this.currentFrame, 0, 0, this.currentFrame.displayWidth, this.currentFrame.displayHeight, 0, 0, canvas.width, canvas.height);
       context.drawImage(this.currentFrame, 0, 0, this.frameWidth, this.frameHeight, 0, 0, canvas.width, canvas.height);
 
       if (this.arenas) {
-        // console.log("arenas");
         const arenaRowsInput = document.querySelector("#analyzing-arena-rows-input");
         const arenaRows = arenaRowsInput.value;
 
@@ -1230,7 +1001,6 @@ export class AnalyzingSection extends Section {
         for (let row = 0; row < arenaRows; ++row) {
           for (let column = 0; column < arenaColumns; ++column) {
             const arena = this.arenas[row * arenaColumns + column];
-            // console.log("test arena:", arena, arena.x + arena.width / 2, arena.y + arena.width / 2, arena.width / 2);
             context.lineWidth = 5;
             context.strokeStyle = "hsl(15, 50%, 50%, 50%)";
             context.beginPath();
@@ -1246,7 +1016,6 @@ export class AnalyzingSection extends Section {
       }
 
       if (this.cachedResults && this.cachedResults[this.currentFrameIndex] && this.currentFrameIndex <= this.cachedResults.length - 1) {
-        // console.log("this.cachedResults[this.currentFrameIndex]:", this.cachedResults[this.currentFrameIndex]);
         const arenaRowsInput = document.querySelector("#analyzing-arena-rows-input");
         const arenaRows = arenaRowsInput.value;
 
@@ -1263,11 +1032,8 @@ export class AnalyzingSection extends Section {
             if (this.manuallyCorrecting && this.manuallyCorrectingRow === row && this.manuallyCorrectingColumn === column) {
               keypoints = this.manualCorrection;
             }
-            // console.log("keypoints:", keypoints);
 
             for (let i = 0; i < keypoints.length; ++i) {
-              // let radius = 10;
-              // const radius = 3.75 * Math.min(this.frameWidth, this.frameHeight) / 512;
               const radius = 2.5 * Math.min(this.frameWidth, this.frameHeight) / 512;
               context.fillStyle = `rgb(${colormap[i][0] * 255}, ${colormap[i][1] * 255}, ${colormap[i][2] * 255}, 0.75)`;
               context.beginPath();
@@ -1276,18 +1042,6 @@ export class AnalyzingSection extends Section {
             }
           }
         }
-
-        // const colormap = interpolateColormap("plasma", this.cachedResults[this.currentFrameIndex].length, true);
-        // let i = 0;
-        // for (const coordinate of this.cachedResults[this.currentFrameIndex]) {
-        //   // let radius = 10;
-        //   const radius = 3.75 * Math.min(this.frameWidth, this.frameHeight) / 512;
-        //   context.fillStyle = `rgb(${colormap[i][0] * 255}, ${colormap[i][1] * 255}, ${colormap[i][2] * 255}, 0.75)`;
-        //   context.beginPath();
-        //   context.arc(coordinate.x, coordinate.y, radius, 0, 2 * Math.PI, false);
-        //   context.fill();
-        //   ++i;
-        // }
       }
 
       context.restore();
@@ -1295,13 +1049,6 @@ export class AnalyzingSection extends Section {
   }
 
   onFrameReady(frame, frameNumber) {
-    // console.log("onFrameReady");
-
-    // if (this.currentFrame) {
-    //   this.currentFrame.close();
-    //   this.currentFrame = null;
-    // }
-
     this.currentFrame = frame;
     this.currentFrameIndex = frameNumber;
 
@@ -1316,11 +1063,9 @@ export class AnalyzingSection extends Section {
     if (this.currentlyPlaying) {
       if (this.currentFrameIndex === this.numFrames - 1) {
         this.currentlyPlaying = false;
-        // document.querySelector("#analyzing-play-or-pause-button").textContent = "Play";
         document.querySelector("#analyzing-play-or-pause-button").classList.remove("activated");
       }
       else {
-        // this.worker.postMessage({ type: "frameRequest", index: Math.min(this.numFrames - 1, this.currentFrameIndex + 1) }); // not sure if I need the min function here
         this.worker.postMessage({ type: "frameRequest", index: this.currentFrameIndex + 1 });
       }
     }
@@ -1362,19 +1107,13 @@ export class AnalyzingSection extends Section {
     try {
       [fileHandle] = await window.showOpenFilePicker(
         {
-          // id: `open-${this.fileType}`,
           id: "openAnalyzingModel",
           startIn: "documents",
           types: [
             {
-              // description: "Movie files",
-              // accept: {
-              //   "application/json": [".marigold"]
-              // }
             }
           ],
           mode: "read"
-          // mode: "readwrite"
         }
       );
     }
@@ -1408,23 +1147,18 @@ export class AnalyzingSection extends Section {
     let arenaWidth = null;
     let arenaHeight = null;
     const arenaShape = document.querySelector("input[name=arena-shape]:checked").value;
-    // console.log("arenaShape:", arenaShape);
     if (arenaShape === "circle") {
-      // console.log("1");
       arenaWidth = +arenaDiameterInput.value;
       arenaHeight = +arenaDiameterInput.value;
     }
     else if (arenaShape === "square") {
-      // console.log("2");
       arenaWidth = +arenaLengthInput.value;
       arenaHeight = +arenaLengthInput.value;
     }
     else if (arenaShape === "rectangle") {
-      // console.log("3");
       arenaWidth = +arenaWidthInput.value;
       arenaHeight = +arenaHeightInput.value;
     }
-    // console.log("arenaWidth, arenaHeight:", arenaWidth, arenaHeight);
 
     const arenaRowsInput = document.querySelector("#analyzing-arena-rows-input");
     const arenaRows = +arenaRowsInput.value;
@@ -1434,8 +1168,6 @@ export class AnalyzingSection extends Section {
 
     const arenaSpacingInput = document.querySelector("#analyzing-arena-spacing-input");
     const arenaSpacing = +arenaSpacingInput.value;
-
-    // reminder: have separate spacing for horizontal and vertical directions?
 
     this.arenas = [];
     let currentY = arenaY;
@@ -1473,11 +1205,8 @@ export class AnalyzingSection extends Section {
 
 
   onResultsReady(stuff, frame, frameNumber) {
-    // console.log("onResultsReady");
-    // console.log(stuff);
     this.cachedResults = stuff;
 
-    // this.draw();
     if (frame) {
       this.onFrameReady(frame, frameNumber);
     }
@@ -1488,8 +1217,6 @@ export class AnalyzingSection extends Section {
     const lastFrameInput = document.querySelector("#analyzing-last-frame-input");
     const lastFrame = +lastFrameInput.value - 1;
 
-    // this.worker.postMessage({ type: "frameRequest", index: this.cachedResults.length - 1 });
-    // if (this.cachedResults.length < this.numFrames) {
     if (this.cachedResults.length < this.numFrames) {
       this.worker.postMessage({ type: "processFrame", index: this.cachedResults.length });
     }
@@ -1499,9 +1226,7 @@ export class AnalyzingSection extends Section {
 
     if (frameNumber >= firstFrame && frameNumber <= lastFrame) {
       const progressElement = document.querySelector("#analysis-progress");
-      // const value = (this.cachedResults.length + 1) / this.numFrames;
       const value = (frameNumber - firstFrame) / (lastFrame - firstFrame);
-      // console.log(`progress: ${value}`);
       progressElement.value = value;
     }
 
@@ -1512,12 +1237,8 @@ export class AnalyzingSection extends Section {
       const arenaColumns = arenaColumnsInput.value;
       const keypointCount = this.cachedResults[firstFrame][0].length;
 
-      // document.querySelector("#analyzing-trajectory-plot-preview-column-input").value = 1;
-      // document.querySelector("#analyzing-trajectory-plot-preview-row-input").value = 1;
       document.querySelector("#analyzing-trajectory-plot-preview-keypoint-input").value = 1;
 
-      // document.querySelector("#analyzing-trajectory-plot-preview-column-input").max = arenaColumns;
-      // document.querySelector("#analyzing-trajectory-plot-preview-row-input").max = arenaRows;
       document.querySelector("#analyzing-trajectory-plot-preview-keypoint-input").max = keypointCount;
 
       this.updateTrajectoryPlots();
@@ -1565,8 +1286,6 @@ export class AnalyzingSection extends Section {
     const arenaColumns = arenaColumnsInput.value;
     const keypointCount = this.cachedResults[firstFrame][0].length;
 
-    // const currentColumn = document.querySelector("#analyzing-trajectory-plot-preview-column-input").value - 1;
-    // const currentRow = document.querySelector("#analyzing-trajectory-plot-preview-row-input").value - 1;
     const currentColumn = null;
     const currentRow = null;
     const currentKeypoint = document.querySelector("#analyzing-trajectory-plot-preview-keypoint-input").value - 1;
@@ -1580,11 +1299,9 @@ export class AnalyzingSection extends Section {
     const svgFilenames = [];
     const svgFileContents = [];
 
-    // const svgElements = document.querySelectorAll(".trajectory-plot-test");
     const svgElements = document.querySelectorAll(".trajectory-plot-hidden");
     for (const svgElement of svgElements) {
       svgFilenames.push(`${svgElement.id}.svg`);
-      // svgFilenames.push(`trajectories/${svgElement.id}.svg`);
 
       const serializer = new XMLSerializer();
       const string = serializer.serializeToString(svgElement);
@@ -1592,16 +1309,11 @@ export class AnalyzingSection extends Section {
       svgFileContents.push(string);
     }
 
-    // console.log(svgFilenames);
-    // console.log(svgFileContents);
-
-    //
-
     const firstFrameInput = document.querySelector("#analyzing-first-frame-input");
-    const firstFrame = +firstFrameInput.value - 1; // rename to firstFrameIndex?
+    const firstFrame = +firstFrameInput.value - 1;
 
     const lastFrameInput = document.querySelector("#analyzing-last-frame-input");
-    const lastFrame = +lastFrameInput.value - 1; // rename to lastFrameIndex?
+    const lastFrame = +lastFrameInput.value - 1;
 
     const arenaRowsInput = document.querySelector("#analyzing-arena-rows-input");
     const arenaColumnsInput = document.querySelector("#analyzing-arena-columns-input");
@@ -1609,8 +1321,6 @@ export class AnalyzingSection extends Section {
     const arenaColumns = arenaColumnsInput.value;
     const keypointCount = this.cachedResults[firstFrame][0].length;
 
-    // const currentColumn = document.querySelector("#analyzing-trajectory-plot-preview-column-input").value - 1;
-    // const currentRow = document.querySelector("#analyzing-trajectory-plot-preview-row-input").value - 1;
     const currentColumn = null;
     const currentRow = null;
     const currentKeypoint = document.querySelector("#analyzing-trajectory-plot-preview-keypoint-input").value - 1;
@@ -1623,19 +1333,12 @@ export class AnalyzingSection extends Section {
       this.cachedResults.slice(firstFrame, lastFrame + 1), this.arenas, arenaRows, arenaColumns, keypointCount, currentRow, currentColumn, currentKeypoint, firstFrame, lastFrame, angleKeypoint1, angleKeypoint2, angleKeypoint3
     );
 
-    // console.log(csvFilenames);
-    // console.log(csvFileContents);
-
-    //
-
     this.worker.postMessage({ type: "exportResults", svgFilenames: svgFilenames, svgFileContents: svgFileContents, csvFilenames: csvFilenames, csvFileContents: csvFileContents, summaryFilename: summaryFilename, summaryFileContents: summaryFileContents });
   }
 
   onExportReady(blob) {
-    // console.log("blob:", blob);
-
     const url = URL.createObjectURL(blob);
-    const filename = "results.zip"; // reminder: this should follow the name of the analysis
+    const filename = "results.zip";
 
     const a = document.createElement("a");
     a.setAttribute("href", url);

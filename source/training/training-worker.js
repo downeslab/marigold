@@ -21,22 +21,22 @@ import { SectionWorker } from "../section-worker.js";
 
 import { channelsRgb, channelsRgba, nearestValidImageSize, argmax } from "../image.js";
 import { NeuralNetwork } from "../neural-network.js";
-import { degreesToRadians } from "../core/math.js";
+
+
+function degreesToRadians(deg) {
+  return deg * (Math.PI / 180);
+}
 
 
 class TrainingWorker extends SectionWorker {
   neuralNetwork = null;
 
   trainingValidationSplit = 0.75;
-  // trainingIndices = null;
-  // validationIndices = null;
 
-  epochs = null; // maxEpochs
+  epochs = null;
   batchSize = null;
   gradientAccumulationSize = 1;
 
-  // gaussianStdDev = 1.0;
-  // gaussianStdDev = 1.5;
   gaussianStdDev = 2.0;
 
   horizontalFlip = false;
@@ -63,41 +63,30 @@ class TrainingWorker extends SectionWorker {
             this.shuffleDataset();
           }
         }
-        // else if (message.data.type === "shuffleDataset") {
-        //   this.shuffleDataset();
-        // }
         else if (message.data.type === "horizontalFlip") {
           this.horizontalFlip = message.data.horizontalFlip;
-          // console.log("horizontalFlip:", message.data.horizontalFlip);
         }
         else if (message.data.type === "verticalFlip") {
           this.verticalFlip = message.data.verticalFlip;
-          // console.log("verticalFlip:", message.data.verticalFlip);
         }
         else if (message.data.type === "maxImageSize") {
           this.data.maxImageSize = +message.data.maxImageSize;
           this.data.maxGaussianSize = +this.data.maxImageSize / 2;
-          // console.log(this.data.maxImageSize, this.data.maxGaussianSize);
         }
         else if (message.data.type === "channelCount") {
           this.data.channelCount = +message.data.channelCount;
-          // console.log(this.data.channelCount);
         }
         else if (message.data.type === "blockCount") {
           this.data.blockCount = +message.data.blockCount;
-          // console.log(this.data.blockCount);
         }
         else if (message.data.type === "batchSize") {
           this.batchSize = +message.data.batchSize;
-          // console.log(this.batchSize);
         }
         else if (message.data.type === "learningRate") {
           this.learningRate = +message.data.learningRate;
-          // console.log(this.learningRate);
         }
         else if (message.data.type === "epochs") {
           this.epochs = +message.data.epochs;
-          // console.log(this.epochs);
         }
         else if (message.data.type === "startTraining") {
           this.startTraining();
@@ -125,7 +114,7 @@ class TrainingWorker extends SectionWorker {
     this.data.channelCount = null;
     this.data.blockCount = null;
     this.data.maxImageSize = null;
-    this.data.maxGaussianSize = null; // not currently using?
+    this.data.maxGaussianSize = null;
 
     this.data.meanTrainingLosses = null;
     this.data.meanValidationLosses = null;
@@ -140,10 +129,6 @@ class TrainingWorker extends SectionWorker {
   sanityCheckData() {
     super.sanityCheckData();
   }
-
-  //
-  //
-  //
 
   async maybeOpenExistingFile(fileHandle) {
     try {
@@ -162,30 +147,17 @@ class TrainingWorker extends SectionWorker {
     }
   }
 
-  //
-  //
-  //
-
   async importDataset(fileHandle) {
-    // console.log("importDataset");
-
     const file = await fileHandle.getFile();
 
     try {
       const data = JSON.parse(await file.text());
-      // console.log("data:", data);
       this.data.labels = data.labels;
-      // reminder: get name of dataset from fileHandle and add to this.data.labels.metadata
     }
     catch {
     }
 
-    // console.log(this.data.labels);
-
-    // self.postMessage({ type: "importDatasetSuccess", trainingIndices: this.data.trainingIndices, validationIndices: this.data.validationIndices });
     this.shuffleDataset();
-
-    //
 
     this.blobs = [];
     for (const label of this.data.labels) {
@@ -195,13 +167,7 @@ class TrainingWorker extends SectionWorker {
       this.blobs.push(blob);
     }
 
-    //
-
     this.data.keypointCount = this.data.labels[0].label.length;
-
-    //
-
-    // console.log("importDataset (done)");
   }
 
   async shuffleDataset() {
@@ -212,27 +178,17 @@ class TrainingWorker extends SectionWorker {
     const trainingDataPoints = Math.round(this.trainingValidationSplit * dataPoints);
     const validationDataPoints = dataPoints - trainingDataPoints;
 
-    //
-
-    // if (this.neuralNetwork === null) {
-    //   this.neuralNetwork = new NeuralNetwork(channelsRgb, this.data.channelCount, this.data.keypointCount, this.data.blockCount, this.data.maxImageSize, this.learningRate);
-    // }
-
     const neuralNetwork = new NeuralNetwork(channelsRgb, 8, 1, 4, 96, this.learningRate);
 
     neuralNetwork.seed(this.trainingSeed);
     for (let i = 0; i < 100; ++i) {
       const randomInteger = neuralNetwork.randomInteger(0, 6);
-      // console.log(`randomInteger: ${randomInteger}`);
     }
 
     neuralNetwork.seed(this.trainingSeed);
     for (let i = 0; i < 100; ++i) {
       const randomFloat = neuralNetwork.randomFloat();
-      // console.log(`randomFloat: ${randomFloat}`);
     }
-
-    //
 
     let i = 0;
     {
@@ -252,18 +208,7 @@ class TrainingWorker extends SectionWorker {
   }
 
   async startTraining() {
-    // console.log("startTraining");
     const epochStart = performance.now();
-
-    // console.log("things");
-    // console.log(this.data.keypointCount);
-    // console.log(this.data.channelCount);
-    // console.log(this.data.blockCount);
-    // console.log(this.data.maxImageSize);
-    // console.log(this.data.maxGaussianSize);
-    // console.log(this.horizontalFlip);
-    // console.log(this.verticalFlip);
-    // console.log("/things");
 
     if (this.neuralNetwork === null) {
       this.neuralNetwork = new NeuralNetwork(channelsRgb, this.data.channelCount, this.data.keypointCount, this.data.blockCount, this.data.maxImageSize, this.learningRate);
@@ -283,7 +228,6 @@ class TrainingWorker extends SectionWorker {
     let meanTrainingLoss = 0.0;
     let meanValidationLoss = 0.0;
 
-    // console.log("this.data.trainingIndices:", this.data.trainingIndices);
     let shuffledIndices = [];
     while (shuffledIndices.length < this.data.trainingIndices.length) {
       const random = this.neuralNetwork.randomInteger(0, this.data.trainingIndices.length);
@@ -291,11 +235,9 @@ class TrainingWorker extends SectionWorker {
         shuffledIndices.push(random);
       }
     }
-    // console.log("shuffledIndices:", shuffledIndices);
 
     let batchIndex = 0;
     for (let trainingIndex = 0; trainingIndex < this.data.trainingIndices.length; ++trainingIndex) {
-      // const image = this.data.labels[this.data.trainingIndices[trainingIndex]].image;
       const image = this.data.labels[this.data.trainingIndices[shuffledIndices[trainingIndex]]].image;
       const imageResult = await fetch(image);
       const imageBlob = await imageResult.blob();
@@ -306,30 +248,13 @@ class TrainingWorker extends SectionWorker {
       context.drawImage(imageBitmap, 0, 0, imageBitmap.width, imageBitmap.height);
       const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
-      // const resizedHeight = this.data.maxImageSize;
-      // const resizedWidth = this.data.maxImageSize;
       const [resizedHeight, resizedWidth] = nearestValidImageSize(imageBitmap.height, imageBitmap.width, this.data.maxImageSize, 8);
-      // console.log("image sizes:", imageBitmap.height, imageBitmap.width, resizedHeight, resizedWidth);
 
       const resizedGaussianHeight = resizedHeight / 2;
       const resizedGaussianWidth = resizedWidth / 2;
 
-      // const resized = new Float32Array(resizedHeight * resizedWidth * channelsRgb);
-
-      // {
-      //   const start = performance.now();
-      //   resizeBilinearRgbaToRgb(imageData.data, resized, imageBitmap.height, imageBitmap.width, resizedHeight, resizedWidth);
-      //   const finish = performance.now();
-      //   // console.log("[resize ecma] t =", (finish - start) / 1000, "s");
-      // }
-      // {
-      //   const start = performance.now();
       this.neuralNetwork.resize(imageData.data, imageBitmap.height, imageBitmap.width, resizedHeight, resizedWidth);
-      //   const finish = performance.now();
-      //   // console.log("[resize wasm] t =", (finish - start) / 1000, "s");
-      // }
 
-      // const label = this.data.labels[this.data.trainingIndices[trainingIndex]].label;
       const label = this.data.labels[this.data.trainingIndices[shuffledIndices[trainingIndex]]].label;
 
       const coordinates = [];
@@ -345,33 +270,8 @@ class TrainingWorker extends SectionWorker {
         coordinates[i][1] *= resizedGaussianWidth / resizedWidth;
       }
 
-      // if (this.verticalFlip) {
-      //   if (Math.random() < 0.5) {
-      //     flipVertical(resized, resizedHeight, resizedWidth, channelsRgb);
-
-      //     for (let i = 0; i < coordinates.length; ++i) {
-      //       coordinates[i][0] = resizedGaussianHeight - coordinates[i][0];
-      //     }
-      //   }
-      // }
-      // if (this.horizontalFlip) {
-      //   if (Math.random() < 0.5) {
-      //     flipHorizontal(resized, resizedHeight, resizedWidth, channelsRgb);
-
-      //     for (let i = 0; i < coordinates.length; ++i) {
-      //       coordinates[i][1] = resizedGaussianWidth - coordinates[i][1];
-      //     }
-      //   }
-      // }
-
-      // const brightnessAdjustment = (Math.random() - 0.5) / 10.0; // uniform(0.05, 0.05)
-      // for (let i = 0; i < resized.length; ++i) {
-      //   resized[i] += brightnessAdjustment;
-      // }
-
       if (this.verticalFlip) {
         if (this.neuralNetwork.randomFloat() < 0.5) {
-          // flipVertical(resized, resizedHeight, resizedWidth, channelsRgb);
           this.neuralNetwork.flipVertical(resizedHeight, resizedWidth);
 
           for (let i = 0; i < coordinates.length; ++i) {
@@ -381,7 +281,6 @@ class TrainingWorker extends SectionWorker {
       }
       if (this.horizontalFlip) {
         if (this.neuralNetwork.randomFloat() < 0.5) {
-          // flipHorizontal(resized, resizedHeight, resizedWidth, channelsRgb);
           this.neuralNetwork.flipHorizontal(resizedHeight, resizedWidth);
 
           for (let i = 0; i < coordinates.length; ++i) {
@@ -390,28 +289,13 @@ class TrainingWorker extends SectionWorker {
         }
       }
 
-      const brightnessAdjustment = (this.neuralNetwork.randomFloat() - 0.5) / 10.0; // uniform(0.05, 0.05)
-      // for (let i = 0; i < resized.length; ++i) {
-      //   resized[i] += brightnessAdjustment;
-      // }
+      const brightnessAdjustment = (this.neuralNetwork.randomFloat() - 0.5) / 10.0;
       this.neuralNetwork.brightnessAdjustment(resizedHeight, resizedWidth, brightnessAdjustment);
 
-      const angle = (this.neuralNetwork.randomFloat() - 0.5) * 2 * 15; // uniform(-15, 15);
+      const angle = (this.neuralNetwork.randomFloat() - 0.5) * 2 * 15;
       const theta = degreesToRadians(angle);
-      // const rotated = new Float32Array(resizedHeight * resizedWidth * channelsRgb);
 
-      // {
-      //   const start = performance.now();
-      //   rotateBilinear(resized, rotated, resizedHeight, resizedWidth, theta, null);
-      //   const finish = performance.now();
-      //   // console.log("[rotate ecma] t =", (finish - start) / 1000, "s");
-      // }
-      // {
-      //   const start = performance.now();
       this.neuralNetwork.rotate(resizedHeight, resizedWidth, Math.cos(theta), Math.sin(theta), null);
-      //   const finish = performance.now();
-      //   // console.log("[rotate wasm] t =", (finish - start) / 1000, "s");
-      // }
 
       for (let i = 0; i < coordinates.length; ++i) {
         coordinates[i][0] -= resizedGaussianHeight / 2.0;
@@ -432,46 +316,18 @@ class TrainingWorker extends SectionWorker {
         coordinates[i][1] = xPrime;
       }
 
-      // const gaussians = new Float32Array(resizedGaussianHeight * resizedGaussianWidth * this.data.keypointCount);
-      // drawGaussians(gaussians, resizedGaussianHeight, resizedGaussianWidth, this.data.keypointCount, coordinates, this.gaussianStdDev);
       this.neuralNetwork.drawGaussians(resizedGaussianHeight, resizedGaussianWidth, this.data.keypointCount, coordinates, this.gaussianStdDev);
 
-      {
-        const start = performance.now();
-        // this.neuralNetwork.forward(resized, resizedHeight, resizedWidth, channelsRgb);
-        this.neuralNetwork.forward(this.neuralNetwork.rotatedOffset, resizedHeight, resizedWidth, channelsRgb);
-        const finish = performance.now();
-        // if (trainingIndex < 4) {
-        // console.log("[train] neuralNetwork.forward t =", (finish - start) / 1000, "s");
-        // }
-      }
+      this.neuralNetwork.forward(this.neuralNetwork.rotatedOffset, resizedHeight, resizedWidth, channelsRgb);
 
-      // const predictions = this.neuralNetwork.predictions();
-
-      // const trainingLoss = meanSquaredErrorForward(predictions, gaussians, resizedGaussianHeight * resizedGaussianWidth * this.data.keypointCount);
       const trainingLoss = this.neuralNetwork.lossForward();
-      // trainingLoss /= this.batchSize;
       meanTrainingLoss += trainingLoss;
 
-      // const gradients = new Float32Array(resizedGaussianHeight * resizedGaussianWidth * this.data.keypointCount);
-      // meanSquaredErrorBackward(trainingLoss, gradients, predictions, gaussians, resizedGaussianHeight * resizedGaussianWidth * this.data.keypointCount);
-      // meanSquaredErrorBackward(trainingLoss / this.batchSize, gradients, predictions, gaussians, resizedGaussianHeight * resizedGaussianWidth * this.data.keypointCount);
-      // not sure which of these makes more sense; i think the one that divides by batch size seems to work a bit better in practice and probably makes more theoretical sense
-      // this.neuralNetwork.lossBackward(trainingLoss);
       this.neuralNetwork.lossBackward(trainingLoss / this.batchSize);
 
-      {
-        const start = performance.now();
-        // this.neuralNetwork.backward(gradients);
-        this.neuralNetwork.backward(this.neuralNetwork.gaussianGradientOffset);
-        const finish = performance.now();
-        // if (trainingIndex < 4) {
-        // console.log("[train] neuralNetwork.backward t =", (finish - start) / 1000, "s");
-        // }
-      }
+      this.neuralNetwork.backward(this.neuralNetwork.gaussianGradientOffset);
 
       ++batchIndex;
-      // reminder: what if the last batch is not a full batch? (need to handle partial batches)
       if (batchIndex === this.batchSize) {
         this.neuralNetwork.updateParameters();
         this.neuralNetwork.zeroGradients();
@@ -479,10 +335,6 @@ class TrainingWorker extends SectionWorker {
       }
     }
     meanTrainingLoss /= this.data.trainingIndices.length;
-
-    //
-    //
-    //
 
     let cachedPredictions = [];
     for (let validationIndex = 0; validationIndex < this.data.validationIndices.length; ++validationIndex) {
@@ -496,15 +348,11 @@ class TrainingWorker extends SectionWorker {
       context.drawImage(imageBitmap, 0, 0, imageBitmap.width, imageBitmap.height);
       const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
-      // const resizedHeight = this.data.maxImageSize;
-      // const resizedWidth = this.data.maxImageSize;
       const [resizedHeight, resizedWidth] = nearestValidImageSize(imageBitmap.height, imageBitmap.width, this.data.maxImageSize, 8);
 
       const resizedGaussianHeight = resizedHeight / 2;
       const resizedGaussianWidth = resizedWidth / 2;
 
-      // const resized = new Float32Array(resizedHeight * resizedWidth * channelsRgb);
-      // resizeBilinearRgbaToRgb(imageData.data, resized, imageBitmap.height, imageBitmap.width, resizedHeight, resizedWidth);
       this.neuralNetwork.resize(imageData.data, imageBitmap.height, imageBitmap.width, resizedHeight, resizedWidth);
 
       const label = this.data.labels[this.data.validationIndices[validationIndex]].label;
@@ -522,34 +370,12 @@ class TrainingWorker extends SectionWorker {
         coordinates[i][1] *= resizedGaussianWidth / resizedWidth;
       }
 
-      // const gaussians = new Float32Array(resizedGaussianHeight * resizedGaussianWidth * this.data.keypointCount);
-      // drawGaussians(gaussians, resizedGaussianHeight, resizedGaussianWidth, this.data.keypointCount, coordinates, this.gaussianStdDev);
       this.neuralNetwork.drawGaussians(resizedGaussianHeight, resizedGaussianWidth, this.data.keypointCount, coordinates, this.gaussianStdDev);
 
-      {
-        const start = performance.now();
-        // this.neuralNetwork.forward(resized, resizedHeight, resizedWidth, channelsRgb);
-        this.neuralNetwork.forward(this.neuralNetwork.resizedOffset, resizedHeight, resizedWidth, channelsRgb);
-        const finish = performance.now();
-        // if (validationIndex < 4) {
-        // console.log("[valid] neuralNetwork.forward t =", (finish - start) / 1000, "s");
-        // }
-      }
+      this.neuralNetwork.forward(this.neuralNetwork.resizedOffset, resizedHeight, resizedWidth, channelsRgb);
 
       const predictions = this.neuralNetwork.predictions();
       const predictionCoordinates = argmax(predictions, resizedGaussianHeight, resizedGaussianWidth, this.data.keypointCount);
-      // {
-      //   const start = performance.now();
-      //   const predictionCoordinates = argmax(predictions, resizedGaussianHeight, resizedGaussianWidth, this.data.keypointCount);
-      //   const finish = performance.now();
-      //   // console.log("[argmax old] t =", (finish - start) / 1000, "s");
-      // }
-      // {
-      //   const start = performance.now();
-      //   const predictionCoordinates = argmax(predictions, resizedGaussianHeight, resizedGaussianWidth, this.data.keypointCount);
-      //   const finish = performance.now();
-      //   // console.log("[argmax new] t =", (finish - start) / 1000, "s");
-      // }
       for (let i = 0; i < predictionCoordinates.length; ++i) {
         predictionCoordinates[i].y *= resizedHeight / resizedGaussianHeight;
         predictionCoordinates[i].x *= resizedWidth / resizedGaussianWidth;
@@ -560,15 +386,10 @@ class TrainingWorker extends SectionWorker {
       }
       cachedPredictions.push(predictionCoordinates);
 
-      // const validationLoss = meanSquaredErrorForward(predictions, gaussians, resizedGaussianHeight * resizedGaussianWidth * this.data.keypointCount);
       const validationLoss = this.neuralNetwork.lossForward();
       meanValidationLoss += validationLoss;
     }
     meanValidationLoss /= this.data.validationIndices.length;
-
-    //
-    //
-    //
 
     this.data.meanTrainingLosses.push(meanTrainingLoss);
     this.data.meanValidationLosses.push(meanValidationLoss);
@@ -577,25 +398,17 @@ class TrainingWorker extends SectionWorker {
       this.data.bestValidationLoss = meanValidationLoss;
       this.data.cachedPredictions = cachedPredictions;
 
-      // console.log("boop?");
       this.data.bestWeights = this.neuralNetwork.getParameters();
-      // console.log("boop!");
     }
-    else { // reminder: maybe this can be a single else if? lol
-      if (meanValidationLoss < this.data.bestValidationLoss) // use <= ?
-      {
+    else {
+      if (meanValidationLoss <= this.data.bestValidationLoss) {
         this.data.bestValidationLoss = meanValidationLoss;
-        this.data.bestTrainingLoss = meanTrainingLoss; // rename to this.data.trainingLossForBestValidationLoss?
+        this.data.bestTrainingLoss = meanTrainingLoss;
         this.data.cachedPredictions = cachedPredictions;
 
-        // console.log("boop?");
         this.data.bestWeights = this.neuralNetwork.getParameters();
-        // console.log("boop!");
       }
     }
-
-    // console.log(`[epoch: ${this.epoch}] meanTrainingLoss: ${meanTrainingLoss}`);
-    // console.log(`[epoch: ${this.epoch}] meanValidationLoss: ${meanValidationLoss}`);
 
     self.postMessage(
       {
@@ -615,11 +428,7 @@ class TrainingWorker extends SectionWorker {
 
     ++this.epoch;
 
-
     const epochFinish = performance.now();
-    // console.log("[epoch] t =", (epochFinish - epochStart) / 1000, "s");
-
-    // console.log("startTraining (done)");
   }
 }
 

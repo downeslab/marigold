@@ -5,6 +5,7 @@ set -Eeuxo pipefail
 mkdir -p build
 cp source/browser-compatibility.js build
 cp source/colormap.js build
+cp source/constants.js build
 cp source/deferred.css build
 cp source/image.js build
 cp source/index.html build
@@ -16,10 +17,6 @@ cp source/neural-network.js build
 cp source/section.js build
 cp source/section-worker.js build
 cp source/zip.js build
-
-mkdir -p build/core
-cp source/core/constants.js build/core
-cp source/core/math.js build/core
 
 mkdir -p build/analyzing
 cp source/analyzing/analyzing.html build/analyzing

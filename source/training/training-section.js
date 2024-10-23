@@ -19,14 +19,18 @@ If not, see <https://www.gnu.org/licenses/>.
 
 import { Section } from "../section.js";
 
-import { round } from "../core/math.js";
-import { maxImageSizeOptions, maxImageSizeDefault, batchSizeOptions, batchSizeDefault, learningRateOptions, learningRateDefault } from "../core/constants.js";
 import { interpolateColormap } from "../colormap.js";
+import { maxImageSizeOptions, maxImageSizeDefault, batchSizeOptions, batchSizeDefault, learningRateOptions, learningRateDefault } from "../constants.js";
 
 
 function beforeUnloadListener(event) {
   event.preventDefault();
   return (event.returnValue = "");
+}
+
+
+function round(number, digits) {
+  return number.toFixed(digits);
 }
 
 
@@ -82,13 +86,6 @@ export class TrainingSection extends Section {
       }
     );
 
-    // document.querySelector("#reshuffle-dataset-button").addEventListener(
-    //   "click",
-    //   (event) => {
-    //     this.maybeShuffleDataset();
-    //   }
-    // );
-
     document.querySelector("#start-training-button").addEventListener(
       "click",
       (event) => {
@@ -103,12 +100,7 @@ export class TrainingSection extends Section {
       }
     );
 
-    //
-    //
-    //
-
     document.querySelector("#training-seed-input").addEventListener(
-      // "input",
       "change",
       (event) => {
         let value = document.querySelector("#training-seed-input").value;
@@ -125,7 +117,6 @@ export class TrainingSection extends Section {
     }
 
     document.querySelector("#horizontal-flip-checkbox").addEventListener(
-      // "change",
       "input",
       (event) => {
         this.worker.postMessage({ type: "horizontalFlip", horizontalFlip: document.querySelector("#horizontal-flip-checkbox").checked });
@@ -138,7 +129,6 @@ export class TrainingSection extends Section {
     this.worker.postMessage({ type: "horizontalFlip", horizontalFlip: document.querySelector("#horizontal-flip-checkbox").checked });
 
     document.querySelector("#vertical-flip-checkbox").addEventListener(
-      // "change",
       "input",
       (event) => {
         this.worker.postMessage({ type: "verticalFlip", verticalFlip: document.querySelector("#vertical-flip-checkbox").checked });
@@ -242,10 +232,7 @@ export class TrainingSection extends Section {
       this.worker.postMessage({ type: "learningRate", learningRate: +value });
     }
 
-    //
-
     document.querySelector("#epochs-input").addEventListener(
-      // "input",
       "change",
       (event) => {
         let value = document.querySelector("#epochs-input").value;
@@ -262,10 +249,6 @@ export class TrainingSection extends Section {
       let value = document.querySelector("#epochs-input").value;
       this.worker.postMessage({ type: "epochs", epochs: +value });
     }
-
-    //
-    //
-    //
 
     document.querySelector("#training-dataset-setup-button").addEventListener(
       "click",
@@ -287,11 +270,9 @@ export class TrainingSection extends Section {
           document.querySelector("#training-dataset-setup-inner-section-right-side").style.display = "none";
         }
         else {
-          // document.querySelector("#training-dataset-setup-button-divider").style.display = "none";
           document.querySelector("#training-neural-network-setup-button-divider").style.display = "none";
           document.querySelector("#training-training-process-button-divider").style.display = "none";
 
-          // document.querySelector("#training-dataset-setup-button").style.display = "none";
           document.querySelector("#training-neural-network-setup-button").style.display = "none";
           document.querySelector("#training-training-process-button").style.display = "none";
 
@@ -299,7 +280,7 @@ export class TrainingSection extends Section {
           document.querySelector("#training-dataset-setup-button").classList.add("panel-button-bottom");
 
           document.querySelector("#training-dataset-setup-inner-section-left-side-1").style.display = "flex";
-          document.querySelector("#training-dataset-setup-inner-section-left-side-2").style.display = "flex";
+          // document.querySelector("#training-dataset-setup-inner-section-left-side-2").style.display = "flex"; // hide this for now
           document.querySelector("#training-dataset-setup-inner-section-right-side").style.display = "flex";
         }
 
@@ -327,15 +308,12 @@ export class TrainingSection extends Section {
           document.querySelector("#training-neural-network-setup-inner-section-left-side-3").style.display = "none";
           document.querySelector("#training-neural-network-setup-inner-section-left-side-4").style.display = "none";
           document.querySelector("#training-neural-network-setup-inner-section-left-side-5").style.display = "none";
-          // document.querySelector("#training-neural-network-setup-inner-section-right-side").style.display = "none";
         }
         else {
           document.querySelector("#training-dataset-setup-button-divider").style.display = "none";
-          // document.querySelector("#training-neural-network-setup-button-divider").style.display = "none";
           document.querySelector("#training-training-process-button-divider").style.display = "none";
 
           document.querySelector("#training-dataset-setup-button").style.display = "none";
-          // document.querySelector("#training-neural-network-setup-button").style.display = "none";
           document.querySelector("#training-training-process-button").style.display = "none";
 
           document.querySelector("#training-neural-network-setup-button").classList.add("activated");
@@ -346,7 +324,6 @@ export class TrainingSection extends Section {
           document.querySelector("#training-neural-network-setup-inner-section-left-side-3").style.display = "flex";
           document.querySelector("#training-neural-network-setup-inner-section-left-side-4").style.display = "flex";
           document.querySelector("#training-neural-network-setup-inner-section-left-side-5").style.display = "flex";
-          // document.querySelector("#training-neural-network-setup-inner-section-right-side").style.display = "flex";
         }
 
         window.scrollTo(0, 0);
@@ -375,11 +352,9 @@ export class TrainingSection extends Section {
         else {
           document.querySelector("#training-dataset-setup-button-divider").style.display = "none";
           document.querySelector("#training-neural-network-setup-button-divider").style.display = "none";
-          // document.querySelector("#training-training-process-button-divider").style.display = "none";
 
           document.querySelector("#training-dataset-setup-button").style.display = "none";
           document.querySelector("#training-neural-network-setup-button").style.display = "none";
-          // document.querySelector("#training-training-process-button").style.display = "none";
 
           document.querySelector("#training-training-process-button").classList.add("activated");
           document.querySelector("#training-training-process-button").classList.add("panel-button-bottom");
@@ -400,8 +375,6 @@ export class TrainingSection extends Section {
     super.reset();
     document.querySelector("#start-training-button").setAttribute("disabled", "");
 
-    //
-
     document.querySelector("#training-dataset-setup-inner-section-left-side-1").style.display = "none";
     document.querySelector("#training-dataset-setup-inner-section-left-side-2").style.display = "none";
     document.querySelector("#training-neural-network-setup-inner-section-left-side-1").style.display = "none";
@@ -414,8 +387,6 @@ export class TrainingSection extends Section {
     document.querySelector("#training-dataset-setup-inner-section-right-side").style.display = "none";
     document.querySelector("#training-neural-network-setup-inner-section-right-side").style.display = "none";
     document.querySelector("#training-training-process-inner-section-right-side").style.display = "none";
-
-    //
   }
 
 
@@ -526,22 +497,13 @@ export class TrainingSection extends Section {
   }
 
 
-  // async maybeShuffleDataset() {
-  //   this.worker.postMessage({ type: "shuffleDataset" });
-  // }
-
-
   maybeStartTraining() {
-    // console.log("booped");
-
     this.trainingPaused = false;
 
     document.querySelector("#start-training-button").setAttribute("disabled", "");
     document.querySelector("#pause-training-button").removeAttribute("disabled");
 
-    // if (epoch < document.querySelector("#epochs-input").value) {
     this.worker.postMessage({ type: "startTraining" });
-    // }
   }
 
   maybePauseTraining() {
@@ -568,8 +530,6 @@ export class TrainingSection extends Section {
       const input = document.querySelector("#training-preview-index-input");
       input.removeAttribute("disabled");
 
-      // input.min = 1;
-      // input.max = validationIndices.length;
       input.value = 1;
 
       this.cachedLabels = structuredClone(labels);
@@ -578,29 +538,20 @@ export class TrainingSection extends Section {
       this.cachedValidationIndices = structuredClone(validationIndices);
 
       input.addEventListener(
-        // "change",
         "input",
         (event) => {
           let min = 1;
           let max = this.cachedValidationIndices.length;
-          // console.log(min, max);
           const input = document.querySelector("#training-preview-index-input");
           input.value = Math.max(min, Math.min(max, input.value));
-          // this.previewIndex = input.value;
           this.updateTrainingPreview();
         }
       );
-
-      // this.previewIndex = input.value;
-
-      // this.updateTrainingPreview();
 
       this.blobs = blobs;
     }
     else {
       this.cachedPredictions = structuredClone(cachedPredictions);
-
-      // this.updateTrainingPreview();
     }
 
     document.querySelector("#epoch-status").textContent = `Epoch: ${epoch + 1}`;
@@ -618,7 +569,6 @@ export class TrainingSection extends Section {
     this.showStatus(Section.unsavedMessage);
     addEventListener("beforeunload", beforeUnloadListener);
 
-    // reminder: something seems a little funky here; off by one?
     if (epoch < document.querySelector("#epochs-input").value - 1 && !this.trainingPaused) {
       this.maybeStartTraining();
     }
@@ -626,7 +576,6 @@ export class TrainingSection extends Section {
       this.maybePauseTraining();
     }
 
-    // reminder: something seems a little funky here; off by one?
     if (epoch < document.querySelector("#epochs-input").value - 1 && this.trainingPaused) {
       document.querySelector("#start-training-button").removeAttribute("disabled");
     }
@@ -643,7 +592,6 @@ export class TrainingSection extends Section {
 
     let canvas = document.querySelector("#training-preview-canvas");
     const context = canvas.getContext("2d");
-    // context.drawImage(imageBitmap, 0, 0, imageBitmap.width, imageBitmap.height);
 
     const ratio = window.devicePixelRatio || 1;
     const boundingRect = canvas.getBoundingClientRect();
@@ -692,10 +640,6 @@ export class TrainingSection extends Section {
 
     context.restore();
 
-    //
-    //
-    //
-
     const plotWidth = 32;
     const plotHeight = 24;
 
@@ -715,8 +659,7 @@ export class TrainingSection extends Section {
       }
     }
 
-    // maxLoss = 1.5;
-    maxLoss = 1.25;
+    maxLoss = 1.125;
 
     const axisLabelMargin = 2;
     const circleRadius = 0.5;
@@ -755,7 +698,6 @@ export class TrainingSection extends Section {
     yAxisLabel.setAttribute("x", 16);
     yAxisLabel.setAttribute("y", 12);
     yAxisLabel.setAttribute("fill", "hsl(0deg, 0%, 100%, 0.875)");
-    // yAxisLabel.setAttribute("text-anchor", "middle");
     yAxisLabel.classList.add("axis-label");
     yAxisLabel.textContent = "Loss (mean squared error)";
     yAxisLabelGroup.appendChild(yAxisLabel);
@@ -768,7 +710,6 @@ export class TrainingSection extends Section {
     xAxisLabel.setAttribute("x", 16);
     xAxisLabel.setAttribute("y", 23);
     xAxisLabel.setAttribute("fill", "hsl(0deg, 0%, 100%, 0.875)");
-    // xAxisLabel.setAttribute("text-anchor", "middle");
     xAxisLabel.classList.add("axis-label");
     xAxisLabel.textContent = "Epoch";
     xAxisLabelGroup.appendChild(xAxisLabel);

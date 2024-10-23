@@ -32,12 +32,16 @@ export function nearestValidImageSize(originalHeight, originalWidth, maxImageSiz
   if (originalHeight < originalWidth) {
     newWidth = maxImageSize;
     newHeight = Math.round(originalHeight * (newWidth / originalWidth));
-    newHeight += mustBeMultipleOf - (newHeight % mustBeMultipleOf);
+    if (newHeight % mustBeMultipleOf > 0) {
+      newHeight += mustBeMultipleOf - (newHeight % mustBeMultipleOf);
+    }
   }
   else {
     newHeight = maxImageSize;
     newWidth = Math.round(originalWidth * (newHeight / originalHeight));
-    newWidth += mustBeMultipleOf - (newWidth % mustBeMultipleOf);
+    if (newWidth % mustBeMultipleOf > 0) {
+      newWidth += mustBeMultipleOf - (newWidth % mustBeMultipleOf);
+    }
   }
 
   return [newHeight, newWidth];
@@ -68,13 +72,12 @@ export function rgbaUint8ToRgbFloat32(x, y, width, height) {
 
 
 export function argmax(heatmaps, height, width, channels) {
-  let maxY = Array(channels); // const?
-  let maxX = Array(channels); // const?
-  let maxValues = Array(channels); // const?
+  let maxY = Array(channels);
+  let maxX = Array(channels);
+  let maxValues = Array(channels);
 
   for (let c = 0; c < channels; ++c) {
-    maxValues[c] = heatmaps[c];
-    // maxValues[c] = Number.NEGATIVE_INFINITY;
+    maxValues[c] = Number.NEGATIVE_INFINITY;
   }
 
   for (let h = 0; h < height; ++h) {
@@ -98,16 +101,13 @@ export function argmax(heatmaps, height, width, channels) {
 }
 
 export function argmaxWithinCircle(heatmaps, length, channels) {
-  let maxY = Array(channels); // const?
-  let maxX = Array(channels); // const?
-  let maxValues = Array(channels); // const?
+  let maxY = Array(channels);
+  let maxX = Array(channels);
+  let maxValues = Array(channels);
 
   for (let c = 0; c < channels; ++c) {
-    // maxValues[c] = heatmaps[c];
     maxValues[c] = Number.NEGATIVE_INFINITY;
   }
-
-  // reminder: need to think about this more carefully and make sure it's correct
 
   let centerY = length / 2;
   let centerX = length / 2;

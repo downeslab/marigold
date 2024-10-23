@@ -19,8 +19,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 import { Section } from "../section.js";
 
-import { minKeypointCount, maxKeypointCount, defaultKeypointCount } from "../core/constants.js";
 import { interpolateColormap } from "../colormap.js";
+import { minKeypointCount, maxKeypointCount, defaultKeypointCount } from "../constants.js";
 import { LabelingThumbnails } from "./labeling-thumbnails.js";
 
 
@@ -89,7 +89,6 @@ export class LabelingSection extends Section {
       "labelRemoved",
       (event) => {
         const index = event.detail;
-        // console.log(`received signal to delete label ${index}`);
         this.worker.postMessage({ type: "removeLabel", index: index });
 
         this.unsavedChanges = true;
@@ -98,12 +97,7 @@ export class LabelingSection extends Section {
       }
     );
 
-    //
-    //
-    //
-
     document.querySelector("#keypoint-count-input").addEventListener(
-      // "input",
       "change",
       (event) => {
         let value = document.querySelector("#keypoint-count-input").value;
@@ -135,10 +129,6 @@ export class LabelingSection extends Section {
       let value = document.querySelector("#keypoint-count-input").value;
       this.worker.postMessage({ type: "keypointCount", keypointCount: +value });
     }
-
-    //
-    //
-    //
 
     document.querySelector("#labeling-load-movie-button").addEventListener(
       "click",
@@ -186,12 +176,10 @@ export class LabelingSection extends Section {
       (event) => {
         this.currentlyPlaying = !this.currentlyPlaying;
         if (this.currentlyPlaying) {
-          // document.querySelector("#labeling-play-or-pause-button").textContent = "Pause";
           document.querySelector("#labeling-play-or-pause-button").classList.add("activated");
           this.worker.postMessage({ type: "frameRequest", index: Math.min(this.numFrames - 1, this.currentFrameIndex + 1) });
         }
         else {
-          // document.querySelector("#labeling-play-or-pause-button").textContent = "Play";
           document.querySelector("#labeling-play-or-pause-button").classList.remove("activated");
         }
       }
@@ -221,10 +209,6 @@ export class LabelingSection extends Section {
         this.worker.postMessage({ type: "frameRequest", index: document.querySelector("#labeling-frame-number-input").value - 1 });
       }
     );
-
-    //
-    //
-    //
 
     document.querySelector("#labeling-label-current-frame-button").addEventListener(
       "click",
@@ -290,10 +274,6 @@ export class LabelingSection extends Section {
       }
     );
 
-    //
-    //
-    //
-
     document.querySelector("#labeling-movie-player-canvas").addEventListener(
       "mousedown",
       (event) => {
@@ -301,11 +281,7 @@ export class LabelingSection extends Section {
           const canvas = document.querySelector("#labeling-movie-player-canvas");
           const context = canvas.getContext("2d");
 
-          // const ratio = window.devicePixelRatio || 1;
           const boundingRect = canvas.getBoundingClientRect();
-
-          // canvas.width = this.currentFrame.displayWidth;
-          // canvas.height = this.currentFrame.displayHeight;
 
           context.save();
 
@@ -323,10 +299,7 @@ export class LabelingSection extends Section {
             (canvas.height / 2) - (panCenterY * scale * this.zoom)
           );
 
-          // context.drawImage(this.currentFrame, 0, 0, this.currentFrame.displayWidth, this.currentFrame.displayHeight, 0, 0, canvas.width, canvas.height);
-
           const scale_ = Math.max(canvas.width / boundingRect.width, canvas.height / boundingRect.height) / this.zoom;
-          // const scale_ = Math.max(canvas.width / boundingRect.width, canvas.height / boundingRect.height) * this.zoom;
 
           let diffX = (boundingRect.width * scale_ - canvas.width) / 2;
           let diffY = (boundingRect.height * scale_ - canvas.height) / 2;
@@ -336,8 +309,6 @@ export class LabelingSection extends Section {
 
           const x_ = x + this.panOffsetX;
           const y_ = y + this.panOffsetY;
-
-          // console.log("x, y, x_, y_:", x, y, x_, y_);
 
           context.restore();
 
@@ -371,11 +342,7 @@ export class LabelingSection extends Section {
             const canvas = document.querySelector("#labeling-movie-player-canvas");
             const context = canvas.getContext("2d");
 
-            // const ratio = window.devicePixelRatio || 1;
             const boundingRect = canvas.getBoundingClientRect();
-
-            // canvas.width = this.currentFrame.displayWidth;
-            // canvas.height = this.currentFrame.displayHeight;
 
             context.save();
 
@@ -393,10 +360,7 @@ export class LabelingSection extends Section {
               (canvas.height / 2) - (panCenterY * scale * this.zoom)
             );
 
-            // context.drawImage(this.currentFrame, 0, 0, this.currentFrame.displayWidth, this.currentFrame.displayHeight, 0, 0, canvas.width, canvas.height);
-
             const scale_ = Math.max(canvas.width / boundingRect.width, canvas.height / boundingRect.height) / this.zoom;
-            // const scale_ = Math.max(canvas.width / boundingRect.width, canvas.height / boundingRect.height) * this.zoom;
 
             let diffX = (boundingRect.width * scale_ - canvas.width) / 2;
             let diffY = (boundingRect.height * scale_ - canvas.height) / 2;
@@ -406,8 +370,6 @@ export class LabelingSection extends Section {
 
             const x_ = x + this.panOffsetX;
             const y_ = y + this.panOffsetY;
-
-            // console.log("x, y, x_, y_:", x, y, x_, y_);
 
             context.restore();
 
@@ -437,11 +399,7 @@ export class LabelingSection extends Section {
           const canvas = document.querySelector("#labeling-movie-player-canvas");
           const context = canvas.getContext("2d");
 
-          // const ratio = window.devicePixelRatio || 1;
           const boundingRect = canvas.getBoundingClientRect();
-
-          // canvas.width = this.currentFrame.displayWidth;
-          // canvas.height = this.currentFrame.displayHeight;
 
           context.save();
 
@@ -459,10 +417,7 @@ export class LabelingSection extends Section {
             (canvas.height / 2) - (panCenterY * scale * this.zoom)
           );
 
-          // context.drawImage(this.currentFrame, 0, 0, this.currentFrame.displayWidth, this.currentFrame.displayHeight, 0, 0, canvas.width, canvas.height);
-
           const scale_ = Math.max(canvas.width / boundingRect.width, canvas.height / boundingRect.height) / this.zoom;
-          // const scale_ = Math.max(canvas.width / boundingRect.width, canvas.height / boundingRect.height) * this.zoom;
 
           let diffX = (boundingRect.width * scale_ - canvas.width) / 2;
           let diffY = (boundingRect.height * scale_ - canvas.height) / 2;
@@ -472,8 +427,6 @@ export class LabelingSection extends Section {
 
           const x_ = x + this.panOffsetX;
           const y_ = y + this.panOffsetY;
-
-          // console.log("x, y, x_, y_:", x, y, x_, y_);
 
           context.restore();
 
@@ -498,10 +451,6 @@ export class LabelingSection extends Section {
       }
     );
 
-    //
-    //
-    //
-
     document.querySelector("#labeling-configure-dataset-button").addEventListener(
       "click",
       (event) => {
@@ -519,15 +468,11 @@ export class LabelingSection extends Section {
           document.querySelector("#labeling-configure-dataset-button").classList.remove("panel-button-bottom");
 
           document.querySelector("#labeling-configure-dataset-inner-section-left-side").style.display = "none";
-          // document.querySelector("#labeling-configure-dataset-inner-section-right-side").style.display = "none";
         }
         else {
-
-          // document.querySelector("#labeling-configure-dataset-button-divider").style.display = "none";
           document.querySelector("#labeling-extract-and-label-frames-button-divider").style.display = "none";
           document.querySelector("#labeling-review-labeled-frames-button-divider").style.display = "none";
 
-          // document.querySelector("#labeling-configure-dataset-button").style.display = "none";
           document.querySelector("#labeling-extract-and-label-frames-button").style.display = "none";
           document.querySelector("#labeling-review-labeled-frames-button").style.display = "none";
 
@@ -535,7 +480,6 @@ export class LabelingSection extends Section {
           document.querySelector("#labeling-configure-dataset-button").classList.add("panel-button-bottom");
 
           document.querySelector("#labeling-configure-dataset-inner-section-left-side").style.display = "flex";
-          // document.querySelector("#labeling-configure-dataset-inner-section-right-side").style.display = "flex";
         }
 
         window.scrollTo(0, 0);
@@ -565,11 +509,9 @@ export class LabelingSection extends Section {
         else {
 
           document.querySelector("#labeling-configure-dataset-button-divider").style.display = "none";
-          // document.querySelector("#labeling-extract-and-label-frames-button-divider").style.display = "none";
           document.querySelector("#labeling-review-labeled-frames-button-divider").style.display = "none";
 
           document.querySelector("#labeling-configure-dataset-button").style.display = "none";
-          // document.querySelector("#labeling-extract-and-label-frames-button").style.display = "none";
           document.querySelector("#labeling-review-labeled-frames-button").style.display = "none";
 
           document.querySelector("#labeling-extract-and-label-frames-button").classList.add("activated");
@@ -607,11 +549,9 @@ export class LabelingSection extends Section {
 
           document.querySelector("#labeling-configure-dataset-button-divider").style.display = "none";
           document.querySelector("#labeling-extract-and-label-frames-button-divider").style.display = "none";
-          // document.querySelector("#labeling-review-labeled-frames-button-divider").style.display = "none";
 
           document.querySelector("#labeling-configure-dataset-button").style.display = "none";
           document.querySelector("#labeling-extract-and-label-frames-button").style.display = "none";
-          // document.querySelector("#labeling-review-labeled-frames-button").style.display = "none";
 
           document.querySelector("#labeling-review-labeled-frames-button").classList.add("activated");
           document.querySelector("#labeling-review-labeled-frames-button").classList.add("panel-button-bottom");
@@ -625,28 +565,11 @@ export class LabelingSection extends Section {
     );
 
     this.reset();
-
-    //
-    //
-    //
-
-    // document.querySelector("#boop").addEventListener(
-    //   "click",
-    //   async (event) => {
-    //     const directoryHandle = await window.showDirectoryPicker();
-
-    //     if (directoryHandle) {
-    //       this.worker.postMessage({ type: "boop", directoryHandle: directoryHandle });
-    //     }
-    //   }
-    // );
   }
 
 
   reset() {
     super.reset();
-
-    //
 
     document.querySelector("#labeling-configure-dataset-inner-section-left-side").style.display = "none";
     document.querySelector("#labeling-extract-and-label-frames-inner-section-left-side").style.display = "none";
@@ -655,8 +578,6 @@ export class LabelingSection extends Section {
     document.querySelector("#labeling-configure-dataset-inner-section-right-side").style.display = "none";
     document.querySelector("#labeling-extract-and-label-frames-inner-section-right-side").style.display = "none";
     document.querySelector("#labeling-review-labeled-frames-inner-section-right-side").style.display = "none";
-
-    //
 
     document.querySelector("#keypoint-count-input").value = defaultKeypointCount;
 
@@ -691,13 +612,8 @@ export class LabelingSection extends Section {
 
 
   async onOpenExistingFileSuccess(message) {
-    // console.log("onOpenExistingFileSuccess", message);
-
     this.showStatus(Section.savedMessage);
     this.unsavedChanges = false;
-
-    // this.maybeSaveFile();
-    // Section.enableWorkflowButtons();
 
     const keypointCount = message.data.keypointCount;
     document.querySelector("#keypoint-count-input").value = keypointCount;
@@ -710,7 +626,6 @@ export class LabelingSection extends Section {
 
     let i = 0;
     for (const blob of blobs) {
-      // console.log("blob:", blob);
       await this.labelingThumbnails.push(blob, metadata[i].arena.width, metadata[i].arena.height, keypointCount, coordinates[i], metadata[i].filename, metadata[i].frameNumber);
       ++i;
     }
@@ -724,19 +639,13 @@ export class LabelingSection extends Section {
     try {
       [fileHandle] = await window.showOpenFilePicker(
         {
-          // id: `open-${this.fileType}`,
           id: "openLabelingMovie",
           startIn: "documents",
           types: [
             {
-              // description: "Movie files",
-              // accept: {
-              //   "application/json": [".marigold"]
-              // }
             }
           ],
           mode: "read"
-          // mode: "readwrite"
         }
       );
     }
@@ -749,18 +658,6 @@ export class LabelingSection extends Section {
     else {
       Section.enableWorkflowButtons();
     }
-
-    // const inputElement = document.createElement("input");
-    // inputElement.type = "file";
-    // inputElement.addEventListener(
-    //   "change",
-    //   (event) => {
-    //     const file = inputElement.files[0];
-    //     const objectURL = window.URL.createObjectURL(file);
-    //     this.worker.postMessage({ type: "maybeLoadMovie", uri: objectURL });
-    //   }
-    // );
-    // inputElement.dispatchEvent(new MouseEvent("click"));
   }
 
   onLoadMovieSuccess(filename, numFrames, frameWidth, frameHeight) {
@@ -793,15 +690,12 @@ export class LabelingSection extends Section {
 
     this.worker.postMessage({ type: "frameRequest", index: 0 });
 
-    //
-
     document.querySelector("#labeling-label-current-frame-button").removeAttribute("disabled");
   }
 
   onLoadMovieFailure(filename) {
     document.querySelector("#generic-dialog-heading").textContent = "Error opening movie file";
     document.querySelector("#generic-dialog-blurb").textContent = `Couldn't open \"${filename}.\" It might be in a movie file format that Marigold doesn't recognize.`;
-    // document.querySelector("#generic-dialog-blurb").textContent = `Couldn't open \"${filename}.\" It might be in a movie file format that Marigold doesn't recognize. Marigold can only read movie files with H264 or H265 encoding in a MP4 container.`;
 
     document.querySelector("#generic-dialog-close-button").addEventListener(
       "click",
@@ -813,105 +707,12 @@ export class LabelingSection extends Section {
   }
 
 
-  // async draw() {
-  //   if (this.currentFrame) {
-  //     const canvas = document.querySelector("#labeling-movie-player-canvas");
-  //     const context = canvas.getContext("2d");
-
-  //     // const ratio = window.devicePixelRatio || 1;
-  //     const boundingRect = canvas.getBoundingClientRect();
-
-  //     // canvas.width = this.currentFrame.displayWidth;
-  //     // canvas.height = this.currentFrame.displayHeight;
-
-  //     canvas.width = this.frameWidth;
-  //     canvas.height = this.frameHeight;
-
-  //     context.save();
-
-  //     const scale = Math.min((boundingRect.width / boundingRect.height) * (canvas.height / canvas.width), (boundingRect.height / boundingRect.width) * (canvas.width / canvas.height));
-
-  //     const panCenterX = canvas.width / 2 + this.panOffsetX;
-  //     const panCenterY = canvas.height / 2 + this.panOffsetY;
-
-  //     context.setTransform(
-  //       scale * this.zoom,
-  //       0,
-  //       0,
-  //       scale * this.zoom,
-  //       (canvas.width / 2) - (panCenterX * scale * this.zoom),
-  //       (canvas.height / 2) - (panCenterY * scale * this.zoom)
-  //     );
-
-  //     // context.drawImage(this.currentFrame, 0, 0, this.currentFrame.displayWidth, this.currentFrame.displayHeight, 0, 0, canvas.width, canvas.height);
-  //     // this.currentFrame.close();
-
-  //     // const imageBitmap = await createImageBitmap(this.currentFrame);
-  //     context.drawImage(this.currentFrame, 0, 0, this.frameWidth, this.frameHeight, 0, 0, canvas.width, canvas.height);
-  //     // this.currentFrame.close();
-
-  //     if (this.currentlyLabeling) {
-  //       context.lineWidth = 5;
-  //       context.strokeStyle = "hsl(15, 50%, 50%, 50%)";
-  //       context.beginPath();
-  //       context.rect(this.arenaX, this.arenaY, this.arenaWidth, this.arenaHeight);
-  //       context.stroke();
-
-  //       const colormap = interpolateColormap("plasma", this.keypointCount, true);
-  //       let i = 0;
-  //       for (const label of this.currentLabels) {
-  //         let radius = 10;
-  //         context.fillStyle = `rgb(${colormap[i][0] * 255}, ${colormap[i][1] * 255}, ${colormap[i][2] * 255}, 0.75)`;
-  //         context.beginPath();
-  //         context.arc(label.x, label.y, radius, 0, 2 * Math.PI, false);
-  //         context.fill();
-  //         ++i;
-  //       }
-  //     }
-
-  //     context.restore();
-  //   }
-  // }
-
-  // onFrameReady(frame, frameNumber) {
-  //   // if (this.currentFrame) {
-  //   //   this.currentFrame.close();
-  //   //   this.currentFrame = null;
-  //   // }
-
-  //   this.currentFrame = frame;
-  //   this.currentFrameIndex = frameNumber;
-
-  //   const rangeInput = document.querySelector("#labeling-frame-range-input");
-  //   rangeInput.value = this.currentFrameIndex + 1;
-
-  //   const numberInput = document.querySelector("#labeling-frame-number-input");
-  //   numberInput.value = this.currentFrameIndex + 1;
-
-  //   this.draw();
-
-  //   if (this.currentlyPlaying) {
-  //     if (this.currentFrameIndex === this.numFrames - 1) {
-  //       this.currentlyPlaying = false;
-  //       document.querySelector("#labeling-play-or-pause-button").textContent = "Play";
-  //     }
-  //     else {
-  //       this.worker.postMessage({ type: "frameRequest", index: Math.min(this.numFrames - 1, this.currentFrameIndex + 1) }); // not sure if I need the min function here
-  //     }
-  //   }
-  // }
-
-
   async draw() {
     if (this.currentFrame) {
       const canvas = document.querySelector("#labeling-movie-player-canvas");
       const context = canvas.getContext("2d");
 
-      // const ratio = window.devicePixelRatio || 1;
       const boundingRect = canvas.getBoundingClientRect();
-
-      // canvas.width = this.currentFrame.displayWidth;
-      // canvas.height = this.currentFrame.displayHeight;
 
       canvas.width = this.frameWidth;
       canvas.height = this.frameHeight;
@@ -932,12 +733,7 @@ export class LabelingSection extends Section {
         (canvas.height / 2) - (panCenterY * scale * this.zoom)
       );
 
-      // context.drawImage(this.currentFrame, 0, 0, this.currentFrame.displayWidth, this.currentFrame.displayHeight, 0, 0, canvas.width, canvas.height);
-      // this.currentFrame.close();
-
-      // const imageBitmap = await createImageBitmap(this.currentFrame);
       context.drawImage(this.currentFrame, 0, 0, this.frameWidth, this.frameHeight, 0, 0, canvas.width, canvas.height);
-      // this.currentFrame.close();
 
       if (this.currentlyLabeling) {
         context.lineWidth = 5;
@@ -949,7 +745,6 @@ export class LabelingSection extends Section {
         const colormap = interpolateColormap("plasma", this.keypointCount, true);
         let i = 0;
         for (const label of this.currentLabels) {
-          // let radius = 10;
           const radius = 3.75 * Math.min(this.frameWidth, this.frameHeight) / 512;
           context.fillStyle = `rgb(${colormap[i][0] * 255}, ${colormap[i][1] * 255}, ${colormap[i][2] * 255}, 0.75)`;
           context.beginPath();
@@ -964,11 +759,6 @@ export class LabelingSection extends Section {
   }
 
   onFrameReady(frame, frameNumber) {
-    // if (this.currentFrame) {
-    //   this.currentFrame.close();
-    //   this.currentFrame = null;
-    // }
-
     this.currentFrame = frame;
     this.currentFrameIndex = frameNumber;
 
@@ -983,11 +773,9 @@ export class LabelingSection extends Section {
     if (this.currentlyPlaying) {
       if (this.currentFrameIndex === this.numFrames - 1) {
         this.currentlyPlaying = false;
-        // document.querySelector("#labeling-play-or-pause-button").textContent = "Play";
         document.querySelector("#labeling-play-or-pause-button").classList.remove("activated");
       }
       else {
-        // this.worker.postMessage({ type: "frameRequest", index: Math.min(this.numFrames - 1, this.currentFrameIndex + 1) }); // not sure if I need the min function here
         this.worker.postMessage({ type: "frameRequest", index: this.currentFrameIndex + 1 });
       }
     }
@@ -1082,8 +870,6 @@ export class LabelingSection extends Section {
 
     this.draw();
 
-    // console.log("this.frameWidth, this.frameHeight:", this.frameWidth, this.frameHeight);
-
     document.querySelector("#labeling-label-current-frame-button").style.display = "none";
     document.querySelector("#labeling-details").style.display = "flex";
   }
@@ -1092,9 +878,6 @@ export class LabelingSection extends Section {
     this.currentlyLabeling = true;
     this.currentlyLabelingArena = true;
     this.currentlyLabelingKeypoints = false;
-
-    // currentlySettingArena = true;
-    // currentlySettingKeypoints = true;
 
     document.querySelector("#labeling-set-arena-button").classList.add("button-group-button-activated");
     document.querySelector("#labeling-set-keypoints-button").classList.remove("button-group-button-activated");
@@ -1151,17 +934,7 @@ export class LabelingSection extends Section {
 
     const blob = await canvas.convertToBlob({ type: "image/png" });
 
-    //
-    //
-    //
-
-    // for (let i = 0; i < 512; ++i) {
     await this.labelingThumbnails.push(blob, this.arenaWidth, this.arenaHeight, this.keypointCount, coordinates, this.filename, this.currentFrameIndex);
-    // }
-
-    //
-    //
-    //
 
     this.worker.postMessage({ type: "addLabel", filename: this.filename, frameNumber: this.currentFrameIndex, arena: { x: this.arenaX, y: this.arenaY, width: this.arenaWidth, height: this.arenaHeight }, coordinates: this.currentLabels, image: blob });
 
