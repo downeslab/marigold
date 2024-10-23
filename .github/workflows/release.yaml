@@ -18,11 +18,11 @@ jobs:
 
       - name: Install Clang
         run: |
-          brew install llvm
+          brew install llvm lld
 
       - name: Install Inkscape
         run: |
-          brew install inkscape
+          brew install --cask inkscape
 
       - name: Build Marigold
         run: |
