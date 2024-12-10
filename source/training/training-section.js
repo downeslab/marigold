@@ -65,7 +65,7 @@ export class TrainingSection extends Section {
         else if (message.data.type === "epochDone") {
           this.onEpochDone(
             message.data.epoch,
-            message.data.bestTrainingLoss,
+            message.data.trainingLossForBestValidationLoss,
             message.data.bestValidationLoss,
             message.data.meanTrainingLosses,
             message.data.meanValidationLosses,
@@ -516,7 +516,7 @@ export class TrainingSection extends Section {
 
   async onEpochDone(
     epoch,
-    bestTrainingLoss,
+    trainingLossForBestValidationLoss,
     bestValidationLoss,
     meanTrainingLosses,
     meanValidationLosses,
@@ -557,7 +557,7 @@ export class TrainingSection extends Section {
     document.querySelector("#epoch-status").textContent = `Epoch: ${epoch + 1}`;
     document.querySelector("#training-loss-status").textContent = `Current training loss: ${round(meanTrainingLosses[meanTrainingLosses.length - 1], 5)}`;
     document.querySelector("#validation-loss-status").textContent = `Current validation loss: ${round(meanValidationLosses[meanValidationLosses.length - 1], 5)}`;
-    document.querySelector("#best-training-loss-status").textContent = `Best training loss: ${round(bestTrainingLoss, 5)}`;
+    document.querySelector("#best-training-loss-status").textContent = `Best training loss: ${round(trainingLossForBestValidationLoss, 5)}`;
     document.querySelector("#best-validation-loss-status").textContent = `Best validation loss: ${round(bestValidationLoss, 5)}`;
 
     this.meanTrainingLosses = structuredClone(meanTrainingLosses);

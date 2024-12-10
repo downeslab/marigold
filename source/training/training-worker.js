@@ -97,12 +97,10 @@ class TrainingWorker extends SectionWorker {
     this.reset();
   }
 
-
   reset() {
     super.reset();
     this.neuralNetwork = null;
   }
-
 
   initializeData() {
     super.initializeData();
@@ -118,7 +116,7 @@ class TrainingWorker extends SectionWorker {
 
     this.data.meanTrainingLosses = null;
     this.data.meanValidationLosses = null;
-    this.data.bestTrainingLoss = null;
+    this.data.trainingLossForBestValidationLoss = null;
     this.data.bestValidationLoss = null;
     this.data.cachedPredictions = null;
 
@@ -181,14 +179,6 @@ class TrainingWorker extends SectionWorker {
     const neuralNetwork = new NeuralNetwork(channelsRgb, 8, 1, 4, 96, this.learningRate);
 
     neuralNetwork.seed(this.trainingSeed);
-    for (let i = 0; i < 100; ++i) {
-      const randomInteger = neuralNetwork.randomInteger(0, 6);
-    }
-
-    neuralNetwork.seed(this.trainingSeed);
-    for (let i = 0; i < 100; ++i) {
-      const randomFloat = neuralNetwork.randomFloat();
-    }
 
     let i = 0;
     {
@@ -208,9 +198,8 @@ class TrainingWorker extends SectionWorker {
   }
 
   async startTraining() {
-    const epochStart = performance.now();
-
     if (this.neuralNetwork === null) {
+      // this.neuralNetwork = new NeuralNetwork(1, this.data.channelCount, this.data.keypointCount, this.data.blockCount, this.data.maxImageSize, this.learningRate);
       this.neuralNetwork = new NeuralNetwork(channelsRgb, this.data.channelCount, this.data.keypointCount, this.data.blockCount, this.data.maxImageSize, this.learningRate);
     }
 
@@ -236,6 +225,7 @@ class TrainingWorker extends SectionWorker {
       }
     }
 
+    this.neuralNetwork.setTrainingMode();
     let batchIndex = 0;
     for (let trainingIndex = 0; trainingIndex < this.data.trainingIndices.length; ++trainingIndex) {
       const image = this.data.labels[this.data.trainingIndices[shuffledIndices[trainingIndex]]].image;
@@ -289,13 +279,12 @@ class TrainingWorker extends SectionWorker {
         }
       }
 
-      const brightnessAdjustment = (this.neuralNetwork.randomFloat() - 0.5) / 10.0;
-      this.neuralNetwork.brightnessAdjustment(resizedHeight, resizedWidth, brightnessAdjustment);
+      const brightness = (this.neuralNetwork.randomFloat() - 0.5) * 2.0 * 0.1; // uniform(0.1, 0.1)
+      this.neuralNetwork.adjustBrightness(resizedHeight, resizedWidth, brightness);
 
-      const angle = (this.neuralNetwork.randomFloat() - 0.5) * 2 * 15;
+      const angle = (this.neuralNetwork.randomFloat() - 0.5) * 2.0 * 45.0; // uniform(45.0, 45.0);
       const theta = degreesToRadians(angle);
-
-      this.neuralNetwork.rotate(resizedHeight, resizedWidth, Math.cos(theta), Math.sin(theta), null);
+      this.neuralNetwork.rotate(resizedHeight, resizedWidth, theta);
 
       for (let i = 0; i < coordinates.length; ++i) {
         coordinates[i][0] -= resizedGaussianHeight / 2.0;
@@ -318,15 +307,17 @@ class TrainingWorker extends SectionWorker {
 
       this.neuralNetwork.drawGaussians(resizedGaussianHeight, resizedGaussianWidth, this.data.keypointCount, coordinates, this.gaussianStdDev);
 
+      // this.neuralNetwork.rgbToGrayTraining(resizedHeight, resizedWidth);
+      // this.neuralNetwork.forward(this.neuralNetwork.grayOffset, resizedHeight, resizedWidth, 1);
       this.neuralNetwork.forward(this.neuralNetwork.rotatedOffset, resizedHeight, resizedWidth, channelsRgb);
 
       const trainingLoss = this.neuralNetwork.lossForward();
       meanTrainingLoss += trainingLoss;
-
       this.neuralNetwork.lossBackward(trainingLoss / this.batchSize);
 
       this.neuralNetwork.backward(this.neuralNetwork.gaussianGradientOffset);
 
+      // reminder: need to handle partial batches
       ++batchIndex;
       if (batchIndex === this.batchSize) {
         this.neuralNetwork.updateParameters();
@@ -336,6 +327,7 @@ class TrainingWorker extends SectionWorker {
     }
     meanTrainingLoss /= this.data.trainingIndices.length;
 
+    this.neuralNetwork.setInferenceMode();
     let cachedPredictions = [];
     for (let validationIndex = 0; validationIndex < this.data.validationIndices.length; ++validationIndex) {
       const image = this.data.labels[this.data.validationIndices[validationIndex]].image;
@@ -372,6 +364,8 @@ class TrainingWorker extends SectionWorker {
 
       this.neuralNetwork.drawGaussians(resizedGaussianHeight, resizedGaussianWidth, this.data.keypointCount, coordinates, this.gaussianStdDev);
 
+      // this.neuralNetwork.rgbToGrayInference(resizedHeight, resizedWidth);
+      // this.neuralNetwork.forward(this.neuralNetwork.grayOffset, resizedHeight, resizedWidth, 1);
       this.neuralNetwork.forward(this.neuralNetwork.resizedOffset, resizedHeight, resizedWidth, channelsRgb);
 
       const predictions = this.neuralNetwork.predictions();
@@ -393,28 +387,19 @@ class TrainingWorker extends SectionWorker {
 
     this.data.meanTrainingLosses.push(meanTrainingLoss);
     this.data.meanValidationLosses.push(meanValidationLoss);
-    if (this.epoch === 0) {
-      this.data.bestTrainingLoss = meanTrainingLoss;
+    if (this.epoch === 0 || meanValidationLoss <= this.data.bestValidationLoss) {
+      this.data.trainingLossForBestValidationLoss = meanTrainingLoss;
       this.data.bestValidationLoss = meanValidationLoss;
       this.data.cachedPredictions = cachedPredictions;
 
       this.data.bestWeights = this.neuralNetwork.getParameters();
-    }
-    else {
-      if (meanValidationLoss <= this.data.bestValidationLoss) {
-        this.data.bestValidationLoss = meanValidationLoss;
-        this.data.bestTrainingLoss = meanTrainingLoss;
-        this.data.cachedPredictions = cachedPredictions;
-
-        this.data.bestWeights = this.neuralNetwork.getParameters();
-      }
     }
 
     self.postMessage(
       {
         type: "epochDone",
         epoch: this.epoch,
-        bestTrainingLoss: this.data.bestTrainingLoss,
+        trainingLossForBestValidationLoss: this.data.trainingLossForBestValidationLoss,
         bestValidationLoss: this.data.bestValidationLoss,
         meanTrainingLosses: this.data.meanTrainingLosses,
         meanValidationLosses: this.data.meanValidationLosses,
@@ -427,8 +412,6 @@ class TrainingWorker extends SectionWorker {
     );
 
     ++this.epoch;
-
-    const epochFinish = performance.now();
   }
 }
 

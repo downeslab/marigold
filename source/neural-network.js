@@ -36,8 +36,9 @@ const instance = await WebAssembly.instantiate(
   {
     env: {
       exp: (x) => { return Math.exp(x); },
-      log: (x) => { return Math.log(x); },
-      pow: (x, y) => { return Math.pow(x, y); }
+      pow: (base, exponent) => { return Math.pow(base, exponent); },
+      cos: (x) => { return Math.cos(x); },
+      sin: (x) => { return Math.sin(x); }
     }
   }
 );
@@ -70,6 +71,8 @@ class Layer {
   backward() { }
   currentForwardOutput() { }
   currentBackwardOutput() { }
+  setTrainingMode() { }
+  setInferenceMode() { }
 }
 
 
@@ -101,7 +104,6 @@ class InputLayer extends Layer {
 
   forward(image, height, width, channels) {
     this.cache = image;
-
     this.currentHeight = height;
     this.currentWidth = width;
     this.currentChannels = channels;
@@ -202,7 +204,7 @@ class AdditionLayer extends Layer {
     let [inputOffset1, inputHeight1, inputWidth1, inputChannels1] = this.upstreamLayers[0].currentForwardOutput();
     let [inputOffset2, inputHeight2, inputWidth2, inputChannels2] = this.upstreamLayers[1].currentForwardOutput();
 
-    instance.exports.merge(
+    instance.exports.add_forward(
       inputOffset1,
       inputOffset2,
       this.bufferOffsets[0],
@@ -219,10 +221,11 @@ class AdditionLayer extends Layer {
     instance.exports.zero(this.bufferOffsets[1], this.bufferSizes[1]);
 
     for (const downstreamLayer of this.downstreamLayers) {
-      instance.exports.accumulate(
+      instance.exports.add_backward(
         downstreamLayer.currentBackwardOutput()[0],
         this.bufferOffsets[1],
-        this.bufferSizes[1]);
+        this.bufferSizes[1]
+      );
     }
   }
 
@@ -296,7 +299,7 @@ class HardSwishLayer extends Layer {
         downstreamLayer.currentBackwardOutput()[0],
         this.bufferOffsets[1],
         inputOffset,
-        this.bufferSizes[1],
+        this.bufferSizes[1]
       );
     }
   }
@@ -316,6 +319,230 @@ class HardSwishLayer extends Layer {
       this.currentHeight,
       this.currentWidth,
       this.currentChannels
+    ];
+  }
+}
+
+
+class DropoutLayer extends Layer {
+  constructor(upstreamLayer, dropProbability = 0.5) {
+    super();
+    upstreamLayer.downstreamLayers.push(this);
+    this.upstreamLayers.push(upstreamLayer);
+
+    this.dropProbability = dropProbability;
+
+    this.training = false;
+    this.cache = null;
+
+    this.bufferSizes.push(null);
+    this.bufferSizes.push(null);
+    this.bufferSizes.push(null);
+    this.bufferOffsets.push(null);
+    this.bufferOffsets.push(null);
+    this.bufferOffsets.push(null);
+  }
+
+  initializeParametersAndGradients() { }
+
+  zeroGradients() { }
+
+  bufferSizesFor(height, width, channels) {
+    const bufferSizes = [];
+    bufferSizes.push(height * width * channels);
+    bufferSizes.push(height * width * channels);
+    bufferSizes.push(channels);
+    return bufferSizes;
+  }
+
+  outputShapeFor(height, width, channels) {
+    return [height, width, channels];
+  }
+
+  forward() {
+    let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
+
+    if (this.training) {
+      const dropMaskBufferSize = this.bufferSizes[2];
+      const dropMaskBufferOffset = this.bufferOffsets[2];
+      const dropMaskBufferArray = new Float32Array(
+        instance.exports.memory.buffer,
+        dropMaskBufferOffset,
+        dropMaskBufferSize
+      );
+      for (let i = 0; i < dropMaskBufferSize; ++i) {
+        if (randomWebAssemblyInstance.exports.random_float() < this.dropProbability) {
+          dropMaskBufferArray[i] = 0.0;
+        }
+        else {
+          dropMaskBufferArray[i] = 1.0;
+        }
+      }
+
+      instance.exports.dropout_forward(
+        inputOffset,
+        this.bufferOffsets[0],
+        this.bufferOffsets[2],
+        inputHeight,
+        inputWidth,
+        inputChannels,
+        this.dropProbability
+      );
+
+      this.currentHeight = inputHeight;
+      this.currentWidth = inputWidth;
+      this.currentChannels = inputChannels;
+    }
+    else {
+      this.cache = inputOffset;
+      this.currentHeight = inputHeight;
+      this.currentWidth = inputWidth;
+      this.currentChannels = inputChannels;
+    }
+  }
+
+  backward() {
+    let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
+    instance.exports.zero(this.bufferOffsets[1], this.bufferSizes[1]);
+
+    for (const downstreamLayer of this.downstreamLayers) {
+      instance.exports.dropout_backward(
+        downstreamLayer.currentBackwardOutput()[0],
+        this.bufferOffsets[1],
+        this.bufferOffsets[2],
+        inputHeight,
+        inputWidth,
+        inputChannels
+      );
+    }
+  }
+
+  currentForwardOutput() {
+    if (this.training) {
+      return [
+        this.bufferOffsets[0],
+        this.currentHeight,
+        this.currentWidth,
+        this.currentChannels
+      ];
+    }
+    else {
+      return [
+        this.cache,
+        this.currentHeight,
+        this.currentWidth,
+        this.currentChannels
+      ];
+    }
+  }
+
+  currentBackwardOutput() {
+    if (this.training) {
+      return [
+        this.bufferOffsets[1],
+        this.currentHeight,
+        this.currentWidth,
+        this.currentChannels
+      ];
+    }
+    else {
+      return [
+        downstreamLayer.currentBackwardOutput()[0],
+        this.currentHeight,
+        this.currentWidth,
+        this.currentChannels
+      ];
+    }
+  }
+
+  setTrainingMode() {
+    this.training = true;
+  }
+
+  setInferenceMode() {
+    this.training = false;
+  }
+}
+
+
+class PixelUnshuffleLayer extends Layer {
+  stride = null;
+
+  constructor(upstreamLayer, stride) {
+    super();
+    upstreamLayer.downstreamLayers.push(this);
+    this.upstreamLayers.push(upstreamLayer);
+
+    this.stride = stride;
+
+    this.bufferSizes.push(null);
+    this.bufferSizes.push(null);
+    this.bufferOffsets.push(null);
+    this.bufferOffsets.push(null);
+  }
+
+  initializeParametersAndGradients() { }
+
+  zeroGradients() { }
+
+  bufferSizesFor(height, width, channels) {
+    const bufferSizes = [];
+    bufferSizes.push(height * width * channels);
+    bufferSizes.push(height * width * channels);
+    return bufferSizes;
+  }
+
+  outputShapeFor(height, width, channels) {
+    return [Math.trunc(height / this.stride), Math.trunc(width / this.stride), channels * (this.stride * this.stride)];
+  }
+
+  forward() {
+    let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
+
+    instance.exports.pixel_unshuffle_forward(
+      inputOffset,
+      this.bufferOffsets[0],
+      Math.trunc(inputHeight / this.stride),
+      Math.trunc(inputWidth / this.stride),
+      inputChannels * (this.stride * this.stride)
+    );
+
+    this.currentHeight = Math.trunc(inputHeight / this.stride);
+    this.currentWidth = Math.trunc(inputWidth / this.stride);
+    this.currentChannels = inputChannels * (this.stride * this.stride);
+  }
+
+  backward() {
+    let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
+    instance.exports.zero(this.bufferOffsets[1], this.bufferSizes[1]);
+
+    for (const downstreamLayer of this.downstreamLayers) {
+      instance.exports.pixel_unshuffle_backward(
+        downstreamLayer.currentBackwardOutput()[0],
+        this.bufferOffsets[1],
+        Math.trunc(inputHeight / this.stride),
+        Math.trunc(inputWidth / this.stride),
+        inputChannels * (this.stride * this.stride)
+      );
+    }
+  }
+
+  currentForwardOutput() {
+    return [
+      this.bufferOffsets[0],
+      this.currentHeight,
+      this.currentWidth,
+      this.currentChannels
+    ];
+  }
+
+  currentBackwardOutput() {
+    let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
+    return [
+      this.bufferOffsets[1],
+      inputHeight,
+      inputWidth,
+      inputChannels
     ];
   }
 }
@@ -408,7 +635,7 @@ class InstanceNormalizationLayer extends Layer {
   channels = null;
   epsilon = null;
 
-  constructor(upstreamLayer, channels, epsilon = 1.0e-4) {
+  constructor(upstreamLayer, channels, epsilon = 1.0e-3) {
     super();
     upstreamLayer.downstreamLayers.push(this);
     this.upstreamLayers.push(upstreamLayer);
@@ -552,14 +779,16 @@ class InstanceNormalizationLayer extends Layer {
 class PointwiseConvolutionLayer extends Layer {
   channelsIn = null;
   channelsOut = null;
+  gain = null;
 
-  constructor(upstreamLayer, channelsIn, channelsOut) {
+  constructor(upstreamLayer, channelsIn, channelsOut, gain = 1.0) {
     super();
     upstreamLayer.downstreamLayers.push(this);
     this.upstreamLayers.push(upstreamLayer);
 
     this.channelsIn = channelsIn;
     this.channelsOut = channelsOut;
+    this.gain = gain;
 
     const kernelSize = this.channelsIn * this.channelsOut;
     const biasSize = this.channelsOut;
@@ -571,11 +800,9 @@ class PointwiseConvolutionLayer extends Layer {
     this.bufferSizes.push(null);
     this.bufferSizes.push(null);
     this.bufferSizes.push(null); // kernel buffer
-    this.bufferSizes.push(null); // kernel_ buffer
     this.bufferOffsets.push(null);
     this.bufferOffsets.push(null);
     this.bufferOffsets.push(null); // kernel buffer
-    this.bufferOffsets.push(null); // kernel_ buffer
   }
 
   initializeParametersAndGradients() {
@@ -591,7 +818,7 @@ class PointwiseConvolutionLayer extends Layer {
       kernelSize
     );
     for (let i = 0; i < kernelSize; ++i) {
-      kernelArray[i] = ((randomWebAssemblyInstance.exports.random_float() - 0.5) * 2.0) * glorot_uniform;
+      kernelArray[i] = ((randomWebAssemblyInstance.exports.random_float() - 0.5) * 2.0) * glorot_uniform * this.gain;
     }
 
     const biasSize = this.parameterSizes[1];
@@ -617,7 +844,6 @@ class PointwiseConvolutionLayer extends Layer {
     bufferSizes.push(height * width * this.channelsOut); // y
     bufferSizes.push(height * width * this.channelsIn); // d_x
     bufferSizes.push(this.parameterSizes[0]); // kernel buffer
-    bufferSizes.push(this.parameterSizes[0]); // kernel_ buffer
 
     return bufferSizes;
   }
@@ -634,7 +860,6 @@ class PointwiseConvolutionLayer extends Layer {
       this.bufferOffsets[0],
       this.parameterOffsets[0],
       this.parameterOffsets[1],
-      this.bufferOffsets[3],
       inputHeight,
       inputWidth,
       this.channelsIn,
@@ -649,7 +874,6 @@ class PointwiseConvolutionLayer extends Layer {
   backward() {
     let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
     instance.exports.zero(this.bufferOffsets[1], this.bufferSizes[1]);
-    instance.exports.zero(this.bufferOffsets[2], this.bufferSizes[2]);
 
     for (const downstreamLayer of this.downstreamLayers) {
       instance.exports.pointwise_convolution_backward(
@@ -691,14 +915,16 @@ class PointwiseConvolutionLayer extends Layer {
 class DepthwiseConvolutionLayer extends Layer {
   channels = null;
   filterSize = null;
+  gain = null;
 
-  constructor(upstreamLayer, channels, filterSize) {
+  constructor(upstreamLayer, channels, filterSize, gain = 1.0) {
     super();
     upstreamLayer.downstreamLayers.push(this);
     this.upstreamLayers.push(upstreamLayer);
 
     this.channels = channels;
     this.filterSize = filterSize;
+    this.gain = gain;
 
     const kernelSize = this.channels * this.filterSize * this.filterSize;
     const biasSize = this.channels;
@@ -709,10 +935,6 @@ class DepthwiseConvolutionLayer extends Layer {
 
     this.bufferSizes.push(null);
     this.bufferSizes.push(null);
-    this.bufferSizes.push(null);
-    this.bufferSizes.push(null);
-    this.bufferOffsets.push(null);
-    this.bufferOffsets.push(null);
     this.bufferOffsets.push(null);
     this.bufferOffsets.push(null);
   }
@@ -730,7 +952,7 @@ class DepthwiseConvolutionLayer extends Layer {
       kernelSize
     );
     for (let i = 0; i < kernelSize; ++i) {
-      kernelArray[i] = ((randomWebAssemblyInstance.exports.random_float() - 0.5) * 2.0) * glorot_uniform;
+      kernelArray[i] = ((randomWebAssemblyInstance.exports.random_float() - 0.5) * 2.0) * glorot_uniform * this.gain;
     }
 
     const biasSize = this.parameterSizes[1];
@@ -755,8 +977,6 @@ class DepthwiseConvolutionLayer extends Layer {
 
     bufferSizes.push(height * width * channels); // y
     bufferSizes.push(height * width * channels); // d_x
-    bufferSizes.push((height + 2 * 1) * (width + 2 * 1) * channels); // x_pad
-    bufferSizes.push((height + 2 * 1) * (width + 2 * 1) * channels); // d_x_pad
 
     return bufferSizes;
   }
@@ -786,7 +1006,6 @@ class DepthwiseConvolutionLayer extends Layer {
   backward() {
     let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
     instance.exports.zero(this.bufferOffsets[1], this.bufferSizes[1]);
-    instance.exports.zero(this.bufferOffsets[3], this.bufferSizes[3]);
 
     for (const downstreamLayer of this.downstreamLayers) {
       instance.exports.depthwise_convolution_backward(
@@ -823,147 +1042,6 @@ class DepthwiseConvolutionLayer extends Layer {
 }
 
 
-class PatchifiedConvolutionLayer extends Layer {
-  channelsIn = null;
-  channelsOut = null;
-  filterSize = null;
-  stride = null;
-
-  constructor(upstreamLayer, channelsIn, channelsOut, filterSize) {
-    super();
-    upstreamLayer.downstreamLayers.push(this);
-    this.upstreamLayers.push(upstreamLayer);
-
-    this.channelsIn = channelsIn;
-    this.channelsOut = channelsOut;
-    this.filterSize = filterSize;
-    this.stride = this.filterSize;
-
-    const kernelSize = this.channelsOut * this.filterSize * this.filterSize * this.channelsIn;
-    const biasSize = this.channelsOut;
-    this.parameterSizes.push(kernelSize);
-    this.parameterSizes.push(biasSize);
-    this.gradientSizes.push(kernelSize);
-    this.gradientSizes.push(biasSize);
-
-    this.bufferSizes.push(null);
-    this.bufferSizes.push(null);
-    this.bufferSizes.push(null);
-    this.bufferOffsets.push(null);
-    this.bufferOffsets.push(null);
-    this.bufferOffsets.push(null);
-  }
-
-  initializeParametersAndGradients() {
-    const fanIn = this.channelsIn * this.filterSize * this.filterSize;
-    const fanOut = this.channelsOut * this.filterSize * this.filterSize;
-    const glorot_uniform = Math.sqrt(6.0 / (fanIn + fanOut));
-
-    const kernelSize = this.parameterSizes[0];
-    const kernelOffset = this.parameterOffsets[0];
-    const kernelArray = new Float32Array(
-      instance.exports.memory.buffer,
-      kernelOffset,
-      kernelSize
-    );
-    for (let i = 0; i < kernelSize; ++i) {
-      kernelArray[i] = ((randomWebAssemblyInstance.exports.random_float() - 0.5) * 2.0) * glorot_uniform;
-    }
-
-    const biasSize = this.parameterSizes[1];
-    const biasOffset = this.parameterOffsets[1];
-    const biasArray = new Float32Array(
-      instance.exports.memory.buffer,
-      biasOffset,
-      biasSize
-    );
-    for (let i = 0; i < biasSize; ++i) {
-      biasArray[i] = 0.0;
-    }
-  }
-
-  zeroGradients() {
-    instance.exports.zero(this.gradientOffsets[0], this.gradientSizes[0]);
-    instance.exports.zero(this.gradientOffsets[1], this.gradientSizes[1]);
-  }
-
-  bufferSizesFor(height, width, channels) {
-    const bufferSizes = [];
-
-    bufferSizes.push((height / this.stride) * (width / this.stride) * this.channelsOut); // y
-    bufferSizes.push(height * width * channels); // d_x
-    bufferSizes.push((height / this.stride) * (width / this.stride) * this.filterSize * this.filterSize * this.channelsIn); // rows
-    // bufferSizes.push(this.channelsIn * this.filterSize * this.filterSize * width * height); // d_rows
-
-    return bufferSizes;
-  }
-
-  outputShapeFor(height, width, channels) {
-    return [height / this.stride, width / this.stride, this.channelsOut];
-  }
-
-  forward() {
-    let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
-
-    instance.exports.patchified_convolution_forward(
-      inputOffset,
-      this.bufferOffsets[0],
-      this.parameterOffsets[0],
-      this.parameterOffsets[1],
-      this.bufferOffsets[2],
-      inputHeight,
-      inputWidth,
-      this.channelsOut
-    );
-
-    this.currentHeight = inputHeight / this.stride;
-    this.currentWidth = inputWidth / this.stride;
-    this.currentChannels = this.channelsOut;
-  }
-
-  backward() {
-    let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
-    instance.exports.zero(this.bufferOffsets[1], this.bufferSizes[1]);
-    instance.exports.zero(this.bufferOffsets[2], this.bufferSizes[2]);
-    // instance.exports.zero(this.bufferOffsets[3], this.bufferSizes[3]);
-
-    for (const downstreamLayer of this.downstreamLayers) {
-      instance.exports.patchified_convolution_backward(
-        downstreamLayer.currentBackwardOutput()[0],
-        this.bufferOffsets[1],
-        this.gradientOffsets[0],
-        this.gradientOffsets[1],
-        inputOffset,
-        this.parameterOffsets[0],
-        this.bufferOffsets[2],
-        inputHeight,
-        inputWidth,
-        this.channelsOut
-      );
-    }
-  }
-
-  currentForwardOutput() {
-    return [
-      this.bufferOffsets[0],
-      this.currentHeight,
-      this.currentWidth,
-      this.channelsOut
-    ];
-  }
-
-  currentBackwardOutput() {
-    let [inputOffset, inputHeight, inputWidth, inputChannels] = this.upstreamLayers[0].currentForwardOutput();
-    return [
-      this.bufferOffsets[1],
-      inputHeight,
-      inputWidth,
-      inputChannels
-    ];
-  }
-}
-
-
 export class NeuralNetwork {
   layers = [];
   layersReversed = [];
@@ -985,6 +1063,7 @@ export class NeuralNetwork {
 
   learningRate = null;
 
+  // constructor(channelsIn = 1, channelsMiddle, channelsOut, blockCount, maxImageSize, learningRate) {
   constructor(channelsIn = 3, channelsMiddle, channelsOut, blockCount, maxImageSize, learningRate) {
     this.channelsIn = channelsIn;
     this.channelsMiddle = channelsMiddle;
@@ -993,31 +1072,37 @@ export class NeuralNetwork {
     this.maxImageSize = maxImageSize;
     this.learningRate = learningRate;
 
+    let expansionRatio = 2;
+    let outroExpansionRatio = 2;
+
     const inputLayer = new InputLayer();
     this.layers.push(inputLayer);
 
-    const introPatchifiedConv = new PatchifiedConvolutionLayer(inputLayer, channelsIn, this.channelsMiddle, 8);
-    this.layers.push(introPatchifiedConv);
+    const introPixelUnshuffle = new PixelUnshuffleLayer(inputLayer, 8);
+    this.layers.push(introPixelUnshuffle);
 
-    const introInstanceNorm = new InstanceNormalizationLayer(introPatchifiedConv, this.channelsMiddle);
+    const introPointwiseConv = new PointwiseConvolutionLayer(introPixelUnshuffle, channelsIn * 8 * 8, this.channelsMiddle, 1.0);
+    this.layers.push(introPointwiseConv);
+
+    const introInstanceNorm = new InstanceNormalizationLayer(introPointwiseConv, this.channelsMiddle);
     this.layers.push(introInstanceNorm);
 
     let previousLayer = introInstanceNorm;
 
-    for (let i = 0; i < blockCount; ++i) {
-      const expansionConv = new PointwiseConvolutionLayer(previousLayer, this.channelsMiddle, this.channelsMiddle * 3);
+    for (let i = 0; i < this.blockCount; ++i) {
+      const expansionConv = new PointwiseConvolutionLayer(previousLayer, this.channelsMiddle, this.channelsMiddle * expansionRatio, Math.sqrt(2.0));
       this.layers.push(expansionConv);
 
       const hardSwish = new HardSwishLayer(expansionConv);
       this.layers.push(hardSwish);
 
-      const depthwiseConv = new DepthwiseConvolutionLayer(hardSwish, this.channelsMiddle * 3, 3);
+      const depthwiseConv = new DepthwiseConvolutionLayer(hardSwish, this.channelsMiddle * expansionRatio, 5, 1.0);
       this.layers.push(depthwiseConv);
 
-      const InstanceNorm = new InstanceNormalizationLayer(depthwiseConv, this.channelsMiddle * 3);
-      this.layers.push(InstanceNorm);
+      const instanceNorm = new InstanceNormalizationLayer(depthwiseConv, this.channelsMiddle * expansionRatio);
+      this.layers.push(instanceNorm);
 
-      const reductionConv = new PointwiseConvolutionLayer(InstanceNorm, this.channelsMiddle * 3, this.channelsMiddle);
+      const reductionConv = new PointwiseConvolutionLayer(instanceNorm, this.channelsMiddle * expansionRatio, this.channelsMiddle, 1.0 / Math.sqrt(this.blockCount));
       this.layers.push(reductionConv);
 
       const addition = new AdditionLayer([previousLayer, reductionConv]);
@@ -1026,22 +1111,24 @@ export class NeuralNetwork {
       previousLayer = addition;
     }
 
-    const outroInstanceNorm = new InstanceNormalizationLayer(previousLayer, this.channelsMiddle);
-    this.layers.push(outroInstanceNorm);
-
-    const outroExpansionConv = new PointwiseConvolutionLayer(outroInstanceNorm, this.channelsMiddle, this.channelsMiddle * 8);
+    const outroExpansionConv = new PointwiseConvolutionLayer(previousLayer, this.channelsMiddle, this.channelsMiddle * outroExpansionRatio, Math.sqrt(2.0));
     this.layers.push(outroExpansionConv);
 
-    const outroHardSwish = new HardSwishLayer(outroExpansionConv);
+    const outroHardSwish = new HardSwishLayer(outroExpansionConv, false);
     this.layers.push(outroHardSwish);
 
-    const outroReductionConv = new PointwiseConvolutionLayer(outroHardSwish, this.channelsMiddle * 8, channelsOut * 4 * 4);
-    this.layers.push(outroReductionConv);
+    // const outroDropout = new DropoutLayer(outroHardSwish, 0.05);
+    const outroDropout = new DropoutLayer(outroHardSwish, 0.2);
+    this.layers.push(outroDropout);
 
-    const outroPixelShuffle = new PixelShuffleLayer(outroReductionConv, 4);
+    const outroLinearConv = new PointwiseConvolutionLayer(outroDropout, this.channelsMiddle * outroExpansionRatio, channelsOut * 4 * 4, 0.0);
+    this.layers.push(outroLinearConv);
+
+    const outroPixelShuffle = new PixelShuffleLayer(outroLinearConv, 4);
     this.layers.push(outroPixelShuffle);
 
     const outputLayer = new OutputLayer(outroPixelShuffle);
+
     this.layers.push(outputLayer);
 
     this.layersReversed = this.layers.toReversed();
@@ -1097,6 +1184,8 @@ export class NeuralNetwork {
     this.resizedOffset = offset;
     offset += 4096 * 4096 * 4 * elementByteSize;
     this.rotatedOffset = offset;
+    offset += 4096 * 4096 * 4 * elementByteSize;
+    this.grayOffset = offset;
     offset += 4096 * 4096 * 4 * elementByteSize;
     this.gaussianOffset = offset;
     offset += 4096 * 4096 * 10 * elementByteSize;
@@ -1179,18 +1268,18 @@ export class NeuralNetwork {
 
   updateParameters() {
     const beta1 = 0.9;
-    const beta2 = 0.999;
+    const beta2 = 0.95;
     const epsilon = 1.0e-6;
 
-    const weightDecay = 0.0;
+    const weightDecay = 1.0e-5;
 
     const scheduleMultiplier = 1.0;
 
     instance.exports.update_parameters(
       this.gradientOffset,
       this.parameterOffset,
-      this.optimizerOffset,
-      this.optimizerOffset + this.parameterLength * elementByteSize,
+      this.optimizerOffset, // first moment
+      this.optimizerOffset + this.parameterLength * elementByteSize, // second moment
       this.parameterLength,
       beta1,
       beta2,
@@ -1225,12 +1314,24 @@ export class NeuralNetwork {
     instance.exports.flip_vertical(this.resizedOffset, height, width);
   }
 
-  brightnessAdjustment(height, width, brightnessAdjustment) {
-    instance.exports.brightness_adjustment(this.resizedOffset, height, width, brightnessAdjustment);
+  adjustBrightness(height, width, brightness) {
+    instance.exports.adjust_brightness(this.resizedOffset, height, width, brightness);
   }
 
-  rotate(height, width, cosTheta, sinTheta, padValue) {
-    instance.exports.rotate_bilinear(this.resizedOffset, this.rotatedOffset, height, width, cosTheta, sinTheta, padValue);
+  adjustGamma(height, width, gamma) {
+    instance.exports.adjust_gamma(this.resizedOffset, height, width, gamma);
+  }
+
+  rotate(height, width, theta) {
+    instance.exports.rotate_bilinear(this.resizedOffset, this.rotatedOffset, height, width, theta);
+  }
+
+  rgbToGrayTraining(height, width) {
+    instance.exports.rgb_to_gray(this.rotatedOffset, this.grayOffset, height, width);
+  }
+
+  rgbToGrayInference(height, width) {
+    instance.exports.rgb_to_gray(this.resizedOffset, this.grayOffset, height, width);
   }
 
   drawGaussians(resizedGaussianHeight, resizedGaussianWidth, keypointCount, coordinates, gaussianStdDev) {
@@ -1304,5 +1405,17 @@ export class NeuralNetwork {
 
   randomFloat() {
     return randomWebAssemblyInstance.exports.random_float();
+  }
+
+  setTrainingMode() {
+    for (const layer of this.layers) {
+      layer.setTrainingMode();
+    }
+  }
+
+  setInferenceMode() {
+    for (const layer of this.layers) {
+      layer.setInferenceMode();
+    }
   }
 }
