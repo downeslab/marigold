@@ -20,7 +20,6 @@ If not, see <https://www.gnu.org/licenses/>.
 #include <float.h>
 #include <limits.h>
 #include <stdalign.h>
-#include <stdatomic.h>
 #include <stdint.h>
 
 static_assert(sizeof(float) == 4);
@@ -154,14 +153,14 @@ extern "C"
   auto depthwise_convolution_forward(float const *__restrict__ x,
                                      float *__restrict__ y,
                                      float const *__restrict__ k,
-                                     float const *__restrict__ b,
+                                     [[maybe_unused]] float const *__restrict__ b,
                                      int32_t height,
                                      int32_t width,
                                      int32_t channels) -> void;
   auto depthwise_convolution_backward(float const *__restrict__ d_y,
                                       float *__restrict__ d_x,
                                       float *__restrict__ d_k,
-                                      float *__restrict__ d_b,
+                                      [[maybe_unused]] float *__restrict__ d_b,
                                       float const *__restrict__ k,
                                       float const *__restrict__ x,
                                       int32_t height,
@@ -182,8 +181,8 @@ extern "C"
                          float *__restrict__ m,
                          float *__restrict__ v,
                          int32_t size,
-                         float beta1,
-                         float beta2,
+                         float beta_1,
+                         float beta_2,
                          float epsilon,
                          [[maybe_unused]] float schedule_multiplier,
                          float learning_rate,
@@ -1661,7 +1660,7 @@ template <int32_t channels>
 auto depthwise_convolution_forward_inner(float const *__restrict__ x,
                                          float *__restrict__ y,
                                          float const *__restrict__ k,
-                                         float const *__restrict__ b,
+                                         [[maybe_unused]] float const *__restrict__ b,
                                          int32_t height,
                                          int32_t width) -> void
 {
@@ -1906,7 +1905,7 @@ template <int32_t channels>
 auto depthwise_convolution_backward_inner(float const *__restrict__ d_y,
                                           float *__restrict__ d_x,
                                           float *__restrict__ d_k,
-                                          float *__restrict__ d_b,
+                                          [[maybe_unused]] float *__restrict__ d_b,
                                           float const *__restrict__ k,
                                           float const *__restrict__ x,
                                           int32_t height,
@@ -2190,27 +2189,24 @@ auto update_parameters(float const *__restrict__ gradients,
                        float *__restrict__ m,
                        float *__restrict__ v,
                        int32_t size,
-                       float beta1,
-                       float beta2,
+                       float beta_1,
+                       float beta_2,
                        float epsilon,
                        [[maybe_unused]] float schedule_multiplier,
                        float learning_rate,
                        [[maybe_unused]] float weight_decay,
                        int32_t t) -> void
 {
-  constexpr float b1 = 0.9;
-  constexpr float b2 = 0.99;
-
-  float b1_val = pow(b1, t);
-  float b2_val = pow(b2, t);
+  float beta_1_pow_t = pow(beta_1, t);
+  float beta_2_pow_t = pow(beta_2, t);
 
   for (int32_t i = 0; i < size; ++i)
   {
-    m[i] = beta1 * m[i] + (1.0f - beta1) * gradients[i];
-    v[i] = beta2 * v[i] + (1.0f - beta2) * square(gradients[i]);
+    m[i] = beta_1 * m[i] + (1.0f - beta_1) * gradients[i];
+    v[i] = beta_2 * v[i] + (1.0f - beta_2) * square(gradients[i]);
 
-    float m_ = m[i] / (1.0f - b1_val);
-    float v_ = v[i] / (1.0f - b2_val);
+    float m_ = m[i] / (1.0f - beta_1_pow_t);
+    float v_ = v[i] / (1.0f - beta_2_pow_t);
 
     // parameters[i] = parameters[i] - (learning_rate * m_ / (__builtin_sqrtf(v_) + epsilon) + weight_decay * parameters[i]);
     parameters[i] = parameters[i] - (learning_rate * m_ / (__builtin_sqrtf(v_) + epsilon));
