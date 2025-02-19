@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2024 Gregory Teicher
+Copyright (C) 2024–2025 Gregory Teicher
 
 Author: Gregory Teicher
 
@@ -267,7 +267,7 @@ class AnalyzingWorker extends SectionWorker {
     self.postMessage(
       {
         type: "resultsReady",
-        results: temp.neuralNetworkResults,
+        results: frameCoordinates,
         frame: data.frame,
         frameNumber: data.frameNumber
       }
@@ -285,7 +285,7 @@ class AnalyzingWorker extends SectionWorker {
     }
     else {
       temp.neuralNetworkResults.push(null);
-      self.postMessage({ type: "resultsReady", results: this.neuralNetworkResults, frame: null, frameNumber: index });
+      self.postMessage({ type: "resultsReady", results: null, frame: null, frameNumber: index });
     }
   }
 

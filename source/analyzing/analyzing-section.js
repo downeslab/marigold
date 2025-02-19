@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2024 Gregory Teicher
+Copyright (C) 2024–2025 Gregory Teicher
 
 Author: Gregory Teicher
 
@@ -60,7 +60,7 @@ export class AnalyzingSection extends Section {
 
   arenas = null;
 
-  cachedResults = null;
+  cachedResults = [];
 
   keypointCount = null;
 
@@ -247,6 +247,8 @@ export class AnalyzingSection extends Section {
 
         this.worker.postMessage({ type: "startAnalysis" });
         document.querySelector("#analyzing-start-analysis-button").setAttribute("disabled", "");
+
+        this.cachedResults = [];
       }
     );
 
@@ -1204,8 +1206,8 @@ export class AnalyzingSection extends Section {
   }
 
 
-  onResultsReady(stuff, frame, frameNumber) {
-    this.cachedResults = stuff;
+  onResultsReady(result, frame, frameNumber) {
+    this.cachedResults.push(result);
 
     if (frame) {
       this.onFrameReady(frame, frameNumber);
@@ -1244,18 +1246,20 @@ export class AnalyzingSection extends Section {
       this.updateTrajectoryPlots();
     }
 
-    const keypointCount = this.cachedResults[firstFrame][0].length;
-    for (let i = 0; i < keypointCount; ++i) {
-      document.querySelector(`#analyzing-keypoint-${i}-x-input-label`).style.display = "block";
-      document.querySelector(`#analyzing-keypoint-${i}-x-input`).style.display = "block";
-      document.querySelector(`#analyzing-keypoint-${i}-y-input-label`).style.display = "block";
-      document.querySelector(`#analyzing-keypoint-${i}-y-input`).style.display = "block";
-    }
-    for (let i = keypointCount; i < maxKeypointCount; ++i) {
-      document.querySelector(`#analyzing-keypoint-${i}-x-input-label`).style.display = "none";
-      document.querySelector(`#analyzing-keypoint-${i}-x-input`).style.display = "none";
-      document.querySelector(`#analyzing-keypoint-${i}-y-input-label`).style.display = "none";
-      document.querySelector(`#analyzing-keypoint-${i}-y-input`).style.display = "none";
+    if (frameNumber >= firstFrame && frameNumber <= lastFrame) {
+      const keypointCount = this.cachedResults[firstFrame][0].length;
+      for (let i = 0; i < keypointCount; ++i) {
+        document.querySelector(`#analyzing-keypoint-${i}-x-input-label`).style.display = "block";
+        document.querySelector(`#analyzing-keypoint-${i}-x-input`).style.display = "block";
+        document.querySelector(`#analyzing-keypoint-${i}-y-input-label`).style.display = "block";
+        document.querySelector(`#analyzing-keypoint-${i}-y-input`).style.display = "block";
+      }
+      for (let i = keypointCount; i < maxKeypointCount; ++i) {
+        document.querySelector(`#analyzing-keypoint-${i}-x-input-label`).style.display = "none";
+        document.querySelector(`#analyzing-keypoint-${i}-x-input`).style.display = "none";
+        document.querySelector(`#analyzing-keypoint-${i}-y-input-label`).style.display = "none";
+        document.querySelector(`#analyzing-keypoint-${i}-y-input`).style.display = "none";
+      }
     }
 
     const arenaRowsInput = document.querySelector("#analyzing-arena-rows-input");
@@ -1268,9 +1272,9 @@ export class AnalyzingSection extends Section {
     const manualCorrectionRowInput = document.querySelector("#analyzing-manual-correction-row-input");
     manualCorrectionRowInput.max = arenaRows;
 
-    document.querySelector("#analyzing-angle-a").max = keypointCount;
-    document.querySelector("#analyzing-angle-b").max = keypointCount;
-    document.querySelector("#analyzing-angle-c").max = keypointCount;
+    // document.querySelector("#analyzing-angle-a").max = keypointCount;
+    // document.querySelector("#analyzing-angle-b").max = keypointCount;
+    // document.querySelector("#analyzing-angle-c").max = keypointCount;
   }
 
   updateTrajectoryPlots() {
