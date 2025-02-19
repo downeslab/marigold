@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2024 Gregory Teicher
+Copyright (C) 2024–2025 Gregory Teicher
 
 Author: Gregory Teicher
 
@@ -596,8 +596,11 @@ export class MovieReader {
   }
 
   async onDequeue() {
-    if (this.samplesPulledFromDecoder < this.targetFrame + 1) {
+    if (this.samplesPulledFromDecoder < this.targetFrame + 1 && this.samplesPushedToDecoder < this.mp4Parser.numFrames) {
       await this.pushSample();
+    }
+    else if (this.samplesPushedToDecoder === this.mp4Parser.numFrames) {
+      await this.decoder.flush();
     }
   }
 
@@ -651,6 +654,9 @@ export class MovieReader {
     if (this.lastFrameRendered === -1 || this.targetFrame === this.lastFrameRendered + 1) {
       if (this.cachedFrames[this.targetFrame]) {
         await this.renderFrame(this.targetFrame);
+      }
+      else if (this.samplesPushedToDecoder === this.mp4Parser.numFrames) {
+        this.decoder.flush();
       }
       else {
         await this.pushSample();
