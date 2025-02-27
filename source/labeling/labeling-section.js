@@ -617,6 +617,7 @@ export class LabelingSection extends Section {
 
     const keypointCount = message.data.keypointCount;
     document.querySelector("#keypoint-count-input").value = keypointCount;
+    this.keypointCount = keypointCount;
 
     const metadata = message.data.metadata;
 
