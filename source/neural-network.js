@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2024 Gregory Teicher
+Copyright (C) 2024–2025 Gregory Teicher
 
 Author: Gregory Teicher
 
@@ -1118,7 +1118,8 @@ export class NeuralNetwork {
     this.layers.push(outroHardSwish);
 
     // const outroDropout = new DropoutLayer(outroHardSwish, 0.05);
-    const outroDropout = new DropoutLayer(outroHardSwish, 0.2);
+    const outroDropout = new DropoutLayer(outroHardSwish, 0.1);
+    // const outroDropout = new DropoutLayer(outroHardSwish, 0.2);
     this.layers.push(outroDropout);
 
     const outroLinearConv = new PointwiseConvolutionLayer(outroDropout, this.channelsMiddle * outroExpansionRatio, channelsOut * 4 * 4, 0.0);
@@ -1177,9 +1178,8 @@ export class NeuralNetwork {
       [tempHeight, tempWidth, tempChannels] = layer.outputShapeFor(tempHeight, tempWidth, tempChannels);
     }
 
-    this.lastOffset = offset;
-
     this.originalOffset = offset;
+
     offset += 4096 * 4096 * 4 * elementByteSize;
     this.resizedOffset = offset;
     offset += 4096 * 4096 * 4 * elementByteSize;
@@ -1194,8 +1194,9 @@ export class NeuralNetwork {
     this.gaussianCoordinatesOffset = offset;
     offset += 2 * 10 * elementByteSize;
 
-    const extraBytesForPreprocessing = 50 * 4096 * 4096 * elementByteSize;
-    const extraPagesNeeded = Math.ceil((this.lastOffset + extraBytesForPreprocessing) / memoryPageSize) - instance.exports.memory.buffer.byteLength / memoryPageSize;
+    this.lastOffset = offset;
+
+    const extraPagesNeeded = Math.ceil(this.lastOffset / memoryPageSize) - instance.exports.memory.buffer.byteLength / memoryPageSize;
     if (extraPagesNeeded > 0) {
       const previousPageCount = instance.exports.memory.grow(extraPagesNeeded);
     }

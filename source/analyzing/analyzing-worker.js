@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2024–2025 Gregory Teicher
+Copyright (C) 2024–2025–2025 Gregory Teicher
 
 Author: Gregory Teicher
 
@@ -43,7 +43,7 @@ class AnalyzingWorker extends SectionWorker {
   canvas = null;
   context = null;
 
-  arenaShape = null;
+  arenaShape = "circle";
 
   constructor() {
     super("analysis");

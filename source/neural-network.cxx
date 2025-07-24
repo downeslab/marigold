@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2024 Gregory Teicher
+Copyright (C) 2024–2025 Gregory Teicher
 
 Author: Gregory Teicher
 
@@ -360,13 +360,13 @@ auto dropout_forward(float const *__restrict__ x,
   {
     dropout_forward_inner<2 * 32>(x, y, mask, x_h, x_w, drop_prob);
   }
+  else if (x_c == 2 * 40)
+  {
+    dropout_forward_inner<2 * 40>(x, y, mask, x_h, x_w, drop_prob);
+  }
   else if (x_c == 2 * 48)
   {
     dropout_forward_inner<2 * 48>(x, y, mask, x_h, x_w, drop_prob);
-  }
-  else if (x_c == 2 * 64)
-  {
-    dropout_forward_inner<2 * 64>(x, y, mask, x_h, x_w, drop_prob);
   }
 }
 
@@ -410,13 +410,13 @@ auto dropout_backward(float const *__restrict__ d_y,
   {
     dropout_backward_inner<2 * 32>(d_y, d_x, mask, x_h, x_w);
   }
+  else if (x_c == 2 * 40)
+  {
+    dropout_backward_inner<2 * 40>(d_y, d_x, mask, x_h, x_w);
+  }
   else if (x_c == 2 * 48)
   {
     dropout_backward_inner<2 * 48>(d_y, d_x, mask, x_h, x_w);
-  }
-  else if (x_c == 2 * 64)
-  {
-    dropout_backward_inner<2 * 64>(d_y, d_x, mask, x_h, x_w);
   }
 }
 
@@ -776,9 +776,9 @@ auto instance_normalization_forward(float const *__restrict__ x,
                                              sample_std_dev,
                                              epsilon, x_h, x_w);
   }
-  else if (x_c == 48)
+  else if (x_c == 40)
   {
-    instance_normalization_forward_inner<48>(x,
+    instance_normalization_forward_inner<40>(x,
                                              y,
                                              gamma,
                                              beta,
@@ -786,9 +786,9 @@ auto instance_normalization_forward(float const *__restrict__ x,
                                              sample_std_dev,
                                              epsilon, x_h, x_w);
   }
-  else if (x_c == 64)
+  else if (x_c == 48)
   {
-    instance_normalization_forward_inner<64>(x,
+    instance_normalization_forward_inner<48>(x,
                                              y,
                                              gamma,
                                              beta,
@@ -826,9 +826,9 @@ auto instance_normalization_forward(float const *__restrict__ x,
                                                  sample_std_dev,
                                                  epsilon, x_h, x_w);
   }
-  else if (x_c == 2 * 48)
+  else if (x_c == 2 * 40)
   {
-    instance_normalization_forward_inner<2 * 48>(x,
+    instance_normalization_forward_inner<2 * 40>(x,
                                                  y,
                                                  gamma,
                                                  beta,
@@ -836,9 +836,9 @@ auto instance_normalization_forward(float const *__restrict__ x,
                                                  sample_std_dev,
                                                  epsilon, x_h, x_w);
   }
-  else if (x_c == 2 * 64)
+  else if (x_c == 2 * 48)
   {
-    instance_normalization_forward_inner<2 * 64>(x,
+    instance_normalization_forward_inner<2 * 48>(x,
                                                  y,
                                                  gamma,
                                                  beta,
@@ -970,9 +970,9 @@ auto instance_normalization_backward(float const *__restrict__ d_y,
                                               x_h,
                                               x_w);
   }
-  else if (x_c == 48)
+  else if (x_c == 40)
   {
-    instance_normalization_backward_inner<48>(d_y,
+    instance_normalization_backward_inner<40>(d_y,
                                               d_x,
                                               d_gamma,
                                               d_beta,
@@ -984,9 +984,9 @@ auto instance_normalization_backward(float const *__restrict__ d_y,
                                               x_h,
                                               x_w);
   }
-  else if (x_c == 64)
+  else if (x_c == 48)
   {
-    instance_normalization_backward_inner<64>(d_y,
+    instance_normalization_backward_inner<48>(d_y,
                                               d_x,
                                               d_gamma,
                                               d_beta,
@@ -1040,9 +1040,9 @@ auto instance_normalization_backward(float const *__restrict__ d_y,
                                                   x_h,
                                                   x_w);
   }
-  else if (x_c == 2 * 48)
+  else if (x_c == 2 * 40)
   {
-    instance_normalization_backward_inner<2 * 48>(d_y,
+    instance_normalization_backward_inner<2 * 40>(d_y,
                                                   d_x,
                                                   d_gamma,
                                                   d_beta,
@@ -1054,9 +1054,9 @@ auto instance_normalization_backward(float const *__restrict__ d_y,
                                                   x_h,
                                                   x_w);
   }
-  else if (x_c == 2 * 64)
+  else if (x_c == 2 * 48)
   {
-    instance_normalization_backward_inner<2 * 64>(d_y,
+    instance_normalization_backward_inner<2 * 48>(d_y,
                                                   d_x,
                                                   d_gamma,
                                                   d_beta,
@@ -1142,9 +1142,9 @@ auto pointwise_convolution_forward(float const *__restrict__ in,
                                             width,
                                             channels_in);
   }
-  else if (channels_out == 48)
+  else if (channels_out == 40)
   {
-    pointwise_convolution_forward_inner<48>(in,
+    pointwise_convolution_forward_inner<40>(in,
                                             out,
                                             kernel,
                                             bias,
@@ -1152,9 +1152,9 @@ auto pointwise_convolution_forward(float const *__restrict__ in,
                                             width,
                                             channels_in);
   }
-  else if (channels_out == 64)
+  else if (channels_out == 48)
   {
-    pointwise_convolution_forward_inner<64>(in,
+    pointwise_convolution_forward_inner<48>(in,
                                             out,
                                             kernel,
                                             bias,
@@ -1192,9 +1192,9 @@ auto pointwise_convolution_forward(float const *__restrict__ in,
                                                 width,
                                                 channels_in);
   }
-  else if (channels_out == 2 * 48)
+  else if (channels_out == 2 * 40)
   {
-    pointwise_convolution_forward_inner<2 * 48>(in,
+    pointwise_convolution_forward_inner<2 * 40>(in,
                                                 out,
                                                 kernel,
                                                 bias,
@@ -1202,9 +1202,9 @@ auto pointwise_convolution_forward(float const *__restrict__ in,
                                                 width,
                                                 channels_in);
   }
-  else if (channels_out == 2 * 64)
+  else if (channels_out == 2 * 48)
   {
-    pointwise_convolution_forward_inner<2 * 64>(in,
+    pointwise_convolution_forward_inner<2 * 48>(in,
                                                 out,
                                                 kernel,
                                                 bias,
@@ -1433,9 +1433,9 @@ auto pointwise_convolution_backward(float const *__restrict__ d_out,
                                              width,
                                              channels_in);
   }
-  else if (channels_out == 48)
+  else if (channels_out == 40)
   {
-    pointwise_convolution_backward_inner<48>(d_out,
+    pointwise_convolution_backward_inner<40>(d_out,
                                              d_in,
                                              d_kernel,
                                              d_bias,
@@ -1446,9 +1446,9 @@ auto pointwise_convolution_backward(float const *__restrict__ d_out,
                                              width,
                                              channels_in);
   }
-  else if (channels_out == 64)
+  else if (channels_out == 48)
   {
-    pointwise_convolution_backward_inner<64>(d_out,
+    pointwise_convolution_backward_inner<48>(d_out,
                                              d_in,
                                              d_kernel,
                                              d_bias,
@@ -1498,9 +1498,9 @@ auto pointwise_convolution_backward(float const *__restrict__ d_out,
                                                  width,
                                                  channels_in);
   }
-  else if (channels_out == 2 * 48)
+  else if (channels_out == 2 * 40)
   {
-    pointwise_convolution_backward_inner<2 * 48>(d_out,
+    pointwise_convolution_backward_inner<2 * 40>(d_out,
                                                  d_in,
                                                  d_kernel,
                                                  d_bias,
@@ -1511,9 +1511,9 @@ auto pointwise_convolution_backward(float const *__restrict__ d_out,
                                                  width,
                                                  channels_in);
   }
-  else if (channels_out == 2 * 64)
+  else if (channels_out == 2 * 48)
   {
-    pointwise_convolution_backward_inner<2 * 64>(d_out,
+    pointwise_convolution_backward_inner<2 * 48>(d_out,
                                                  d_in,
                                                  d_kernel,
                                                  d_bias,
@@ -1891,13 +1891,13 @@ auto depthwise_convolution_forward(float const *__restrict__ x,
   {
     depthwise_convolution_forward_inner<2 * 32>(x, y, k, b, height, width);
   }
+  else if (channels == 2 * 40)
+  {
+    depthwise_convolution_forward_inner<2 * 40>(x, y, k, b, height, width);
+  }
   else if (channels == 2 * 48)
   {
     depthwise_convolution_forward_inner<2 * 48>(x, y, k, b, height, width);
-  }
-  else if (channels == 2 * 64)
-  {
-    depthwise_convolution_forward_inner<2 * 64>(x, y, k, b, height, width);
   }
 }
 
@@ -2148,13 +2148,13 @@ auto depthwise_convolution_backward(float const *__restrict__ d_y,
   {
     depthwise_convolution_backward_inner<2 * 32>(d_y, d_x, d_k, d_b, k, x, height, width);
   }
+  else if (channels == 2 * 40)
+  {
+    depthwise_convolution_backward_inner<2 * 40>(d_y, d_x, d_k, d_b, k, x, height, width);
+  }
   else if (channels == 2 * 48)
   {
     depthwise_convolution_backward_inner<2 * 48>(d_y, d_x, d_k, d_b, k, x, height, width);
-  }
-  else if (channels == 2 * 64)
-  {
-    depthwise_convolution_backward_inner<2 * 64>(d_y, d_x, d_k, d_b, k, x, height, width);
   }
 }
 

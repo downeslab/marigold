@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2024 Gregory Teicher
+Copyright (C) 2024–2025 Gregory Teicher
 
 Author: Gregory Teicher
 
@@ -180,18 +180,19 @@ class TrainingWorker extends SectionWorker {
 
     neuralNetwork.seed(this.trainingSeed);
 
-    let i = 0;
-    {
-      while (this.data.trainingIndices.length < trainingDataPoints || this.data.validationIndices.length < validationDataPoints) {
-        const random = neuralNetwork.randomFloat();
-        if (random < this.trainingValidationSplit && this.data.trainingIndices.length < trainingDataPoints) {
-          this.data.trainingIndices.push(i);
-          ++i;
-        }
-        else if (random >= this.trainingValidationSplit && this.data.validationIndices.length < validationDataPoints) {
-          this.data.validationIndices.push(i);
-          ++i;
-        }
+    let shuffledIndices = [];
+    while (shuffledIndices.length < trainingDataPoints + validationDataPoints) {
+      const random = neuralNetwork.randomInteger(0, trainingDataPoints + validationDataPoints);
+      if (!shuffledIndices.includes(random)) {
+        shuffledIndices.push(random);
+      }
+    }
+    for (let i = 0; i < trainingDataPoints + validationDataPoints; ++i) {
+      if (i < trainingDataPoints) {
+        this.data.trainingIndices.push(shuffledIndices[i]);
+      }
+      else {
+        this.data.validationIndices.push(shuffledIndices[i]);
       }
     }
     self.postMessage({ type: "importDatasetSuccess", trainingIndices: this.data.trainingIndices, validationIndices: this.data.validationIndices });
@@ -279,10 +280,10 @@ class TrainingWorker extends SectionWorker {
         }
       }
 
-      const brightness = (this.neuralNetwork.randomFloat() - 0.5) * 2.0 * 0.1; // uniform(0.1, 0.1)
+      const brightness = (this.neuralNetwork.randomFloat() - 0.5) * 2.0 * 0.1; // uniform(-0.1, 0.1)
       this.neuralNetwork.adjustBrightness(resizedHeight, resizedWidth, brightness);
 
-      const angle = (this.neuralNetwork.randomFloat() - 0.5) * 2.0 * 45.0; // uniform(45.0, 45.0);
+      const angle = (this.neuralNetwork.randomFloat() - 0.5) * 2.0 * 45.0; // uniform(-45.0, 45.0);
       const theta = degreesToRadians(angle);
       this.neuralNetwork.rotate(resizedHeight, resizedWidth, theta);
 
@@ -303,6 +304,15 @@ class TrainingWorker extends SectionWorker {
 
         coordinates[i][0] = yPrime;
         coordinates[i][1] = xPrime;
+      }
+
+      for (let i = 0; i < coordinates.length; ++i) {
+        const angle_ = this.neuralNetwork.randomFloat() * 360.0; // uniform(0.0, 360.0)
+        const theta_ = degreesToRadians(angle_);
+        const yScale = this.neuralNetwork.randomFloat() * 0.5; // uniform(0.0, 0.5)
+        const xScale = this.neuralNetwork.randomFloat() * 0.5; // uniform(0.0, 0.5)
+        coordinates[i][0] += yScale * Math.sin(theta_);
+        coordinates[i][1] += xScale * Math.cos(theta_);
       }
 
       this.neuralNetwork.drawGaussians(resizedGaussianHeight, resizedGaussianWidth, this.data.keypointCount, coordinates, this.gaussianStdDev);

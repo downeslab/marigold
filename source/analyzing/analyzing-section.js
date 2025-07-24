@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2024–2025 Gregory Teicher
+Copyright (C) 2024–2025–2025 Gregory Teicher
 
 Author: Gregory Teicher
 
