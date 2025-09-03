@@ -447,7 +447,7 @@ class DropoutLayer extends Layer {
     }
     else {
       return [
-        downstreamLayer.currentBackwardOutput()[0],
+        this.downstreamLayers[0].currentBackwardOutput()[0],
         this.currentHeight,
         this.currentWidth,
         this.currentChannels
@@ -1111,18 +1111,19 @@ export class NeuralNetwork {
       previousLayer = addition;
     }
 
-    const outroExpansionConv = new PointwiseConvolutionLayer(previousLayer, this.channelsMiddle, this.channelsMiddle * outroExpansionRatio, Math.sqrt(2.0));
+    const outroExpansionConvDropout = new DropoutLayer(previousLayer, 0.1);
+    this.layers.push(outroExpansionConvDropout);
+
+    const outroExpansionConv = new PointwiseConvolutionLayer(outroExpansionConvDropout, this.channelsMiddle, this.channelsMiddle * outroExpansionRatio, Math.sqrt(2.0));
     this.layers.push(outroExpansionConv);
 
     const outroHardSwish = new HardSwishLayer(outroExpansionConv, false);
     this.layers.push(outroHardSwish);
 
-    // const outroDropout = new DropoutLayer(outroHardSwish, 0.05);
-    const outroDropout = new DropoutLayer(outroHardSwish, 0.1);
-    // const outroDropout = new DropoutLayer(outroHardSwish, 0.2);
-    this.layers.push(outroDropout);
+    const outroLinearConvDropout = new DropoutLayer(outroHardSwish, 0.2);
+    this.layers.push(outroLinearConvDropout);
 
-    const outroLinearConv = new PointwiseConvolutionLayer(outroDropout, this.channelsMiddle * outroExpansionRatio, channelsOut * 4 * 4, 0.0);
+    const outroLinearConv = new PointwiseConvolutionLayer(outroLinearConvDropout, this.channelsMiddle * outroExpansionRatio, channelsOut * 4 * 4, 0.0);
     this.layers.push(outroLinearConv);
 
     const outroPixelShuffle = new PixelShuffleLayer(outroLinearConv, 4);
@@ -1180,17 +1181,17 @@ export class NeuralNetwork {
 
     this.originalOffset = offset;
 
-    offset += 4096 * 4096 * 4 * elementByteSize;
+    offset += this.maxImageSize * this.maxImageSize * 4 * elementByteSize;
     this.resizedOffset = offset;
-    offset += 4096 * 4096 * 4 * elementByteSize;
+    offset += this.maxImageSize * this.maxImageSize * 4 * elementByteSize;
     this.rotatedOffset = offset;
-    offset += 4096 * 4096 * 4 * elementByteSize;
-    this.grayOffset = offset;
-    offset += 4096 * 4096 * 4 * elementByteSize;
+    offset += this.maxImageSize * this.maxImageSize * 4 * elementByteSize;
+    // this.grayOffset = offset;
+    // offset += this.maxImageSize * this.maxImageSize * 4 * elementByteSize;
     this.gaussianOffset = offset;
-    offset += 4096 * 4096 * 10 * elementByteSize;
+    offset += (this.maxImageSize / 2) * (this.maxImageSize / 2) * 10 * elementByteSize;
     this.gaussianGradientOffset = offset;
-    offset += 4096 * 4096 * 10 * elementByteSize;
+    offset += (this.maxImageSize / 2) * (this.maxImageSize / 2) * 10 * elementByteSize;
     this.gaussianCoordinatesOffset = offset;
     offset += 2 * 10 * elementByteSize;
 
